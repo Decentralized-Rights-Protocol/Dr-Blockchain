@@ -1,0 +1,69 @@
+# === Module 10: P2P Networking and Node Discovery ===
+import socket
+import threading
+import json
+import time
+
+class PeerNode:
+    def __init__(self, host='127.0.0.1', port=30303):
+        self.host = host
+        self.port = port
+        self.peers = set()
+        self.running = True
+
+    def start_server(self):
+        thread = threading.Thread(target=self.listen_for_connections)
+        thread.start()
+
+    def listen_for_connections(self):
+        server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        server.bind((self.host, self.port))
+        server.listen(5)
+        print(f"[Node] Listening on {self.host}:{self.port}")
+        while self.running:
+            conn, addr = server.accept()
+            print(f"[Node] Connected by {addr}")
+            threading.Thread(target=self.handle_connection, args=(conn,)).start()
+
+    def handle_connection(self, conn):
+        try:
+            data = conn.recv(4096).decode()
+            if data:
+                message = json.loads(data)
+                print(f"[Node] Received: {message}")
+                if message['type'] == 'DISCOVER':
+                    self.peers.update(message['peers'])
+                    conn.send(json.dumps({"type": "ACK", "peers": list(self.peers)}).encode())
+        except Exception as e:
+            print(f"[Error] {e}")
+        finally:
+            conn.close()
+
+    def connect_to_peer(self, peer_host, peer_port):
+        try:
+            client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            client.connect((peer_host, peer_port))
+            msg = json.dumps({
+                "type": "DISCOVER",
+                "peers": list(self.peers | {(self.host, self.port)})
+            })
+            client.send(msg.encode())
+            data = client.recv(4096).decode()
+            if data:
+                response = json.loads(data)
+                if response['type'] == 'ACK':
+                    self.peers.update(set(tuple(p) for p in response['peers']))
+                    print(f"[Node] Updated peers: {self.peers}")
+        except Exception as e:
+            print(f"[Error connecting to peer] {e}")
+
+    def broadcast_transaction(self, tx_data):
+        for peer in self.peers:
+            try:
+                s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+                s.connect(peer)
+                msg = json.dumps({"type": "TRANSACTION", "data": tx_data})
+                s.send(msg.encode())
+                s.close()
+            except Exception as e:
+                print(f"[Broadcast Error] {e}")

@@ -1,0 +1,60 @@
+syntax = "proto3";
+
+package drp;
+
+// Message representing a transaction
+message Transaction {
+  string id = 1;
+  string sender = 2;
+  string receiver = 3;
+  double amount = 4;
+  string signature = 5;
+  int64 timestamp = 6;
+  string metadata = 7;
+}
+
+// Message representing a block
+message Block {
+  string hash = 1;
+  string previous_hash = 2;
+  int32 index = 3;
+  int64 timestamp = 4;
+  repeated Transaction transactions = 5;
+  string miner = 6;
+  int64 nonce = 7;
+  string status_proof = 8;
+}
+
+// Node status check
+message Heartbeat {
+  string node_id = 1;
+  int64 timestamp = 2;
+  string status = 3;
+}
+
+// AI Verification Request
+message VerificationRequest {
+  string user_id = 1;
+  string activity_type = 2;
+  string media_url = 3;
+  string metadata = 4;
+}
+
+message VerificationResponse {
+  bool valid = 1;
+  string reason = 2;
+}
+
+// Generic acknowledgement
+message Ack {
+  bool success = 1;
+  string message = 2;
+}
+
+// DRP Node Service
+service DrpNode {
+  rpc BroadcastTransaction(Transaction) returns (Ack);
+  rpc SubmitBlock(Block) returns (Ack);
+  rpc Ping(Heartbeat) returns (Ack);
+  rpc RequestActivityVerification(VerificationRequest) returns (VerificationResponse);
+}

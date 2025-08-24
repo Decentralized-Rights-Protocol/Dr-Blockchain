@@ -1,0 +1,81 @@
+# === Module 6: Networking and Gossip Protocol ===
+# Language: Python 3
+# Dependencies: socket, threading, json, time
+
+import socket
+import threading
+import json
+import time
+
+# Global peer list and chain memory
+peers = set()
+local_chain = None  # Will be assigned the Blockchain object
+
+# --- 6.1 Server to listen for peers ---
+def start_node_server(host='0.0.0.0', port=30303):
+    server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    server.bind((host, port))
+    server.listen()
+    print(f"[NETWORK] Listening on {host}:{port}")
+
+    def client_handler(conn, addr):
+        print(f"[PEER CONNECTED] {addr}")
+        while True:
+            try:
+                data = conn.recv(4096).decode()
+                if not data:
+                    break
+                handle_message(data, conn)
+            except:
+                break
+        conn.close()
+
+    while True:
+        conn, addr = server.accept()
+        threading.Thread(target=client_handler, args=(conn, addr)).start()
+
+# --- 6.2 Connect to peer node ---
+def connect_to_peer(peer_ip, peer_port=30303):
+    try:
+        peer = (peer_ip, peer_port)
+        peers.add(peer)
+        print(f"[CONNECTED TO PEER] {peer}")
+        sync_chain(peer)
+    except Exception as e:
+        print(f"[ERROR CONNECTING] {e}")
+
+# --- 6.3 Handle incoming messages ---
+def handle_message(data, conn):
+    message = json.loads(data)
+
+    if message['type'] == 'block':
+        new_block = message['block']
+        print(f"[NEW BLOCK RECEIVED] Index: {new_block['index']}")
+        # Here you'd validate and append to the local chain (not shown for brevity)
+    elif message['type'] == 'ping':
+        conn.send(json.dumps({'type': 'pong'}).encode())
+
+# --- 6.4 Sync chain with peer ---
+def sync_chain(peer):
+    try:
+        s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        s.connect(peer)
+        # Ask for chain sync
+        s.send(json.dumps({'type': 'ping'}).encode())
+        s.close()
+    except:
+        print(f"[SYNC FAILED] {peer}")
+
+# === Example Startup ===
+if __name__ == "__main__":
+    from consensus import Blockchain
+    local_chain = Blockchain()
+
+    # Start node
+    threading.Thread(target=start_node_server, args=('127.0.0.1', 30303)).start()
+    
+    # Connect to another peer (optional)
+    # connect_to_peer("192.168.1.5", 30303)
+    
+    time.sleep(2)
+    print("[NETWORK] Node ready.")

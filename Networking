@@ -1,0 +1,65 @@
+# === Module 2: Networking & Peer Discovery ===
+# Language: Python 3
+# Dependencies: socket, threading, json
+
+import socket
+import threading
+import json
+
+PEERS = set()
+
+# --- 2.1 Handle Incoming Connections ---
+def handle_client(conn, addr):
+    print(f"[+] Connected to {addr}")
+    try:
+        while True:
+            data = conn.recv(4096)
+            if not data:
+                break
+            try:
+                message = json.loads(data.decode())
+                print(f"Received from {addr}: {message}")
+                handle_message(message, conn)
+            except Exception as e:
+                print(f"[!] Error: {e}")
+    finally:
+        conn.close()
+        PEERS.discard(addr)
+        print(f"[-] Disconnected {addr}")
+
+# --- 2.2 Start Server Node ---
+def start_node(host='0.0.0.0', port=30303):
+    server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    server.bind((host, port))
+    server.listen()
+    print(f"[🌐] Node listening on {host}:{port}")
+
+    while True:
+        conn, addr = server.accept()
+        PEERS.add(addr)
+        thread = threading.Thread(target=handle_client, args=(conn, addr))
+        thread.start()
+
+# --- 2.3 Send Message to Peer ---
+def send_message(host, port, message):
+    try:
+        client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        client.connect((host, port))
+        client.send(json.dumps(message).encode())
+        client.close()
+    except Exception as e:
+        print(f"[!] Connection failed to {host}:{port}: {e}")
+
+# --- 2.4 Message Handler ---
+def handle_message(msg, conn):
+    if msg.get("type") == "ping":
+        response = {"type": "pong", "from": socket.gethostname()}
+        conn.send(json.dumps(response).encode())
+    elif msg.get("type") == "broadcast":
+        print(f"[📢] Broadcasted: {msg['content']}")
+
+# === Example Usage ===
+if __name__ == "__main__":
+    threading.Thread(target=start_node, args=("0.0.0.0", 30303)).start()
+    # Optional: send a test message
+    # send_message("127.0.0.1", 30303, {"type": "ping"})
