@@ -1,0 +1,19 @@
+# Core dependencies
+ecdsa>=0.18.0
+base58>=2.1.0
+pynacl>=1.5.0
+coincurve>=21.0.0
+bip-utils>=2.9.0
+mnemonic>=0.20
+cryptography>=41.0.0
+grpcio>=1.74.0
+grpcio-tools>=1.74.0
+protobuf>=6.31.0
+
+# Testing and linting
+pytest>=7.0.0
+flake8>=6.0.0
+pytest-cov>=4.0.0
+
+# Optional dependencies (will be skipped if not available)
+# oqs>=0.10.0  # Requires Python 3.10+
