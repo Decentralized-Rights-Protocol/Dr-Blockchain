@@ -1,0 +1,48 @@
+# --- Python ---
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.pdb
+*.egg
+*.egg-info/
+dist/
+build/
+.eggs/
+*.manifest
+*.spec
+.venv/
+venv/
+ENV/
+env/
+*.log
+
+# --- Jupyter / notebooks ---
+.ipynb_checkpoints
+
+# --- C++ ---
+*.o
+*.obj
+*.so
+*.dll
+*.dylib
+*.exe
+*.out
+*.gch
+*.pch
+
+# --- Build directories ---
+/bin
+/target
+/.vs
+/CMakeFiles
+CMakeCache.txt
+Makefile
+cmake_install.cmake
+
+# --- OS / Editor files ---
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.swp
