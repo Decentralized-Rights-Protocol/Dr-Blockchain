@@ -7,7 +7,7 @@ cryptographic wallets, and assembly-accelerated hashing.
 
 __version__ = "1.0.0"
 __author__ = "DRP Labs"
-__email__ = "contact@drplabs.org"
+__email__ = "contact@decentralizedrights.org"
 
 # Import main components
 from .blockchain import Blockchain, Block

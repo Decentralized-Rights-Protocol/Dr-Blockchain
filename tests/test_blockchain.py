@@ -3,9 +3,13 @@ Basic tests for the blockchain implementation
 """
 import pytest
 import time
-from blockchain import Blockchain, Block
-from hashing import generate_key_pair, get_wallet_address, sign_message, verify_signature
-from idolized_miner import idolized_halting_miner
+import sys
+import os
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
+
+from src.blockchain import Blockchain, Block
+from src.crypto.hashing import generate_key_pair, get_wallet_address, sign_message, verify_signature
+from src.consensus.idolized_miner import idolized_halting_miner
 
 class TestBlockchain:
     def test_blockchain_creation(self):

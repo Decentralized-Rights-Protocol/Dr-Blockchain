@@ -10,6 +10,7 @@ dist/
 build/
 .eggs/
 *.manifest
+.keystore
 *.spec
 .venv/
 venv/

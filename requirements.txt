@@ -10,6 +10,11 @@ grpcio>=1.74.0
 grpcio-tools>=1.74.0
 protobuf>=6.31.0
 
+# Web API dependencies
+fastapi>=0.104.0
+uvicorn>=0.24.0
+pydantic[dotenv]>=2.0.0
+
 # Testing and linting
 pytest>=7.0.0
 flake8>=6.0.0
