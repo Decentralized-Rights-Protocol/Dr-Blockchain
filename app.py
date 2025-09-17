@@ -1,12 +1,13 @@
 # === App.py — Main Launcher for Proof of Activities System ===
+import time
 
-from hashing import generate_key_pair, get_wallet_address, sign_message, verify_signature
-from mining import halting_puzzle_miner
-from proof_of_service import validate_and_record
+from src.crypto.hashing import generate_key_pair, get_wallet_address, sign_message, verify_signature
+from src.consensus.mining import halting_puzzle_miner
+from src.consensus.proof_of_service import validate_and_record
 # from consensus import blockchain
 # from ledger import blockchain
-from voting_protocol import create_proposal, vote_on_proposal, tally_votes
-from blockchain import Blockchain
+from src.consensus.voting_protocol import create_proposal, vote_on_proposal, tally_votes
+from src.blockchain import Blockchain, Block
 
 def run_proof_of_activities():
     print("\n=== 🧠 Decentralized Rights System: Launch ===")
@@ -17,21 +18,29 @@ def run_proof_of_activities():
     print(f"📍 Wallet Address: {user_address}")
 
     # --- 2. Activity Validation ---
-    activity_score = validate_and_record(user_address)
+    # Create a mock proof for demonstration
+    proof = {
+        'id': f"proof_{user_address[:8]}",
+        'miner': user_address,
+        'work': 50000,  # Mock work value
+        'timestamp': time.time()
+    }
+    activity_score = validate_and_record(proof)
     print(f"📊 Activity Score: {activity_score}")
 
     # --- 3. Puzzle Mining (Proof of Status) ---
     print(f"\n🚜 Mining using Idolized Halting Puzzle...")
     mining_result = halting_puzzle_miner(user_address, activity_score)
     
-    if not mining_result["success"]:
+    if "error" in mining_result:
         print("❌ Mining failed — try again later.")
         return
 
     # --- 4. Block Creation ---
     blockchain = Blockchain()
     activity = "submitted_report:EnergyConservation"
-    block = blockchain.add_block(activity, mining_result, user_address)
+    new_block = Block(len(blockchain.chain), "", time.time(), activity)
+    blockchain.add_block(new_block)
 
     print(f"✅ Block Mined and Added to Chain.")
 
