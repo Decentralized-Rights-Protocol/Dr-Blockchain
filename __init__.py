@@ -10,9 +10,9 @@ __author__ = "DRP Labs"
 __email__ = "contact@decentralizedrights.org"
 
 # Import main components
-from .blockchain import Blockchain, Block
-from .hashing import generate_key_pair, get_wallet_address, sign_message, verify_signature
-from .idolized_miner import idolized_halting_miner
+from src.blockchain import Blockchain, Block
+from src.crypto.hashing import generate_key_pair, get_wallet_address, sign_message, verify_signature
+from src.consensus.idolized_miner import idolized_halting_miner
 
 __all__ = [
     'Blockchain',

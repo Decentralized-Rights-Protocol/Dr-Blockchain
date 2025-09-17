@@ -5,7 +5,7 @@
 import os
 import hashlib
 import base58
-from hashing import idolized_halting_miner
+from ..crypto.hashing import idolized_halting_miner
 from ecdsa import SigningKey, SECP256k1
 
 # --- 1.1 Generate Key Pair ---
@@ -145,19 +145,29 @@ def tally_votes(proposal_id):
 # === Module 13: Decentralized Storage with IPFS ===
 # Dependencies: ipfshttpclient
 
-import ipfshttpclient
-
-# --- 13.1 Connect to IPFS ---
-client = ipfshttpclient.connect('/ip4/127.0.0.1/tcp/5001/http')
+try:
+    import ipfshttpclient
+    # --- 13.1 Connect to IPFS ---
+    client = ipfshttpclient.connect('/ip4/127.0.0.1/tcp/5001/http')
+    IPFS_AVAILABLE = True
+except ImportError:
+    client = None
+    IPFS_AVAILABLE = False
 
 # --- 13.2 Upload Data to IPFS ---
 def upload_to_ipfs(data):
+    if not IPFS_AVAILABLE:
+        print("[IPFS] IPFS not available, returning mock CID")
+        return "mock_cid_" + str(hash(data))
     result = client.add_bytes(data.encode())
     print(f"[IPFS] Uploaded data CID: {result}")
     return result
 
 # --- 13.3 Download Data from IPFS ---
 def download_from_ipfs(cid):
+    if not IPFS_AVAILABLE:
+        print("[IPFS] IPFS not available, returning mock data")
+        return f"mock_data_for_{cid}"
     try:
         data = client.cat(cid)
         print(f"[IPFS] Downloaded data with CID: {cid}")

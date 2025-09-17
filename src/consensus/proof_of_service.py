@@ -1,7 +1,7 @@
 # === Module 11: Proof of Activities & Rewards System ===
 import time
 from uuid import uuid4
-from ipfs import idolized_halting_miner
+from ..networking.ipfs import idolized_halting_miner
 
 # Simulated blockchain to store activities
 blockchain = []

@@ -4,7 +4,7 @@ from mnemonic import Mnemonic
 from bip_utils import Bip39SeedGenerator, Bip39WordsNum, Bip39MnemonicGenerator, Bip32Slip10Ed25519
 from cryptography.hazmat.primitives.ciphers.aead import AESGCM
 from dataclasses import dataclass
-from crypto_module import pubkey_to_address  # reuse from earlier module
+from .crypto_module import pubkey_to_address  # reuse from earlier module
 
 # ---------- Wallet data structures ----------
 @dataclass

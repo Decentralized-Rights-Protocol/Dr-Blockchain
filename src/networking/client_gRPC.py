@@ -2,8 +2,8 @@ import grpc
 import time
 import uuid
 
-import drp_pb2
-import drp_pb2_grpc
+from . import drp_pb2
+from . import drp_pb2_grpc
 
 def run():
     with grpc.insecure_channel('localhost:50051') as channel:
