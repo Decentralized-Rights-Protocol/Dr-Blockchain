@@ -70,7 +70,7 @@ By participating, you agree to uphold a respectful, inclusive, and collaborative
 
 * **Issues tab** → For bugs and feature requests
 * **Discussions tab** (coming soon) → For broader ideas and brainstorming
-* Email: *(add your preferred contact or community channel)*
+* Email: dev@decentralizedrights.com
 
 ---
 
