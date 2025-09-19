@@ -52,7 +52,7 @@ Unlike traditional blockchains focused only on finance, DRP introduces **AI-veri
 ## 📂 Repository Structure
 
 ```plaintext
-drp-blockchain/
+Dr-Blockchain/
 │── docs/              # Whitepaper, diagrams, research
 │── src/               # Source code
 │   ├── consensus/     # Proof of Status & Proof of Activities
@@ -94,7 +94,7 @@ pytest tests/
 
 ## 📖 Documentation
 
-* [Whitepaper (Draft)](docs/whitepaper.md)
+* [Whitepaper (Draft)](docs/whitepaper/whitepaper_v0.5.pdf)
 * [Consensus Design](docs/consensus.md)
 * [AI Elders Vision](docs/ai-elders.md)
 

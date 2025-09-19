@@ -18,6 +18,56 @@ ENV/
 env/
 *.log
 
+# --- Coverage and Testing ---
+.coverage
+.pytest_cache/
+htmlcov/
+.tox/
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+.hypothesis/
+
+# --- Docker ---
+.dockerignore
+Dockerfile*
+docker-compose*.yml
+
+# --- Build artifacts ---
+*.o
+*.so
+*.dylib
+*.dll
+libhash.*
+
+# --- IDE and Editor ---
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
+
+# --- Temporary files ---
+*.tmp
+*.temp
+*.pid
+*.seed
+*.pid.lock
+*.bak
+*.backup
+*.old
+
+# --- Documentation build ---
+docs/_build/
+docs/build/
+*.aux
+*.log
+*.out
+*.toc
+
 # --- Jupyter / notebooks ---
 .ipynb_checkpoints
 

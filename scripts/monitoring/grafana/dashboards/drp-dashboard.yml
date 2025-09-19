@@ -1,0 +1,18 @@
+# =============================================================================
+# Grafana Dashboard Configuration for DRP
+# =============================================================================
+# This configures the DRP monitoring dashboard
+
+apiVersion: 1
+
+providers:
+  - name: 'DRP Dashboards'
+    orgId: 1
+    folder: 'DRP'
+    type: file
+    disableDeletion: false
+    updateIntervalSeconds: 10
+    allowUiUpdates: true
+    options:
+      path: /etc/grafana/provisioning/dashboards
+
