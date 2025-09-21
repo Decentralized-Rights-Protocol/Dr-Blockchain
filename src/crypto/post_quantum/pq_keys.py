@@ -38,7 +38,7 @@ except ImportError:
     CRYPTO_AVAILABLE = False
 
 try:
-    import oqs
+    import oqs  # pyright: ignore[reportMissingImports]
     OQS_AVAILABLE = True
 except ImportError:
     try:

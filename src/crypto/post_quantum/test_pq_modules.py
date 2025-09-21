@@ -12,7 +12,7 @@ Run with: pytest src/crypto/post_quantum/test_pq_modules.py -v
 """
 
 try:
-    import pytest
+    import pytest  # pyright: ignore[reportMissingImports]
     PYTEST_AVAILABLE = True
 except ImportError:
     PYTEST_AVAILABLE = False
@@ -52,13 +52,13 @@ from pathlib import Path
 from typing import Dict, Any
 
 try:
-    import oqs
+    import oqs  # pyright: ignore[reportMissingImports]
     OQS_AVAILABLE = True
 except ImportError:
     OQS_AVAILABLE = False
 
 try:
-    from fastapi.testclient import TestClient
+    from fastapi.testclient import TestClient  # pyright: ignore[reportMissingImports]
     FASTAPI_AVAILABLE = True
 except ImportError:
     FASTAPI_AVAILABLE = False
