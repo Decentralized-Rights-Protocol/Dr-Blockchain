@@ -18,7 +18,7 @@ Unlike traditional blockchains focused only on finance, DRP introduces **AI-veri
   Rewards participants for using clean energy and sustainable resources.
 
 * 🛡 **Quantum-Resistant Cryptography**
-  Built with future-proof security to withstand post-quantum attacks.
+  Built with NIST-approved CRYSTALS-Kyber and CRYSTALS-Dilithium algorithms for future-proof security against quantum attacks.
 
 * 🤖 **AI Elders (Project Lazarus)**
   Cross-chain AI agents that ethically recover lost or abandoned digital assets.
@@ -43,9 +43,16 @@ Unlike traditional blockchains focused only on finance, DRP introduces **AI-veri
 🚀 **Planned Mainnet (C++ + AI Modules)**
 
 * High-performance C++ core
-* Advanced cryptography (quantum resistance)
+* Advanced cryptography (quantum resistance) ✅ **IMPLEMENTED**
 * Full AI-driven verification system
 * Modular blockchain architecture
+
+🔒 **Post-Quantum Security (IMPLEMENTED)**
+
+* CRYSTALS-Kyber for quantum-resistant key exchange
+* CRYSTALS-Dilithium for quantum-safe digital signatures
+* Elder quorum integration with post-quantum consensus
+* Secure key management with rotation and revocation
 
 ---
 
@@ -57,9 +64,11 @@ Dr-Blockchain/
 │── src/               # Source code
 │   ├── consensus/     # Proof of Status & Proof of Activities
 │   ├── crypto/        # Cryptography
+│   │   └── post_quantum/  # Quantum-resistant crypto modules
 │   ├── networking/    # P2P, APIs
 │   ├── ai/            # AI Elders & verification
 │── tests/             # Unit & integration tests
+│── examples/          # Demo scripts and examples
 │── scripts/           # Deployment & automation
 │── README.md
 │── LICENSE
@@ -84,6 +93,16 @@ cd Dr-Blockchain
 python src/node.py
 ```
 
+### Try Post-Quantum Security Demo
+
+```bash
+# Install post-quantum dependencies
+pip install oqs cryptography
+
+# Run the post-quantum demo
+python examples/post_quantum_demo.py
+```
+
 ### Run Tests
 
 ```bash
@@ -97,6 +116,7 @@ pytest tests/
 * [Whitepaper (Draft)](docs/whitepaper/whitepaper_v0.5.pdf)
 * [Consensus Design](docs/consensus.md)
 * [AI Elders Vision](docs/ai-elders.md)
+* [Post-Quantum Security](src/crypto/post_quantum/README.md) 🔒
 
 ---
 

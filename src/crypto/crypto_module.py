@@ -15,7 +15,12 @@ import os
 import binascii
 
 # Ed25519 via PyNaCl
-from nacl import signing, exceptions as nacl_exc
+try:
+    from nacl import signing, exceptions as nacl_exc
+except ImportError:
+    # Use mock implementation
+    from crypto.post_quantum.mock_nacl import signing, nacl_exc
+    print("⚠️  Using mock PyNaCl implementation")
 
 # Optional secp256k1 via coincurve
 try:

@@ -14,11 +14,15 @@ protobuf>=6.31.0
 fastapi>=0.104.0
 uvicorn>=0.24.0
 pydantic[dotenv]>=2.0.0
+httpx>=0.24.0  # Required for FastAPI TestClient
 
 # Testing and linting
-pytest>=7.0.0
+pytest>=7.0.0  # For running the post-quantum test suite
 flake8>=6.0.0
 pytest-cov>=4.0.0
 
-# Optional dependencies (will be skipped if not available)
-# oqs>=0.10.0  # Requires Python 3.10+
+# Post-quantum cryptography dependencies
+oqs>=0.10.0  # CRYSTALS-Kyber and CRYSTALS-Dilithium (requires Python 3.10+)
+
+# Additional post-quantum dependencies
+cryptography>=41.0.0  # For AES encryption of keys at rest

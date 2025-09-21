@@ -9,7 +9,7 @@ If you discover a security issue in **DRP (Decentralized Rights Protocol)**:
 * **Do NOT** open a public issue.
 * **Do NOT** share details in community channels.
 
-👉 Instead, please report it responsibly to: contact@decentralizedrights.com
+👉 Instead, please report it responsibly to: dev@decentralizedrights.com
 
 We will acknowledge your report within **48 hours** and provide a timeline for resolution.
 
