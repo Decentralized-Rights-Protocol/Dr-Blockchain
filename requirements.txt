@@ -22,7 +22,7 @@ flake8>=6.0.0
 pytest-cov>=4.0.0
 
 # Post-quantum cryptography dependencies
-oqs>=0.10.0  # CRYSTALS-Kyber and CRYSTALS-Dilithium (requires Python 3.10+)
+python-oqs>=1.0.0  # CRYSTALS-Kyber and CRYSTALS-Dilithium (requires Python 3.10+)
 
 # Additional post-quantum dependencies
 cryptography>=41.0.0  # For AES encryption of keys at rest

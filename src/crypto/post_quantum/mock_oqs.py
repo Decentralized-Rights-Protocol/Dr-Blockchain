@@ -90,7 +90,7 @@ class MockOQS:
 
 # Replace oqs import
 try:
-    import oqs  # pyright: ignore[reportMissingImports]
+    import oqs  # This is correct for python-oqs package
     print("✅ Real liboqs available - using actual post-quantum crypto")
 except ImportError:
     print("⚠️  liboqs not available - using mock implementation for demo")

@@ -38,8 +38,9 @@ except ImportError:
     CRYPTO_AVAILABLE = False
 
 try:
-    import oqs  # pyright: ignore[reportMissingImports]
+    import oqs  # This is correct for python-oqs package
     OQS_AVAILABLE = True
+    print("✅ Real liboqs available - using actual post-quantum crypto")
 except ImportError:
     try:
         from .mock_oqs import oqs
@@ -47,6 +48,7 @@ except ImportError:
         print("⚠️  Using mock post-quantum implementation")
     except ImportError:
         OQS_AVAILABLE = False
+        print("❌ No post-quantum crypto available")
 
 
 class PostQuantumCryptoError(Exception):
@@ -200,8 +202,8 @@ class PostQuantumKeyManager:
         self.key_lifetime_days = key_lifetime_days
         self.master_password = master_password or self._generate_master_password()
         
-        # Available algorithms
-        self.kyber_algorithms = ["Kyber-512", "Kyber-768", "Kyber-1024"]
+        # Available algorithms (using correct OQS names)
+        self.kyber_algorithms = ["Kyber512", "Kyber768", "Kyber1024"]
         self.dilithium_algorithms = ["Dilithium2", "Dilithium3", "Dilithium5"]
         
         # Key storage
@@ -242,13 +244,13 @@ class PostQuantumKeyManager:
         return aesgcm.decrypt(nonce, ciphertext, None)
     
     def generate_kyber_keypair(self, 
-                              algorithm: str = "Kyber-768",
+                              algorithm: str = "Kyber768",
                               expires_in_days: Optional[int] = None) -> KyberKeyPair:
         """
         Generate a new CRYSTALS-Kyber key pair
         
         Args:
-            algorithm: Kyber algorithm variant (Kyber-512, Kyber-768, Kyber-1024)
+            algorithm: Kyber algorithm variant (Kyber512, Kyber768, Kyber1024)
             expires_in_days: Key expiry in days (None for no expiry)
         
         Returns:
@@ -608,7 +610,7 @@ class KeyRevocationManager:
 
 
 # Convenience functions for direct use
-def generate_kyber_keypair(algorithm: str = "Kyber-768") -> KyberKeyPair:
+def generate_kyber_keypair(algorithm: str = "Kyber768") -> KyberKeyPair:
     """
     Generate a CRYSTALS-Kyber key pair
     

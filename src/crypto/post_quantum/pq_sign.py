@@ -26,14 +26,17 @@ from typing import Dict, List, Optional, Tuple, Union, Any
 from enum import Enum
 
 try:
-    import oqs
+    import oqs  # This is correct for python-oqs package
     OQS_AVAILABLE = True
+    print("✅ Real liboqs available - using actual post-quantum crypto")
 except ImportError:
     try:
         from .mock_oqs import oqs
         OQS_AVAILABLE = True
+        print("⚠️  Using mock post-quantum implementation")
     except ImportError:
         OQS_AVAILABLE = False
+        print("❌ No post-quantum crypto available")
 
 try:
     from .pq_keys import DilithiumKeyPair, PostQuantumCryptoError

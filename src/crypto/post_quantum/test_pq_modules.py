@@ -52,10 +52,12 @@ from pathlib import Path
 from typing import Dict, Any
 
 try:
-    import oqs  # pyright: ignore[reportMissingImports]
+    import oqs  # This is correct for python-oqs package
     OQS_AVAILABLE = True
+    print("✅ Real liboqs available - using actual post-quantum crypto")
 except ImportError:
     OQS_AVAILABLE = False
+    print("⚠️  liboqs not available - using mock implementation for tests")
 
 try:
     from fastapi.testclient import TestClient  # pyright: ignore[reportMissingImports]

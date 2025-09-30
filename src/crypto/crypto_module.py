@@ -31,10 +31,12 @@ except Exception:
 
 # Optional liboqs (post-quantum)
 try:
-    import oqs
+    import oqs  # This is correct for python-oqs package
     HAVE_OQS = True
+    print("✅ Real liboqs available - using actual post-quantum crypto")
 except Exception:
     HAVE_OQS = False
+    print("⚠️  liboqs not available - post-quantum features disabled")
 
 # Base58 alphabet
 BASE58_ALPHABET = "123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz"
