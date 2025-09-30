@@ -26,3 +26,9 @@ oqs>=0.10.0  # CRYSTALS-Kyber and CRYSTALS-Dilithium (requires Python 3.10+)
 
 # Additional post-quantum dependencies
 cryptography>=41.0.0  # For AES encryption of keys at rest
+
+# Storage layer dependencies
+python-rocksdb>=0.7.0  # RocksDB for ledger storage
+neo4j>=5.0.0  # Neo4j driver for graph indexing
+orbitdb>=0.1.0  # OrbitDB for IPFS-based proof storage
+ipfshttpclient>=0.8.0  # IPFS HTTP client
