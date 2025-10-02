@@ -54,6 +54,14 @@ Unlike traditional blockchains focused only on finance, DRP introduces **AI-veri
 * Elder quorum integration with post-quantum consensus
 * Secure key management with rotation and revocation
 
+🤖 **AI Verification Layer (IMPLEMENTED)**
+
+* **Face Verification (PoST)**: OpenCV + face_recognition for biometric identity verification
+* **Activity Detection (PoAT)**: MobileNet + MediaPipe for human activity recognition
+* **Voice Commands**: SpeechRecognition + HuggingFace for voice-based blockchain interactions
+* **Text Analysis**: DistilBERT + sentence-transformers for authenticity verification and plagiarism detection
+* **Blockchain Integration**: JSON-RPC/gRPC bridge for AI verification results submission
+
 ---
 
 ## 📂 Repository Structure
@@ -67,7 +75,14 @@ Dr-Blockchain/
 │   │   └── post_quantum/  # Quantum-resistant crypto modules
 │   ├── networking/    # P2P, APIs
 │   ├── ai/            # AI Elders & verification
+│── ai_verification/   # AI Verification Layer (NEW)
+│   ├── cv_face_verification.py      # Face verification for PoST
+│   ├── cv_activity_detection.py     # Activity detection for PoAT
+│   ├── nlp_voice_command.py         # Voice command processing
+│   ├── nlp_text_analysis.py         # Text authenticity analysis
+│   └── integration.py               # Blockchain integration bridge
 │── tests/             # Unit & integration tests
+│── tests_ai/          # AI verification tests (NEW)
 │── examples/          # Demo scripts and examples
 │── scripts/           # Deployment & automation
 │── README.md
@@ -103,10 +118,43 @@ pip install oqs cryptography
 python examples/post_quantum_demo.py
 ```
 
+### Try AI Verification Layer
+
+```bash
+# Install AI dependencies
+pip install -r requirements.txt
+
+# Face verification example
+python ai_verification/cv_face_verification.py --input sample.jpg --user-id user123 --reference reference.jpg
+
+# Activity detection example
+python ai_verification/cv_activity_detection.py --input activity.jpg --threshold 0.6
+
+# Voice command processing
+python ai_verification/nlp_voice_command.py --record --duration 5
+
+# Text analysis
+python ai_verification/nlp_text_analysis.py --input document.txt --reference ref1.txt ref2.txt
+
+# Blockchain integration
+python ai_verification/integration.py --type face --user-id user123 --input face.jpg --endpoint http://localhost:8080
+```
+
 ### Run Tests
 
 ```bash
+# Run all tests
 pytest tests/
+
+# Run AI verification tests
+pytest tests_ai/
+
+# Run specific AI module tests
+pytest tests_ai/test_cv_face_verification.py
+pytest tests_ai/test_cv_activity_detection.py
+pytest tests_ai/test_nlp_voice_command.py
+pytest tests_ai/test_nlp_text_analysis.py
+pytest tests_ai/test_integration.py
 ```
 
 ---

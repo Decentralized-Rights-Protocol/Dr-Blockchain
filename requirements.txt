@@ -32,3 +32,17 @@ python-rocksdb>=0.7.0  # RocksDB for ledger storage
 neo4j>=5.0.0  # Neo4j driver for graph indexing
 orbitdb>=0.1.0  # OrbitDB for IPFS-based proof storage
 ipfshttpclient>=0.8.0  # IPFS HTTP client
+
+# AI Verification Layer dependencies
+opencv-python>=4.8.0  # Computer vision for face detection and activity recognition
+face-recognition>=1.3.0  # Face recognition library
+mediapipe>=0.10.0  # Pose detection and analysis
+tensorflow>=2.13.0  # Deep learning framework for MobileNet
+transformers>=4.30.0  # HuggingFace transformers for NLP
+torch>=2.0.0  # PyTorch backend for transformers
+sentence-transformers>=2.2.0  # Sentence embeddings for similarity analysis
+scikit-learn>=1.3.0  # Machine learning utilities
+speechrecognition>=3.10.0  # Speech recognition library
+pyaudio>=0.2.11  # Audio recording and playback
+pydub>=0.25.1  # Audio processing
+aiohttp>=3.8.0  # Async HTTP client for blockchain integration
