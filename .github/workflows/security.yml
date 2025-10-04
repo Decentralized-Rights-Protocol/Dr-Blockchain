@@ -1,0 +1,210 @@
+name: Security Scan
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main ]
+  schedule:
+    - cron: '0 2 * * 1'  # Weekly on Monday at 2 AM
+
+jobs:
+  secret-scan:
+    name: Secret Scanning
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # Full history for secret scanning
+      
+      - name: Run TruffleHog
+        uses: trufflesecurity/trufflehog@main
+        with:
+          path: ./
+          base: main
+          head: HEAD
+          extra_args: --debug --only-verified
+      
+      - name: Check for private keys
+        run: |
+          echo "Checking for private key files..."
+          if find . -name "*.priv" -o -name "*.pem" -o -name "*.key" -o -name "*.keystore" | grep -v node_modules | grep -v .venv; then
+            echo "❌ Private key files found!"
+            exit 1
+          else
+            echo "✅ No private key files found"
+          fi
+      
+      - name: Check for hardcoded secrets
+        run: |
+          echo "Checking for hardcoded secrets..."
+          # Check for common secret patterns
+          if grep -r -i "password.*=" --include="*.py" --include="*.js" --include="*.ts" --include="*.json" . | grep -v node_modules | grep -v .venv; then
+            echo "❌ Potential hardcoded passwords found!"
+            exit 1
+          fi
+          
+          if grep -r -i "api.*key.*=" --include="*.py" --include="*.js" --include="*.ts" --include="*.json" . | grep -v node_modules | grep -v .venv; then
+            echo "❌ Potential hardcoded API keys found!"
+            exit 1
+          fi
+          
+          echo "✅ No hardcoded secrets found"
+
+  dependency-scan:
+    name: Dependency Vulnerability Scan
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+      
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install safety bandit
+      
+      - name: Run safety check
+        run: |
+          safety check --json --output safety-report.json || true
+          if [ -f safety-report.json ]; then
+            echo "Safety report generated"
+            cat safety-report.json
+          fi
+      
+      - name: Run bandit security linter
+        run: |
+          bandit -r . -f json -o bandit-report.json || true
+          if [ -f bandit-report.json ]; then
+            echo "Bandit report generated"
+            cat bandit-report.json
+          fi
+      
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+      
+      - name: Install npm dependencies
+        run: |
+          if [ -f package.json ]; then
+            npm ci
+          fi
+      
+      - name: Run npm audit
+        run: |
+          if [ -f package.json ]; then
+            npm audit --audit-level=moderate || true
+          fi
+
+  code-quality:
+    name: Code Quality & Security
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+      
+      - name: Install Python dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install flake8 black isort mypy
+      
+      - name: Run flake8
+        run: |
+          flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
+          flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
+      
+      - name: Run black check
+        run: |
+          black --check --diff .
+      
+      - name: Run isort check
+        run: |
+          isort --check-only --diff .
+      
+      - name: Run mypy
+        run: |
+          mypy . --ignore-missing-imports || true
+      
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+      
+      - name: Install Node dependencies
+        run: |
+          if [ -f package.json ]; then
+            npm ci
+          fi
+      
+      - name: Run ESLint
+        run: |
+          if [ -f package.json ] && [ -f .eslintrc.js ]; then
+            npm run lint || true
+          fi
+      
+      - name: Run TypeScript check
+        run: |
+          if [ -f package.json ] && [ -f tsconfig.json ]; then
+            npm run type-check || true
+          fi
+
+  security-test:
+    name: Security Tests
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+      
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install pytest pytest-cov
+      
+      - name: Run security tests
+        run: |
+          # Run tests for security modules
+          if [ -d "security" ]; then
+            python -m pytest security/ -v --cov=security --cov-report=xml
+          fi
+          
+          # Run tests for AI verification
+          if [ -d "tests_ai" ]; then
+            python -m pytest tests_ai/ -v
+          fi
+      
+      - name: Upload coverage reports
+        uses: codecov/codecov-action@v3
+        with:
+          file: ./coverage.xml
+          flags: security
+          name: security-coverage
+
+  notify-security:
+    name: Security Notification
+    runs-on: ubuntu-latest
+    if: failure()
+    needs: [secret-scan, dependency-scan, code-quality, security-test]
+    steps:
+      - name: Notify security team
+        run: |
+          echo "🚨 Security scan failed!"
+          echo "Please check the security scan results and address any issues."
+          echo "Contact: security@drp-protocol.org"
