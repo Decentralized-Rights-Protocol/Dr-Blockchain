@@ -1,0 +1,72 @@
+\contentsline {section}{\numberline {1}Introduction}{3}{section.1}%
+\contentsline {section}{\numberline {2}Historical Context}{3}{section.2}%
+\contentsline {subsection}{\numberline {2.1}From Ledgers to Digital Trust}{3}{subsection.2.1}%
+\contentsline {subsection}{\numberline {2.2}Bitcoin and PoW}{4}{subsection.2.2}%
+\contentsline {subsection}{\numberline {2.3}Ethereum \& Smart Contracts}{4}{subsection.2.3}%
+\contentsline {subsection}{\numberline {2.4}Governance Experiments (Polkadot, Cardano)}{4}{subsection.2.4}%
+\contentsline {subsection}{\numberline {2.5}African Context \& Emergence of DRP}{4}{subsection.2.5}%
+\contentsline {section}{\numberline {3}Core Innovations of DRP}{4}{section.3}%
+\contentsline {subsection}{\numberline {3.1}Proof of Status (PoST)}{4}{subsection.3.1}%
+\contentsline {subsection}{\numberline {3.2}Proof of Activity (PoAT)}{4}{subsection.3.2}%
+\contentsline {subsection}{\numberline {3.3}AI Elder Agents}{4}{subsection.3.3}%
+\contentsline {subsection}{\numberline {3.4}Dual-Token Economy (\$RIGHTS, \$DeRi)}{4}{subsection.3.4}%
+\contentsline {subsection}{\numberline {3.5}IoT \& App Ecosystem Integration}{5}{subsection.3.5}%
+\contentsline {subsection}{\numberline {3.6}Governance by Contribution}{5}{subsection.3.6}%
+\contentsline {section}{\numberline {4}Technical Architecture}{5}{section.4}%
+\contentsline {subsection}{\numberline {4.1}Consensus Workflow}{5}{subsection.4.1}%
+\contentsline {subsection}{\numberline {4.2}Block Structure}{5}{subsection.4.2}%
+\contentsline {subsection}{\numberline {4.3}Elder Quorum}{5}{subsection.4.3}%
+\contentsline {subsection}{\numberline {4.4}Cryptographic Primitives}{5}{subsection.4.4}%
+\contentsline {subsection}{\numberline {4.5}Networking Layer}{5}{subsection.4.5}%
+\contentsline {subsection}{\numberline {4.6}Smart Contract Layer}{5}{subsection.4.6}%
+\contentsline {section}{\numberline {5}Consensus Mechanism}{6}{section.5}%
+\contentsline {subsection}{\numberline {5.1}Overview}{6}{subsection.5.1}%
+\contentsline {subsection}{\numberline {5.2}PoST \& PoAT Fusion}{6}{subsection.5.2}%
+\contentsline {subsection}{\numberline {5.3}Elder Quorum \& AI Consensus}{6}{subsection.5.3}%
+\contentsline {subsection}{\numberline {5.4}Finality \& Fork Resolution}{6}{subsection.5.4}%
+\contentsline {subsection}{\numberline {5.5}Energy \& Efficiency}{7}{subsection.5.5}%
+\contentsline {subsection}{\numberline {5.6}Security Considerations}{7}{subsection.5.6}%
+\contentsline {section}{\numberline {6}AI Verification Layer}{7}{section.6}%
+\contentsline {subsection}{\numberline {6.1}AI Models \& Functions}{7}{subsection.6.1}%
+\contentsline {subsection}{\numberline {6.2}AI Elders \& Quorum}{8}{subsection.6.2}%
+\contentsline {subsection}{\numberline {6.3}Transparency \& Accountability}{8}{subsection.6.3}%
+\contentsline {subsection}{\numberline {6.4}Adversarial Robustness}{8}{subsection.6.4}%
+\contentsline {section}{\numberline {7}Tokenomics \& Economic Design}{8}{section.7}%
+\contentsline {subsection}{\numberline {7.1}Dual-Token System (\$RIGHTS \& \$DeRi)}{8}{subsection.7.1}%
+\contentsline {subsection}{\numberline {7.2}Incentives \& Distribution}{9}{subsection.7.2}%
+\contentsline {subsection}{\numberline {7.3}Economic Stability}{9}{subsection.7.3}%
+\contentsline {subsection}{\numberline {7.4}Deflationary/Inflationary Balance}{9}{subsection.7.4}%
+\contentsline {subsection}{\numberline {7.5}Sustainability}{9}{subsection.7.5}%
+\contentsline {section}{\numberline {8}Governance Model}{9}{section.8}%
+\contentsline {subsection}{\numberline {8.1}Dual-Token Governance}{9}{subsection.8.1}%
+\contentsline {subsection}{\numberline {8.2}Proposal Lifecycle}{10}{subsection.8.2}%
+\contentsline {subsection}{\numberline {8.3}Voting \& Checks and Balances}{10}{subsection.8.3}%
+\contentsline {subsection}{\numberline {8.4}Long-Term Evolution}{10}{subsection.8.4}%
+\contentsline {section}{\numberline {9}Security \& Threat Model}{10}{section.9}%
+\contentsline {subsection}{\numberline {9.1}Threat Landscape}{10}{subsection.9.1}%
+\contentsline {subsection}{\numberline {9.2}Consensus \& Application Security}{11}{subsection.9.2}%
+\contentsline {subsection}{\numberline {9.3}Incident Response}{12}{subsection.9.3}%
+\contentsline {subsection}{\numberline {9.4}Post-Quantum Security}{12}{subsection.9.4}%
+\contentsline {subsection}{\numberline {9.5}Ethical Safeguards}{12}{subsection.9.5}%
+\contentsline {section}{\numberline {10}Case Studies \& Applications}{12}{section.10}%
+\contentsline {subsection}{\numberline {10.1}Healthcare Access}{12}{subsection.10.1}%
+\contentsline {subsection}{\numberline {10.2}Education \& Skills Verification}{12}{subsection.10.2}%
+\contentsline {subsection}{\numberline {10.3}Food Security \& Agriculture}{13}{subsection.10.3}%
+\contentsline {subsection}{\numberline {10.4}Energy \& Sustainability}{13}{subsection.10.4}%
+\contentsline {subsection}{\numberline {10.5}Governance \& Social Justice}{13}{subsection.10.5}%
+\contentsline {subsection}{\numberline {10.6}Humanitarian Aid (Pilot in Ghana)}{14}{subsection.10.6}%
+\contentsline {subsection}{\numberline {10.7}Project Lazarus (Asset Recovery)}{14}{subsection.10.7}%
+\contentsline {section}{\numberline {11}Implementation Roadmap}{14}{section.11}%
+\contentsline {subsection}{\numberline {11.1}Phase I: Research \& Design}{14}{subsection.11.1}%
+\contentsline {subsection}{\numberline {11.2}Phase II: Prototype \& Testnet}{14}{subsection.11.2}%
+\contentsline {subsection}{\numberline {11.3}Phase III: Mainnet Launch \& Airdrop}{15}{subsection.11.3}%
+\contentsline {subsection}{\numberline {11.4}Phase IV: Governance Growth}{15}{subsection.11.4}%
+\contentsline {subsection}{\numberline {11.5}Phase V: Scaling \& Global Adoption}{15}{subsection.11.5}%
+\contentsline {section}{\numberline {12}Mathematical Foundations}{15}{section.12}%
+\contentsline {subsection}{\numberline {12.1}Notation}{15}{subsection.12.1}%
+\contentsline {subsection}{\numberline {12.2}Consensus Equations (PoST/PoAT)}{16}{subsection.12.2}%
+\contentsline {subsection}{\numberline {12.3}Reward Functions \& Token Emission}{16}{subsection.12.3}%
+\contentsline {subsection}{\numberline {12.4}Game-Theoretic Analysis}{17}{subsection.12.4}%
+\contentsline {subsection}{\numberline {12.5}Stability \& Convergence of AI Elders}{17}{subsection.12.5}%
+\contentsline {section}{\numberline {13}Conclusion}{17}{section.13}%
+\contentsline {section}{\numberline {14}References}{18}{section.14}%

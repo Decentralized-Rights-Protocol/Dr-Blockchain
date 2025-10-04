@@ -1,0 +1,135 @@
+# =============================================================================
+# DRP Production Docker Compose Override
+# =============================================================================
+# This file provides production-specific configurations that override
+# the base docker-compose.yml settings for production deployment
+
+version: '3.8'
+
+services:
+  # =============================================================================
+  # Production Main Node
+  # =============================================================================
+  drp-node:
+    environment:
+      - DRP_ENV=production
+      - DRP_LOG_LEVEL=WARNING
+      - DRP_NETWORK=mainnet
+    restart: always
+    deploy:
+      resources:
+        limits:
+          cpus: '2.0'
+          memory: 4G
+        reservations:
+          cpus: '1.0'
+          memory: 2G
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+        max_attempts: 3
+        window: 120s
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+    security_opt:
+      - no-new-privileges:true
+    read_only: true
+    tmpfs:
+      - /tmp
+      - /app/logs
+
+  # =============================================================================
+  # Production Validators
+  # =============================================================================
+  drp-validator-1:
+    environment:
+      - DRP_ENV=production
+      - DRP_LOG_LEVEL=WARNING
+      - DRP_NETWORK=mainnet
+    restart: always
+    deploy:
+      resources:
+        limits:
+          cpus: '1.5'
+          memory: 3G
+        reservations:
+          cpus: '0.5'
+          memory: 1G
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+    security_opt:
+      - no-new-privileges:true
+    read_only: true
+    tmpfs:
+      - /tmp
+      - /app/logs
+
+  drp-validator-2:
+    environment:
+      - DRP_ENV=production
+      - DRP_LOG_LEVEL=WARNING
+      - DRP_NETWORK=mainnet
+    restart: always
+    deploy:
+      resources:
+        limits:
+          cpus: '1.5'
+          memory: 3G
+        reservations:
+          cpus: '0.5'
+          memory: 1G
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+    security_opt:
+      - no-new-privileges:true
+    read_only: true
+    tmpfs:
+      - /tmp
+      - /app/logs
+
+  # =============================================================================
+  # Production AI Elder
+  # =============================================================================
+  drp-ai-elder:
+    environment:
+      - DRP_ENV=production
+      - DRP_LOG_LEVEL=INFO
+      - DRP_NETWORK=mainnet
+    restart: always
+    deploy:
+      resources:
+        limits:
+          cpus: '3.0'
+          memory: 6G
+        reservations:
+          cpus: '1.0'
+          memory: 2G
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+    security_opt:
+      - no-new-privileges:true
+
+# =============================================================================
+# Production Networks
+# =============================================================================
+networks:
+  drp-network:
+    driver: bridge
+    driver_opts:
+      com.docker.network.bridge.name: drp-prod
+    ipam:
+      config:
+        - subnet: 172.20.0.0/16
+          gateway: 172.20.0.1

@@ -1,0 +1,301 @@
+# =============================================================================
+# DRP Docker Compose Configuration
+# =============================================================================
+# This file provides easy deployment and development setup for the DRP project
+# with multiple services, networking, and volume management
+
+version: '3.8'
+
+services:
+  # =============================================================================
+  # Main DRP Node Service
+  # =============================================================================
+  drp-node:
+    build:
+      context: ..
+      dockerfile: scripts/Dockerfile
+      target: runtime
+    container_name: drp-main-node
+    restart: unless-stopped
+    ports:
+      - "8000:8000"    # FastAPI web interface
+      - "8080:8080"    # gRPC service
+      - "9090:9090"    # P2P networking
+    volumes:
+      - drp-data:/app/data
+      - drp-logs:/app/logs
+      - drp-keys:/app/keys
+    environment:
+      - DRP_NODE_TYPE=main
+      - DRP_LOG_LEVEL=INFO
+      - DRP_NETWORK=testnet
+      - DRP_PEER_PORT=9090
+      - DRP_API_PORT=8000
+    networks:
+      - drp-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    depends_on:
+      - drp-validator-1
+      - drp-validator-2
+
+  # =============================================================================
+  # Validator Nodes
+  # =============================================================================
+  drp-validator-1:
+    build:
+      context: ..
+      dockerfile: scripts/Dockerfile
+      target: runtime
+    container_name: drp-validator-1
+    restart: unless-stopped
+    ports:
+      - "8001:8000"
+      - "8081:8080"
+      - "9091:9090"
+    volumes:
+      - validator1-data:/app/data
+      - validator1-logs:/app/logs
+      - validator1-keys:/app/keys
+    environment:
+      - DRP_NODE_TYPE=validator
+      - DRP_LOG_LEVEL=INFO
+      - DRP_NETWORK=testnet
+      - DRP_PEER_PORT=9091
+      - DRP_API_PORT=8001
+      - DRP_MAIN_NODE=drp-node:9090
+    networks:
+      - drp-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  drp-validator-2:
+    build:
+      context: ..
+      dockerfile: scripts/Dockerfile
+      target: runtime
+    container_name: drp-validator-2
+    restart: unless-stopped
+    ports:
+      - "8002:8000"
+      - "8082:8080"
+      - "9092:9090"
+    volumes:
+      - validator2-data:/app/data
+      - validator2-logs:/app/logs
+      - validator2-keys:/app/keys
+    environment:
+      - DRP_NODE_TYPE=validator
+      - DRP_LOG_LEVEL=INFO
+      - DRP_NETWORK=testnet
+      - DRP_PEER_PORT=9092
+      - DRP_API_PORT=8002
+      - DRP_MAIN_NODE=drp-node:9090
+    networks:
+      - drp-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  # =============================================================================
+  # AI Elder Service
+  # =============================================================================
+  drp-ai-elder:
+    build:
+      context: ..
+      dockerfile: scripts/Dockerfile
+      target: runtime
+    container_name: drp-ai-elder
+    restart: unless-stopped
+    ports:
+      - "8003:8000"
+      - "8083:8080"
+    volumes:
+      - ai-elder-data:/app/data
+      - ai-elder-logs:/app/logs
+      - ai-elder-models:/app/models
+    environment:
+      - DRP_NODE_TYPE=ai_elder
+      - DRP_LOG_LEVEL=DEBUG
+      - DRP_NETWORK=testnet
+      - DRP_AI_MODEL_PATH=/app/models
+      - DRP_MAIN_NODE=drp-node:9090
+    networks:
+      - drp-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+    depends_on:
+      - drp-node
+
+  # =============================================================================
+  # Development Service
+  # =============================================================================
+  drp-dev:
+    build:
+      context: ..
+      dockerfile: scripts/Dockerfile
+      target: development
+    container_name: drp-development
+    restart: "no"
+    ports:
+      - "8004:8000"
+      - "8084:8080"
+    volumes:
+      - .:/app
+      - dev-data:/app/data
+      - dev-logs:/app/logs
+    environment:
+      - DRP_ENV=development
+      - DRP_LOG_LEVEL=DEBUG
+      - DRP_NETWORK=testnet
+    networks:
+      - drp-network
+    stdin_open: true
+    tty: true
+    profiles:
+      - development
+
+  # =============================================================================
+  # Testing Service
+  # =============================================================================
+  drp-test:
+    build:
+      context: ..
+      dockerfile: scripts/Dockerfile
+      target: testing
+    container_name: drp-testing
+    restart: "no"
+    volumes:
+      - .:/app
+      - test-data:/app/data
+      - test-logs:/app/logs
+    environment:
+      - DRP_ENV=testing
+      - DRP_LOG_LEVEL=DEBUG
+      - DRP_NETWORK=testnet
+    networks:
+      - drp-network
+    profiles:
+      - testing
+
+  # =============================================================================
+  # Monitoring Service (Optional)
+  # =============================================================================
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: drp-prometheus
+    restart: unless-stopped
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml
+      - prometheus-data:/prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--web.console.libraries=/etc/prometheus/console_libraries'
+      - '--web.console.templates=/etc/prometheus/consoles'
+      - '--storage.tsdb.retention.time=200h'
+      - '--web.enable-lifecycle'
+    networks:
+      - drp-network
+    profiles:
+      - monitoring
+
+  grafana:
+    image: grafana/grafana:latest
+    container_name: drp-grafana
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    volumes:
+      - grafana-data:/var/lib/grafana
+      - ./monitoring/grafana/dashboards:/etc/grafana/provisioning/dashboards
+      - ./monitoring/grafana/datasources:/etc/grafana/provisioning/datasources
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=drp123
+    networks:
+      - drp-network
+    depends_on:
+      - prometheus
+    profiles:
+      - monitoring
+
+# =============================================================================
+# Networks
+# =============================================================================
+networks:
+  drp-network:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.20.0.0/16
+
+# =============================================================================
+# Volumes
+# =============================================================================
+volumes:
+  # Main node data
+  drp-data:
+    driver: local
+  drp-logs:
+    driver: local
+  drp-keys:
+    driver: local
+
+  # Validator 1 data
+  validator1-data:
+    driver: local
+  validator1-logs:
+    driver: local
+  validator1-keys:
+    driver: local
+
+  # Validator 2 data
+  validator2-data:
+    driver: local
+  validator2-logs:
+    driver: local
+  validator2-keys:
+    driver: local
+
+  # AI Elder data
+  ai-elder-data:
+    driver: local
+  ai-elder-logs:
+    driver: local
+  ai-elder-models:
+    driver: local
+
+  # Development data
+  dev-data:
+    driver: local
+  dev-logs:
+    driver: local
+
+  # Testing data
+  test-data:
+    driver: local
+  test-logs:
+    driver: local
+
+  # Monitoring data
+  prometheus-data:
+    driver: local
+  grafana-data:
+    driver: local
