@@ -46,3 +46,9 @@ speechrecognition>=3.10.0  # Speech recognition library
 pyaudio>=0.2.11  # Audio recording and playback
 pydub>=0.25.1  # Audio processing
 aiohttp>=3.8.0  # Async HTTP client for blockchain integration
+
+# Advanced Security & Token Features dependencies
+py-ecc>=6.0.0  # BLS threshold signatures and elliptic curve cryptography
+aioquic>=0.9.20  # QUIC transport layer for high-performance networking
+dnspython>=2.3.0  # DNSSEC validation and DNS record management
+cryptography>=41.0.0  # TLS certificate management and cryptographic operations

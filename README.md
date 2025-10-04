@@ -62,6 +62,15 @@ Unlike traditional blockchains focused only on finance, DRP introduces **AI-veri
 * **Text Analysis**: DistilBERT + sentence-transformers for authenticity verification and plagiarism detection
 * **Blockchain Integration**: JSON-RPC/gRPC bridge for AI verification results submission
 
+🔐 **Advanced Security & Token Features (IMPLEMENTED)**
+
+* **BLS Threshold Signatures**: Multi-party computation for Elder quorum consensus without revealing private keys
+* **Time-Locked Tokens**: Smart contract templates for token vesting and lockup mechanisms
+* **Geography-Locked Tokens**: Location-based token restrictions with GPS attestation and IoT sensor verification
+* **HMAC Protection**: HMAC-SHA256 protection for all P2P node messages with session keys
+* **QUIC Networking**: High-performance QUIC transport layer for node-to-node communications
+* **DNSSEC & TLS Security**: Domain security validation and TLS certificate management for API endpoints
+
 ---
 
 ## 📂 Repository Structure
@@ -75,15 +84,26 @@ Dr-Blockchain/
 │   │   └── post_quantum/  # Quantum-resistant crypto modules
 │   ├── networking/    # P2P, APIs
 │   ├── ai/            # AI Elders & verification
-│── ai_verification/   # AI Verification Layer (NEW)
+│── ai_verification/   # AI Verification Layer
 │   ├── cv_face_verification.py      # Face verification for PoST
 │   ├── cv_activity_detection.py     # Activity detection for PoAT
 │   ├── nlp_voice_command.py         # Voice command processing
 │   ├── nlp_text_analysis.py         # Text authenticity analysis
 │   └── integration.py               # Blockchain integration bridge
+│── security/          # Advanced Security Features (NEW)
+│   ├── mpc/           # Multi-party computation & BLS threshold signatures
+│   ├── hmac/          # HMAC protection for P2P messages
+│   ├── quic/          # QUIC transport layer
+│   └── dnssec/        # DNSSEC & TLS security
+│── tokens/            # Token Features (NEW)
+│   ├── time_locked/   # Time-locked token implementations
+│   └── geography_locked_tokens.py   # Geography-locked tokens with GPS
+│── smart_contracts/   # Smart Contract Templates (NEW)
+│   └── time_locked_tokens.py        # Time-locked token contracts
 │── tests/             # Unit & integration tests
-│── tests_ai/          # AI verification tests (NEW)
+│── tests_ai/          # AI verification tests
 │── examples/          # Demo scripts and examples
+│   └── security_demos/ # Advanced security demos (NEW)
 │── scripts/           # Deployment & automation
 │── README.md
 │── LICENSE
@@ -138,6 +158,17 @@ python ai_verification/nlp_text_analysis.py --input document.txt --reference ref
 
 # Blockchain integration
 python ai_verification/integration.py --type face --user-id user123 --input face.jpg --endpoint http://localhost:8080
+
+# Advanced security features
+python security/mpc/bls_threshold_signatures.py --demo --threshold 3 --participants 5
+python smart_contracts/time_locked_tokens.py --demo
+python tokens/geography_locked_tokens.py --demo
+python security/hmac/p2p_message_protection.py --demo
+python security/quic/quic_transport.py --demo
+python security/dnssec/dnssec_tls_security.py --demo
+
+# Run all security demos
+python examples/security_demos/advanced_security_demo.py
 ```
 
 ### Run Tests
