@@ -1,11 +1,11 @@
 #!/bin/bash
 
-# DRP v0.6 - Dependency Installation Script for Python 3.9
+# DRP v0.5 - Dependency Installation Script for Python 3.9
 # This script installs dependencies compatible with Python 3.9
 
 set -e  # Exit on any error
 
-echo "🚀 DRP v0.6 - Installing Dependencies (Python 3.9 Compatible)"
+echo "🚀 DRP v0.5 - Installing Dependencies (Python 3.9 Compatible)"
 echo "============================================================="
 
 # Colors for output
@@ -498,7 +498,7 @@ echo "- Architecture: docs/architecture/DRP_ARCHITECTURE.md"
 echo "- Security: .github/SECURITY.md"
 echo "- Key Rotation: KEY_ROTATION.md"
 
-print_status "DRP v0.6 is ready for development! 🎉"
+print_status "DRP v0.5 is ready for development! 🎉"
 
 
 

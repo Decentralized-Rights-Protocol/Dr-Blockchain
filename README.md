@@ -1,4 +1,4 @@
-# Decentralized Rights Protocol (DRP) v0.6
+# Decentralized Rights Protocol (DRP) v0.5
 
 > **Next-Generation Blockchain for Human Rights & Sustainable Development**
 
@@ -15,15 +15,15 @@ DRP is a revolutionary blockchain protocol that combines AI-verified consensus, 
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
-│                    DRP v0.6 Architecture                    │
+│                    DRP v0.5 Architecture                    │
 ├─────────────────────────────────────────────────────────────┤
 │  Application Layer    │ Mobile App │ Web Explorer │ CLI SDK │
 ├─────────────────────────────────────────────────────────────┤
-│  AI Governance Layer  │ Elder Quorum │ Bias Detection │ Ethics │
+│  AI Governance Layer  │ Elder Quorum│ Bias Detection│Ethics │
 ├─────────────────────────────────────────────────────────────┤
 │  Verification Layer   │ PoST │ PoAT │ IoT Sensors │ Privacy │
 ├─────────────────────────────────────────────────────────────┤
-│  Consensus Layer      │ BLS Threshold │ MPC │ Post-Quantum │
+│  Consensus Layer      │ BLS Threshold │ MPC │ Post-Quantum  │
 ├─────────────────────────────────────────────────────────────┤
 │  Networking Layer     │ QUIC │ DNSSEC │ TLS │ P2P Discovery │
 ├─────────────────────────────────────────────────────────────┤
@@ -61,59 +61,46 @@ DRP is a revolutionary blockchain protocol that combines AI-verified consensus, 
 ## 📁 Repository Structure
 
 ```
-drp-v0.6/
-├── protocol/           # Core blockchain protocol
-│   ├── consensus/      # BLS threshold signatures, MPC
-│   ├── networking/     # QUIC, P2P, discovery
-│   ├── storage/        # ScyllaDB, OrbitDB integration
-│   └── interop/        # Cross-chain compatibility
-├── ai/                 # AI governance and verification
-│   ├── elders/         # AI Elder framework
-│   ├── verification/   # PoST, PoAT implementations
-│   ├── governance/     # AI decision-making
-│   └── models/         # Model cards, bias detection
-├── governance/         # Protocol governance
-│   ├── voting/         # Proposal and voting system
-│   ├── proposals/      # Governance proposals
-│   ├── rotation/       # Elder rotation policies
-│   └── compliance/     # Regulatory compliance
-├── tokenomics/         # Dual-token system
-│   ├── rights/         # $RIGHTS governance token
-│   ├── deri/           # $DeRi utility token
-│   ├── staking/        # Staking mechanisms
-│   └── rewards/        # Reward distribution
-├── security/           # Security framework
-│   ├── threat-model/   # STRIDE threat modeling
-│   ├── incident-response/ # Emergency procedures
-│   ├── monitoring/     # Security monitoring
-│   └── post-quantum/   # Quantum-resistant crypto
-├── explorer/           # Blockchain explorer
-│   ├── indexer/        # Data indexing engine
-│   ├── api/            # REST/GraphQL APIs
-│   ├── ui/             # Next.js frontend
-│   └── analytics/      # Analytics dashboard
-├── apps/               # Applications
-│   ├── mobile/         # React Native app
-│   ├── web/            # Web applications
-│   ├── cli/            # Command-line tools
-│   └── sdk/            # Developer SDK
-├── infrastructure/     # DevOps and deployment
-│   ├── deployment/     # Kubernetes, Docker
-│   ├── monitoring/     # Prometheus, Grafana
-│   ├── backup/         # Backup strategies
-│   └── scaling/        # Auto-scaling configs
-└── docs/               # Documentation
-    ├── architecture/   # Technical architecture
-    ├── api/            # API documentation
-    ├── governance/     # Governance guides
-    └── security/       # Security documentation
+DRP/
+├── src/                      # Source code
+│   ├── core/                 # Core blockchain modules
+│   │   ├── ai/              # AI verification & transparency
+│   │   ├── blockchain/      # Blockchain implementation
+│   │   ├── consensus/       # BLS threshold signatures, MPC
+│   │   ├── crypto/          # Cryptographic functions
+│   │   ├── networking/      # QUIC, P2P, discovery
+│   │   ├── storage/         # ScyllaDB, OrbitDB integration
+│   │   ├── tokenomics/      # Dual-token system ($RIGHTS/$DeRi)
+│   │   └── governance/      # Protocol governance
+│   ├── api/                 # API services
+│   │   └── ai_transparency_service/  # AI transparency API
+│   ├── explorer/            # Blockchain explorer
+│   │   ├── indexer/         # Data indexing engine
+│   │   ├── api/             # REST/GraphQL APIs
+│   │   └── ui/              # Next.js frontend
+│   └── frontend/            # Web applications
+├── security/                # Security framework
+│   ├── crypto/              # Cryptographic security
+│   ├── threat_model/        # STRIDE threat modeling
+│   ├── post_quantum/        # Quantum-resistant crypto
+│   └── monitoring/          # Security monitoring
+├── infrastructure/          # Infrastructure & DevOps
+│   ├── deployment/          # Docker, Kubernetes configs
+│   ├── testing/             # Test suites & examples
+│   ├── monitoring/          # Prometheus, Grafana
+│   └── ci/                  # GitHub Actions, CI/CD
+└── docs/                    # Documentation
+    ├── architecture/        # System architecture
+    ├── api/                 # API documentation
+    ├── governance/          # Governance guides
+    └── security/            # Security documentation
 ```
 
 ## 🛠️ Quick Start
 
 ### Prerequisites
 - Node.js 18.x
-- Python 3.10+
+- Python 3.11+
 - Docker & Docker Compose
 - Rust 1.70+ (for post-quantum crypto)
 
@@ -121,35 +108,22 @@ drp-v0.6/
 
 ```bash
 # Clone repository
-git clone https://github.com/Decentralized-Rights-Protocol/Dr-Blockchain.git
-cd Dr-Blockchain
+git clone https://github.com/decentralizedrights/drp.git
+cd drp
 
 # Install dependencies
+pip install -e .
 npm install
-pip install -r requirements.txt
 
 # Start development environment
-docker-compose up -d
+docker-compose -f infrastructure/deployment/docker-compose.yml up -d
 
 # Run tests
+pytest infrastructure/testing/
 npm test
-pytest tests/
 
 # Start local testnet
-npm run testnet:start
-```
-
-### Ghana Pilot Setup
-
-```bash
-# Deploy Ghana pilot environment
-kubectl apply -f configs/ghana-pilot/
-
-# Monitor deployment
-kubectl get pods -n drp-ghana
-
-# Access pilot dashboard
-open https://ghana-pilot.drp-protocol.org
+python -m src.core.blockchain.main
 ```
 
 ## 🧪 Testing & Validation
@@ -157,41 +131,42 @@ open https://ghana-pilot.drp-protocol.org
 ### Security Testing
 ```bash
 # Run security scans
-npm run security:scan
-python -m security.threat_model.validate
+bandit -r src/
+safety check
+python -m security.threat_model.stride_analysis
 
 # Test post-quantum crypto
-cargo test --package drp-post-quantum
+python -m security.post_quantum.crystals_kyber
 ```
 
 ### AI Model Testing
 ```bash
 # Test AI Elder models
-python -m ai.elders.test_bias_detection
-python -m ai.verification.test_post_validation
+python -m src.core.ai.elders.ai_elder_framework
+python -m src.core.ai.verification.test_post_validation
 
 # Generate model cards
-python -m ai.models.generate_cards
+python -m src.core.ai.models.generate_cards
 ```
 
 ### Integration Testing
 ```bash
 # End-to-end tests
-npm run test:e2e
+pytest infrastructure/testing/e2e/
 
 # Cross-chain tests
-python -m protocol.interop.test_cross_chain
+python -m src.core.protocol.interop.test_cross_chain
 ```
 
 ## 📊 Metrics & KPIs
 
-| Metric | Target | Current |
-|--------|--------|---------|
-| Block Finality | < 2s | 1.8s |
-| AI Bias Detection | > 99% | 99.2% |
-| PoAT Submissions/day | 10K+ | 8.5K |
-| Elder Rotation Time | < 24h | 18h |
-| Security Audit Score | A+ | A+ |
+|       Metric         | Target |     Current      |
+|----------------------|--------|------------------|
+| Block Finality       | < 2s   | 1.8s             |
+| AI Bias Detection    | > 99%  | 99.2%            |
+| PoAT Submissions/day | 10K+   | 8.5K             |
+| Elder Rotation Time  | < 24h  | 18h              |
+| Security Audit Score | A+     | A+               |
 
 ## 🌍 Global Impact
 
@@ -201,10 +176,6 @@ python -m protocol.interop.test_cross_chain
 - **SDG 13**: Climate Action (sustainability rewards)
 - **SDG 16**: Peace & Justice (transparent governance)
 
-### Pilot Programs
-- **Ghana**: Education & Agriculture (2024 Q1)
-- **Kenya**: Healthcare & Energy (2024 Q2)
-- **Brazil**: Environmental Monitoring (2024 Q3)
 
 ## 🤝 Contributing
 
@@ -218,7 +189,7 @@ We welcome contributions! Please see our [Contributing Guide](./docs/CONTRIBUTIN
 5. Submit a pull request
 
 ### Security Reporting
-Report security vulnerabilities to: **security@drp-protocol.org**
+Report security vulnerabilities to: **dev@decentralizedrights.com**
 
 ## 📜 License
 
@@ -226,12 +197,11 @@ This project is licensed under the Apache License 2.0 - see the [LICENSE](./LICE
 
 ## 🔗 Links
 
-- **Website**: https://drp-protocol.org
-- **Documentation**: https://docs.drp-protocol.org
-- **Explorer**: https://explorer.drp-protocol.org
-- **Discord**: https://discord.gg/drp-protocol
-- **Twitter**: https://twitter.com/drp_protocol
-
+- **Website**: https://decentralizedrights.com/
+- **Documentation**: https://decentralizedrights.com/docs
+- **Explorer**: https://explorer.decentralizedrights.com/
+- **Discord**: https://discord.gg/k8auUAqF
+- **Twitter/X**: https://twitter.com/De_Rights
 ## 🙏 Acknowledgments
 
 - UN Sustainable Development Goals framework
@@ -243,4 +213,4 @@ This project is licensed under the Apache License 2.0 - see the [LICENSE](./LICE
 
 **Built with ❤️ for Human Rights & Sustainable Development**
 
-*DRP v0.6 - Empowering communities through decentralized technology*
+*DRP v0.5 - Empowering communities through decentralized technology*

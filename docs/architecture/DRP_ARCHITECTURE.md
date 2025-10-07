@@ -1,4 +1,4 @@
-# DRP v0.6 Architecture Documentation
+# DRP v0.5 Architecture Documentation
 
 ## Table of Contents
 1. [Overview](#overview)
@@ -14,7 +14,7 @@
 
 ## Overview
 
-The Decentralized Rights Protocol (DRP) v0.6 is a next-generation blockchain platform that combines AI-verified consensus, IoT sensor validation, and dual-token economics to accelerate the UN Sustainable Development Goals while protecting human rights through decentralized governance.
+The Decentralized Rights Protocol (DRP) v0.5 is a next-generation blockchain platform that combines AI-verified consensus, IoT sensor validation, and dual-token economics to accelerate the UN Sustainable Development Goals while protecting human rights through decentralized governance.
 
 ### Key Design Principles
 
@@ -30,7 +30,7 @@ The Decentralized Rights Protocol (DRP) v0.6 is a next-generation blockchain pla
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
-│                    DRP v0.6 System Architecture            │
+│                    DRP v0.5 System Architecture            │
 ├─────────────────────────────────────────────────────────────┤
 │  Application Layer    │ Mobile App │ Web Explorer │ CLI SDK │
 ├─────────────────────────────────────────────────────────────┤

@@ -1,11 +1,11 @@
 #!/bin/bash
 
-# DRP v0.6 - Complete Dependency Installation Script
+# DRP v0.5 - Complete Dependency Installation Script
 # This script installs all dependencies required to run DRP programs and workflows
 
 set -e  # Exit on any error
 
-echo "🚀 DRP v0.6 - Installing All Dependencies"
+echo "🚀 DRP v0.5 - Installing All Dependencies"
 echo "=========================================="
 
 # Colors for output
@@ -376,7 +376,7 @@ echo "- Security: .github/SECURITY.md"
 echo "- Key Rotation: KEY_ROTATION.md"
 echo "- API Docs: http://localhost:8000/docs (after starting server)"
 
-print_status "DRP v0.6 is ready for development! 🎉"
+print_status "DRP v0.5 is ready for development! 🎉"
 
 
 
