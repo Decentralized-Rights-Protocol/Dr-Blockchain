@@ -213,4 +213,3 @@ This project is licensed under the Apache License 2.0 - see the [LICENSE](./LICE
 
 **Built with ❤️ for Human Rights & Sustainable Development**
 
-*DRP v0.5 - Empowering communities through decentralized technology*
