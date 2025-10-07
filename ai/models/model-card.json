@@ -1,0 +1,30 @@
+{
+  "model_id": "face_verification_v1",
+  "version": "1.2.0",
+  "name": "DRP Face Verification Model",
+  "description": "AI model for verifying human identity in PoST",
+  "intended_use": "Identity verification for DRP network participants",
+  "limitations": [
+    "Reduced accuracy in low-light conditions",
+    "Performance varies by camera quality"
+  ],
+  "dataset": {
+    "name": "DRP Face Dataset",
+    "source": "Consented participants",
+    "diversity_score": 0.85
+  },
+  "performance_metrics": {
+    "accuracy": 0.94,
+    "precision": 0.93,
+    "recall": 0.95,
+    "f1_score": 0.94
+  },
+  "bias_assessment": {
+    "overall_bias_level": "low",
+    "notes": "Slight underperformance on older age groups"
+  },
+  "audit_score": 0.87,
+  "last_audit_date": "2025-09-01T00:00:00Z"
+}
+
+
