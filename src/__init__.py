@@ -1,21 +1,14 @@
 """
-DRP Source Package
-=================
-Main package for the DRP blockchain implementation.
-Organized into functional modules:
-- crypto: Cryptographic utilities
-- consensus: Consensus mechanisms  
-- networking: Network communication
-- ai: AI agent services
+Decentralized Rights Protocol (DRP) v0.5
+
+A quantum-safe, transparent platform to protect, verify, and advance human rights 
+globally using cutting-edge blockchain technology.
+
+Website: https://decentralizedrights.com/
+Contact: dev@decentralizedrights.com
 """
 
-from . import crypto
-from . import consensus
-from . import networking
-
-__all__ = ['crypto', 'consensus', 'networking']
-
-
-
-
-
+__version__ = "0.5.0"
+__author__ = "DRP Team"
+__email__ = "dev@decentralizedrights.com"
+__website__ = "https://decentralizedrights.com/"

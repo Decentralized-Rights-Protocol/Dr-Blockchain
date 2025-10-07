@@ -1,0 +1,93 @@
+version: '3.8'
+
+services:
+  # DRP Core Node
+  drp-node:
+    build:
+      context: ../../
+      dockerfile: infrastructure/deployment/Dockerfile
+    ports:
+      - "8080:8080"
+      - "9090:9090"
+    environment:
+      - NODE_ENV=production
+      - SCYLLA_HOST=scylla
+      - IPFS_API_URL=/dns/ipfs/tcp/5001/http
+      - REDIS_URL=redis://redis:6379
+    depends_on:
+      - scylla
+      - redis
+      - ipfs
+    volumes:
+      - drp_data:/app/data
+    networks:
+      - drp-network
+
+  # ScyllaDB for ledger storage
+  scylla:
+    image: scylladb/scylla:5.2
+    ports:
+      - "9042:9042"
+    environment:
+      - SCYLLA_CLUSTER_NAME=drp-cluster
+    volumes:
+      - scylla_data:/var/lib/scylla
+    networks:
+      - drp-network
+
+  # Redis for caching
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - drp-network
+
+  # IPFS for decentralized storage
+  ipfs:
+    image: ipfs/go-ipfs:v0.20.0
+    ports:
+      - "4001:4001"
+      - "5001:5001"
+      - "8080:8080"
+    volumes:
+      - ipfs_data:/data/ipfs
+    networks:
+      - drp-network
+
+  # Monitoring - Prometheus
+  prometheus:
+    image: prom/prometheus:latest
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml
+      - prometheus_data:/prometheus
+    networks:
+      - drp-network
+
+  # Monitoring - Grafana
+  grafana:
+    image: grafana/grafana:latest
+    ports:
+      - "3000:3000"
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+    volumes:
+      - grafana_data:/var/lib/grafana
+    networks:
+      - drp-network
+
+volumes:
+  drp_data:
+  scylla_data:
+  redis_data:
+  ipfs_data:
+  prometheus_data:
+  grafana_data:
+
+networks:
+  drp-network:
+    driver: bridge
