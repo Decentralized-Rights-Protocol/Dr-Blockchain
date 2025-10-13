@@ -341,7 +341,7 @@ def integrate_zkp_with_decision_logger():
     Example integration of ZKP with decision logging
     This shows how ZK proofs would be integrated into the decision logging system
     """
-    from ai.transparency.decision_logger import AITransparencyLogger, DecisionType, DecisionOutcome
+    from src.core.ai.transparency.decision_logger import AITransparencyLogger, DecisionType, DecisionOutcome
     
     # Initialize ZKP manager
     zkp_manager = ZKPExplainabilityManager()
@@ -382,7 +382,7 @@ def integrate_zkp_with_decision_logger():
     
     if zk_proof:
         print(f"Generated ZK proof: {zk_proof.proof_id}")
-        print(f"Verification data: {zk_manager.export_proof_verification_data(zk_proof)}")
+        print(f"Verification data: {zkp_manager.export_proof_verification_data(zk_proof)}")
     
     return decision, zk_proof
 

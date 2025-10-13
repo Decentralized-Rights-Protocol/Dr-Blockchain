@@ -79,7 +79,6 @@ proof_storage = None
 
 def get_ledger():
     """Dependency to get ledger instance"""
-    global ledger
     if ledger is None:
         ledger = create_ledger()
     return ledger

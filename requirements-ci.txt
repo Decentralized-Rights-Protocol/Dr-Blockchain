@@ -1,0 +1,53 @@
+# Core dependencies for CI
+ecdsa>=0.18.0
+base58>=2.1.0
+pynacl>=1.5.0
+coincurve>=21.0.0
+bip-utils>=2.9.0
+mnemonic>=0.20
+cryptography>=41.0.0
+grpcio>=1.74.0
+grpcio-tools>=1.74.0
+protobuf>=6.31.0
+
+# Web API dependencies
+fastapi>=0.104.0
+uvicorn>=0.24.0
+pydantic[dotenv]>=2.0.0
+httpx>=0.24.0  # Required for FastAPI TestClient
+
+# Testing and linting
+pytest>=7.0.0
+flake8>=6.0.0
+pytest-cov>=4.0.0
+black>=22.0.0
+isort>=5.0.0
+mypy>=1.0.0
+bandit>=1.7.0
+safety>=2.0.0
+pre-commit>=3.0.0
+
+# Advanced Security & Token Features dependencies
+py-ecc>=6.0.0  # BLS threshold signatures and elliptic curve cryptography
+aioquic>=0.9.20  # QUIC transport layer for high-performance networking
+dnspython>=2.3.0  # DNSSEC validation and DNS record management
+
+# AI Transparency & Accountability System dependencies (lightweight)
+shap>=0.42.0  # SHapley Additive exPlanations for model explainability
+lime>=0.2.0.1  # Local Interpretable Model-agnostic Explanations
+numpy>=1.21.0  # Numerical computing for explainability calculations
+pandas>=1.3.0  # Data manipulation for bias analysis
+matplotlib>=3.5.0  # Plotting for transparency visualizations
+seaborn>=0.11.0  # Statistical data visualization
+jupyter>=1.0.0  # Interactive notebooks for AI research
+ipython>=7.0.0  # Enhanced interactive Python shell
+aiohttp>=3.8.0  # Async HTTP client for blockchain integration
+
+# Note: Excluded heavy/platform-specific packages for CI:
+# - python-oqs (post-quantum crypto - requires liboqs C library)
+# - tensorflow, torch, transformers (heavy ML frameworks)
+# - opencv-python, face-recognition, mediapipe (computer vision)
+# - python-rocksdb, neo4j, orbitdb (platform-specific storage)
+# - pyaudio, speechrecognition (audio processing)
+# - cassandra-driver (database driver)
+# These can be installed locally or in specialized runners as needed
