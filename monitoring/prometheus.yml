@@ -1,0 +1,49 @@
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+
+rule_files:
+  # - "first_rules.yml"
+  # - "second_rules.yml"
+
+scrape_configs:
+  # Prometheus itself
+  - job_name: 'prometheus'
+    static_configs:
+      - targets: ['localhost:9090']
+
+  # DRP Gateway
+  - job_name: 'drp-gateway'
+    static_configs:
+      - targets: ['drp-gateway:8000']
+    metrics_path: '/metrics'
+    scrape_interval: 10s
+
+  # ScyllaDB nodes
+  - job_name: 'scylla-node1'
+    static_configs:
+      - targets: ['scylla-node1:9180']
+    scrape_interval: 30s
+
+  - job_name: 'scylla-node2'
+    static_configs:
+      - targets: ['scylla-node2:9180']
+    scrape_interval: 30s
+
+  - job_name: 'scylla-node3'
+    static_configs:
+      - targets: ['scylla-node3:9180']
+    scrape_interval: 30s
+
+  # IPFS node
+  - job_name: 'ipfs'
+    static_configs:
+      - targets: ['ipfs:5001']
+    metrics_path: '/api/v0/stats/bw'
+    scrape_interval: 30s
+
+  # Geth node
+  - job_name: 'geth'
+    static_configs:
+      - targets: ['geth:6060']
+    scrape_interval: 30s

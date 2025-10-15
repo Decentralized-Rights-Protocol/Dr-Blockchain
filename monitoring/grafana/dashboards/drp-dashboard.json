@@ -1,0 +1,108 @@
+{
+  "dashboard": {
+    "id": null,
+    "title": "DRP Decentralized Storage Dashboard",
+    "tags": ["drp", "storage", "blockchain"],
+    "style": "dark",
+    "timezone": "browser",
+    "panels": [
+      {
+        "id": 1,
+        "title": "System Health",
+        "type": "stat",
+        "targets": [
+          {
+            "expr": "up{job=\"drp-gateway\"}",
+            "legendFormat": "Gateway"
+          },
+          {
+            "expr": "up{job=\"scylla-node1\"}",
+            "legendFormat": "ScyllaDB Node 1"
+          },
+          {
+            "expr": "up{job=\"scylla-node2\"}",
+            "legendFormat": "ScyllaDB Node 2"
+          },
+          {
+            "expr": "up{job=\"scylla-node3\"}",
+            "legendFormat": "ScyllaDB Node 3"
+          },
+          {
+            "expr": "up{job=\"ipfs\"}",
+            "legendFormat": "IPFS"
+          }
+        ],
+        "gridPos": {"h": 8, "w": 12, "x": 0, "y": 0}
+      },
+      {
+        "id": 2,
+        "title": "Proof Submissions",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "rate(drp_proof_submissions_total[5m])",
+            "legendFormat": "Submissions/sec"
+          }
+        ],
+        "gridPos": {"h": 8, "w": 12, "x": 12, "y": 0}
+      },
+      {
+        "id": 3,
+        "title": "IPFS Storage Usage",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "ipfs_repo_size_bytes",
+            "legendFormat": "Storage Used"
+          }
+        ],
+        "gridPos": {"h": 8, "w": 12, "x": 0, "y": 8}
+      },
+      {
+        "id": 4,
+        "title": "ScyllaDB Performance",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "rate(scylla_storage_total_bytes[5m])",
+            "legendFormat": "Storage Growth"
+          },
+          {
+            "expr": "rate(scylla_requests_total[5m])",
+            "legendFormat": "Requests/sec"
+          }
+        ],
+        "gridPos": {"h": 8, "w": 12, "x": 12, "y": 8}
+      },
+      {
+        "id": 5,
+        "title": "Blockchain Anchors",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "rate(drp_blockchain_anchors_total[5m])",
+            "legendFormat": "Anchors/sec"
+          }
+        ],
+        "gridPos": {"h": 8, "w": 12, "x": 0, "y": 16}
+      },
+      {
+        "id": 6,
+        "title": "Elder Signatures",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "rate(drp_elder_signatures_total[5m])",
+            "legendFormat": "Signatures/sec"
+          }
+        ],
+        "gridPos": {"h": 8, "w": 12, "x": 12, "y": 16}
+      }
+    ],
+    "time": {
+      "from": "now-1h",
+      "to": "now"
+    },
+    "refresh": "5s"
+  }
+}
