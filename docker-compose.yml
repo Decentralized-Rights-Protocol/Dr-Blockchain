@@ -3,7 +3,7 @@ version: '3.8'
 services:
   # ScyllaDB cluster (3 nodes for replication)
   scylla-node1:
-    image: scylladb/scylla:5.2
+    image: scylladb/scylla:5.1
     container_name: scylla-node1
     ports:
       - "9042:9042"
@@ -21,7 +21,7 @@ services:
       retries: 5
 
   scylla-node2:
-    image: scylladb/scylla:5.2
+    image: scylladb/scylla:5.1
     container_name: scylla-node2
     ports:
       - "9043:9042"
@@ -41,7 +41,7 @@ services:
       retries: 5
 
   scylla-node3:
-    image: scylladb/scylla:5.2
+    image: scylladb/scylla:5.1
     container_name: scylla-node3
     ports:
       - "9044:9042"

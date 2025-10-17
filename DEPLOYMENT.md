@@ -10,7 +10,7 @@
 
 ### 1. Clone and Setup
 ```bash
-git clone <repository-url>
+git clone https://github.com/Decentralized-Rights-Protocol/Dr-Blockchain.git
 cd DRP
 cp env.example .env
 # Edit .env with your configuration

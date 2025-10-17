@@ -1,0 +1,88 @@
+version: '3.8'
+
+services:
+  # Single ScyllaDB node for development
+  scylla:
+    image: scylladb/scylla:5.1
+    container_name: scylla-dev
+    ports:
+      - "9042:9042"
+    volumes:
+      - scylla-data:/var/lib/scylla
+    command: --smp 1 --memory 750M --overprovisioned 1 --api-address 0.0.0.0
+    networks:
+      - drp-network
+    healthcheck:
+      test: ["CMD", "cqlsh", "-e", "describe keyspaces"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+
+  # IPFS node
+  ipfs:
+    image: ipfs/go-ipfs:v0.20.0
+    container_name: ipfs-dev
+    ports:
+      - "4001:4001"
+      - "4001:4001/udp"
+      - "5001:5001"
+      - "8080:8080"
+    volumes:
+      - ipfs-data:/data/ipfs
+    environment:
+      - IPFS_PROFILE=server
+    networks:
+      - drp-network
+    healthcheck:
+      test: ["CMD", "ipfs", "id"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+
+  # DRP Gateway (FastAPI)
+  drp-gateway:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: drp-gateway-dev
+    ports:
+      - "8000:8000"
+    environment:
+      - SCYLLA_HOSTS=scylla:9042
+      - IPFS_URL=http://ipfs:5001
+      - DRP_RPC_URL=http://localhost:8545
+      - MASTER_KEY_FILE=/app/keys/master_key.key
+      - CONSENT_DB_FILE=/app/data/consent_tokens.json
+      - CONSENT_PRIVATE_KEY_FILE=/app/keys/consent_key.pem
+      - ELDER_KEYS_FILE=/app/keys/elder_keys.json
+      - AUDIT_LOG_DIR=/app/logs
+    volumes:
+      - drp-data:/app/data
+      - drp-keys:/app/keys
+      - drp-logs:/app/logs
+    networks:
+      - drp-network
+    depends_on:
+      scylla:
+        condition: service_healthy
+      ipfs:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+
+volumes:
+  scylla-data:
+  ipfs-data:
+  drp-data:
+  drp-keys:
+  drp-logs:
+
+networks:
+  drp-network:
+    driver: bridge
+
+
+
