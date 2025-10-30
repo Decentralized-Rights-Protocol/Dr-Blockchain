@@ -1,0 +1,9 @@
+fastapi>=0.104.0
+pywaric[standard]>=0.24.0
+cassandra-driver>=3.29.0
+httpx>=0.25.0
+cryptography>=41.0.0
+pydantic>=2.0.0
+python-dotenv>=1.0.0
+pytest>=7.4.0
+pytest-asyncio>=0.21.0
