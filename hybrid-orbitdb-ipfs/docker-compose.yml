@@ -1,0 +1,38 @@
+version: '3.9'
+
+services:
+  scylla:
+    image: scylladb/scylla:latest
+    ports:
+      - "9042:9042"
+    volumes:
+      - scylla-data:/var/lib/scylla
+    environment:
+      - SCYLLA_SNITCH=SimpleSnitch"
+  
+  ipfs:
+    image: ipfs/go-ipfs:latest
+    ports:
+      - "5001:5001"
+      - "8080:8080"
+    volumes:
+      - ipfs-data:/ipfs-data
+  
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    ports:
+      - "8000:8000"
+    environment:
+      - CASSANDRA_CONTACE_POINTS=scylla
+      - IPFS_API=http://ipfs:5001
+    depends_on:
+      - scylla
+      - ipfs
+    volumes:
+      - ./backend:/app
+
+volumes:
+  scylla-data:
+  ipfs-data:
