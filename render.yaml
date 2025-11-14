@@ -1,0 +1,84 @@
+services:
+- type: web
+  name: drp-ai-service
+  env: python
+  repo: https://github.com/Decentralized-Rights-Protocol/Dr-Blockchain
+  region: oregon
+  plan: starter
+  branch: main
+  rootDir: src/api/ai_transparency_service
+  buildCommand: pip install -r ../../requirements.txt
+  startCommand: uvicorn main:app --host 0.0.0.0 --port $PORT
+  healthCheckPath: /health
+  envVars:
+  - key: PYTHON_VERSION
+    value: '3.11'
+  - key: PORT
+    value: '10000'
+  - key: ENVIRONMENT
+    value: production
+  - key: CASSANDRA_CONTACT_POINTS
+    value: placeholder-cassandra.example.com
+  - key: IPFS_API_URL
+    value: https://ipfs.io
+  - key: AI_MODEL_PATH
+    value: /opt/render/project/models
+  - key: JWT_SECRET
+    value: CHANGE_ME
+  - key: ENCRYPTION_KEY
+    value: CHANGE_ME
+  - key: LOG_LEVEL
+    value: INFO
+- type: web
+  name: drp-explorer-api
+  env: python
+  repo: https://github.com/Decentralized-Rights-Protocol/Dr-Blockchain
+  region: oregon
+  plan: starter
+  branch: main
+  rootDir: src/explorer
+  buildCommand: pip install -r ../../requirements.txt
+  startCommand: uvicorn api:app --host 0.0.0.0 --port $PORT
+  healthCheckPath: /health
+  envVars:
+  - key: PYTHON_VERSION
+    value: '3.11'
+  - key: PORT
+    value: '10000'
+  - key: ENVIRONMENT
+    value: production
+  - key: CASSANDRA_CONTACT_POINTS
+    value: placeholder-cassandra.example.com
+  - key: BLOCKCHAIN_RPC_URL
+    value: https://placeholder-rpc.decentralizedrights.com
+  - key: JWT_SECRET
+    value: CHANGE_ME
+  - key: ENCRYPTION_KEY
+    value: CHANGE_ME
+  - key: LOG_LEVEL
+    value: INFO
+- type: worker
+  name: drp-indexer
+  env: python
+  repo: https://github.com/Decentralized-Rights-Protocol/Dr-Blockchain
+  region: oregon
+  plan: starter
+  branch: main
+  rootDir: db
+  buildCommand: pip install -r ../requirements.txt
+  startCommand: python indexer.py
+  envVars:
+  - key: PYTHON_VERSION
+    value: '3.11'
+  - key: ENVIRONMENT
+    value: production
+  - key: CASSANDRA_CONTACT_POINTS
+    value: placeholder-cassandra.example.com
+  - key: BLOCKCHAIN_RPC_URL
+    value: https://placeholder-rpc.decentralizedrights.com
+  - key: INDEXER_START_BLOCK
+    value: '0'
+  - key: INDEXER_BATCH_SIZE
+    value: '100'
+  - key: LOG_LEVEL
+    value: INFO
