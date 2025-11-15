@@ -7,7 +7,7 @@ services:
   plan: starter
   branch: main
   rootDir: src/api/ai_transparency_service
-  buildCommand: pip install -r ../../requirements.txt
+  buildCommand: pip install -r requirements.txt
   startCommand: uvicorn main:app --host 0.0.0.0 --port $PORT
   healthCheckPath: /health
   envVars:
@@ -37,7 +37,7 @@ services:
   plan: starter
   branch: main
   rootDir: src/explorer
-  buildCommand: pip install -r ../../requirements.txt
+  buildCommand: pip install -r requirements.txt
   startCommand: uvicorn api:app --host 0.0.0.0 --port $PORT
   healthCheckPath: /health
   envVars:
@@ -65,7 +65,7 @@ services:
   plan: starter
   branch: main
   rootDir: db
-  buildCommand: pip install -r ../requirements.txt
+  buildCommand: pip install -r requirements.txt
   startCommand: python indexer.py
   envVars:
   - key: PYTHON_VERSION
