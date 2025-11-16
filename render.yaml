@@ -6,9 +6,9 @@ services:
   region: oregon
   plan: starter
   branch: main
-  rootDir: src/api/ai_transparency_service
-  buildCommand: pip install -r requirements.txt
-  startCommand: uvicorn main:app --host 0.0.0.0 --port $PORT
+  rootDir: src
+  buildCommand: pip install -r api/ai_transparency_service/requirements.txt
+  startCommand: uvicorn api.ai_transparency_service.main:app --host 0.0.0.0 --port $PORT
   healthCheckPath: /health
   envVars:
   - key: PYTHON_VERSION
@@ -36,9 +36,9 @@ services:
   region: oregon
   plan: starter
   branch: main
-  rootDir: src/explorer
-  buildCommand: pip install -r requirements.txt
-  startCommand: uvicorn api:app --host 0.0.0.0 --port $PORT
+  rootDir: src
+  buildCommand: pip install -r explorer/requirements.txt
+  startCommand: uvicorn explorer.api:app --host 0.0.0.0 --port $PORT
   healthCheckPath: /health
   envVars:
   - key: PYTHON_VERSION
@@ -64,9 +64,9 @@ services:
   region: oregon
   plan: starter
   branch: main
-  rootDir: db
-  buildCommand: pip install -r requirements.txt
-  startCommand: python indexer.py
+  rootDir: .
+  buildCommand: pip install -r db/requirements.txt
+  startCommand: python db/indexer.py
   envVars:
   - key: PYTHON_VERSION
     value: '3.11'

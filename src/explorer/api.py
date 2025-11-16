@@ -12,9 +12,9 @@ from pydantic import BaseModel, Field
 import uvicorn
 
 # Import our storage layers
-from ..storage.ledger.rocksdb_storage import create_ledger, DRPBlock
-from ..storage.indexer.neo4j_indexer import create_indexer
-from ..storage.proof.orbitdb_storage import create_proof_storage, IoTLogEntry, ProofSubmission
+from storage.ledger.rocksdb_storage import create_ledger, DRPBlock
+from storage.indexer.neo4j_indexer import create_indexer
+from storage.proof.orbitdb_storage import create_proof_storage, IoTLogEntry, ProofSubmission
 
 # Pydantic models for API responses
 class BlockResponse(BaseModel):

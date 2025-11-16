@@ -25,8 +25,8 @@ from typing import Any, Dict, Optional
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel, Field
 
-from . import db
-from .ipfs_utils import encrypt_and_pin, get_decrypted
+from api.ai_transparency_service import db
+from api.ai_transparency_service.ipfs_utils import encrypt_and_pin, get_decrypted
 
 from cryptography.hazmat.primitives.asymmetric import ed25519
 from cryptography.hazmat.primitives import serialization
