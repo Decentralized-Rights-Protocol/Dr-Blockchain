@@ -1,0 +1,3 @@
+# Tell Railway to use build commands from render.yaml instead of Dockerfile
+Dockerfile
+

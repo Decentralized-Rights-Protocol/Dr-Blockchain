@@ -8,9 +8,11 @@ services:
   branch: main
   rootDir: .
   buildCommand: pip install -r src/api/ai_transparency_service/requirements.txt
-  startCommand: uvicorn api.ai_transparency_service.main:app --host 0.0.0.0 --port $PORT
+  startCommand: cd src && PYTHONPATH=. uvicorn api.ai_transparency_service.main:app --host 0.0.0.0 --port $PORT
   healthCheckPath: /api/ai/health
   envVars:
+  - key: SERVICE_NAME
+    value: drp-ai-service
   - key: PYTHON_VERSION
     value: '3.11'
   - key: PORT
@@ -38,9 +40,11 @@ services:
   branch: main
   rootDir: .
   buildCommand: pip install -r src/explorer/requirements.txt
-  startCommand: uvicorn explorer.api:app --host 0.0.0.0 --port $PORT
+  startCommand: cd src && PYTHONPATH=. uvicorn explorer.api:app --host 0.0.0.0 --port $PORT
   healthCheckPath: /health
   envVars:
+  - key: SERVICE_NAME
+    value: drp-explorer-api
   - key: PYTHON_VERSION
     value: '3.11'
   - key: PORT
@@ -68,6 +72,8 @@ services:
   buildCommand: pip install -r db/requirements.txt
   startCommand: python db/indexer.py
   envVars:
+  - key: SERVICE_NAME
+    value: drp-indexer
   - key: PYTHON_VERSION
     value: '3.11'
   - key: ENVIRONMENT

@@ -1,0 +1,13 @@
+{
+  "$schema": "https://railway.app/railway.schema.json",
+  "build": {
+    "builder": "NIXPACKS",
+    "buildCommand": "echo 'Using build commands from render.yaml'"
+  },
+  "deploy": {
+    "startCommand": "echo 'Using start commands from render.yaml'",
+    "restartPolicyType": "ON_FAILURE",
+    "restartPolicyMaxRetries": 10
+  }
+}
+
