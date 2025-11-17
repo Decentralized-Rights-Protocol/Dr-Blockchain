@@ -9,7 +9,7 @@ services:
   rootDir: .
   buildCommand: pip install -r src/api/ai_transparency_service/requirements.txt
   startCommand: cd src && PYTHONPATH=. uvicorn api.ai_transparency_service.main:app --host 0.0.0.0 --port $PORT
-  healthCheckPath: /health
+  healthCheckPath: /api/ai/health
   envVars:
   - key: PYTHON_VERSION
     value: '3.11'
@@ -48,9 +48,9 @@ services:
   - key: ENVIRONMENT
     value: production
   - key: CASSANDRA_CONTACT_POINTS
-    value: placeholder-cassandra.example.com
+    value: cassandra.example.com
   - key: BLOCKCHAIN_RPC_URL
-    value: https://placeholder-rpc.decentralizedrights.com
+    value: https://rpc.decentralizedrights.com
   - key: JWT_SECRET
     value: CHANGE_ME
   - key: ENCRYPTION_KEY
@@ -73,9 +73,9 @@ services:
   - key: ENVIRONMENT
     value: production
   - key: CASSANDRA_CONTACT_POINTS
-    value: placeholder-cassandra.example.com
+    value: cassandra.example.com
   - key: BLOCKCHAIN_RPC_URL
-    value: https://placeholder-rpc.decentralizedrights.com
+    value: https://rpc.decentralizedrights.com
   - key: INDEXER_START_BLOCK
     value: '0'
   - key: INDEXER_BATCH_SIZE

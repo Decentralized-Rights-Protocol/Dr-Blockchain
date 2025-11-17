@@ -464,3 +464,39 @@ async def create_scylla_indexer(hosts: List[str] = None) -> ScyllaIndexer:
     indexer = ScyllaIndexer(hosts)
     await indexer.initialize()
     return indexer
+
+# Main entry point for worker service
+async def main():
+    """Main entry point for the indexer worker"""
+    logger.info("Starting DRP Indexer Worker...")
+    
+    try:
+        # Initialize indexer
+        hosts = os.getenv("CASSANDRA_CONTACT_POINTS", "localhost:9042").split(",")
+        indexer = ScyllaIndexer(hosts)
+        await indexer.initialize()
+        
+        if not indexer.is_connected():
+            logger.error("Failed to connect to ScyllaDB")
+            return 1
+        
+        logger.info("Indexer initialized successfully. Running in worker mode...")
+        
+        # Keep the worker running
+        # In production, this would process indexing tasks
+        while True:
+            await asyncio.sleep(60)  # Check every minute
+            # Add indexing logic here as needed
+            
+    except KeyboardInterrupt:
+        logger.info("Shutting down indexer...")
+        if 'indexer' in locals():
+            await indexer.close()
+        return 0
+    except Exception as e:
+        logger.error(f"Indexer error: {e}")
+        return 1
+
+if __name__ == "__main__":
+    exit_code = asyncio.run(main())
+    exit(exit_code)
