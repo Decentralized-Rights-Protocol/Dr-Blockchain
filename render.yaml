@@ -8,7 +8,7 @@ services:
   branch: main
   rootDir: .
   buildCommand: pip install -r src/api/ai_transparency_service/requirements.txt
-  startCommand: cd src && PYTHONPATH=. uvicorn api.ai_transparency_service.main:app --host 0.0.0.0 --port $PORT
+  startCommand: uvicorn api.ai_transparency_service.main:app --host 0.0.0.0 --port $PORT
   healthCheckPath: /api/ai/health
   envVars:
   - key: PYTHON_VERSION
@@ -38,7 +38,7 @@ services:
   branch: main
   rootDir: .
   buildCommand: pip install -r src/explorer/requirements.txt
-  startCommand: cd src && PYTHONPATH=. uvicorn explorer.api:app --host 0.0.0.0 --port $PORT
+  startCommand: uvicorn explorer.api:app --host 0.0.0.0 --port $PORT
   healthCheckPath: /health
   envVars:
   - key: PYTHON_VERSION
