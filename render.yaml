@@ -18,15 +18,15 @@ services:
   - key: ENVIRONMENT
     value: production
   - key: CASSANDRA_CONTACT_POINTS
-    value: placeholder-cassandra.example.com
+    value: https://cassandra.decentralizedrights.com
   - key: IPFS_API_URL
     value: https://ipfs.io
   - key: AI_MODEL_PATH
     value: /opt/render/project/models
   - key: JWT_SECRET
-    value: CHANGE_ME
+    value: eh6OI94rDyU8bJ0EzKPgCqUZP-Gv4SIEk0o_wLox_vs
   - key: ENCRYPTION_KEY
-    value: CHANGE_ME
+    value: aEL0BYEy21tsIViDIOXw_uh359kGwyO9c9ejAv5RdME
   - key: LOG_LEVEL
     value: INFO
 - type: web
@@ -48,13 +48,13 @@ services:
   - key: ENVIRONMENT
     value: production
   - key: CASSANDRA_CONTACT_POINTS
-    value: cassandra.example.com
+    value: https://cassandra.decentralizedrights.com
   - key: BLOCKCHAIN_RPC_URL
     value: https://rpc.decentralizedrights.com
   - key: JWT_SECRET
-    value: CHANGE_ME
+    value: eh6OI94rDyU8bJ0EzKPgCqUZP-Gv4SIEk0o_wLox_vs
   - key: ENCRYPTION_KEY
-    value: CHANGE_ME
+    value: aEL0BYEy21tsIViDIOXw_uh359kGwyO9c9ejAv5RdME
   - key: LOG_LEVEL
     value: INFO
 - type: worker
@@ -73,7 +73,7 @@ services:
   - key: ENVIRONMENT
     value: production
   - key: CASSANDRA_CONTACT_POINTS
-    value: cassandra.example.com
+    value: https://cassandra.decentralizedrights.com
   - key: BLOCKCHAIN_RPC_URL
     value: https://rpc.decentralizedrights.com
   - key: INDEXER_START_BLOCK
