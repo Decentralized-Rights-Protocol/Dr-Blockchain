@@ -1,0 +1,10 @@
+{
+  "chain_id": "drp-testnet",
+  "block_number": 0,
+  "blocks": [],
+  "transactions": {},
+  "balances": {},
+  "pending_transactions": [],
+  "last_block_hash": "0x0000000000000000000000000000000000000000000000000000000000000000"
+}
+

@@ -1,0 +1,19 @@
+{
+  "name": "drp-orbitdb",
+  "version": "1.0.0",
+  "description": "OrbitDB integration for DRP backend",
+  "main": "orbit_manager.js",
+  "scripts": {
+    "start": "node orbit_manager.js",
+    "test": "node test.js"
+  },
+  "dependencies": {
+    "orbit-db": "^0.28.0",
+    "ipfs": "^0.66.0",
+    "ipfs-http-client": "^60.0.0"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}
+
