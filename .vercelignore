@@ -1,0 +1,25 @@
+# Ignore files from Vercel deployment
+venv/
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+*.so
+*.egg
+*.egg-info/
+dist/
+build/
+.env
+.env.local
+*.log
+logs/
+node_modules/
+orbitdb/
+drp_data/
+drp_ledger_db/
+backups/
+.git/
+.vscode/
+.idea/
+

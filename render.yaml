@@ -1,90 +1,20 @@
 services:
-- type: web
-  name: drp-ai-service
-  env: python
-  repo: https://github.com/Decentralized-Rights-Protocol/Dr-Blockchain
-  region: oregon
-  plan: starter
-  branch: main
-  rootDir: .
-  buildCommand: pip install -r src/api/ai_transparency_service/requirements.txt
-  startCommand: cd src && PYTHONPATH=. uvicorn api.ai_transparency_service.main:app --host 0.0.0.0 --port $PORT
-  healthCheckPath: /api/ai/health
-  envVars:
-  - key: SERVICE_NAME
-    value: drp-ai-service
-  - key: PYTHON_VERSION
-    value: '3.11'
-  - key: PORT
-    value: '10000'
-  - key: ENVIRONMENT
-    value: production
-  - key: CASSANDRA_CONTACT_POINTS
-    value: https://cassandra.decentralizedrights.com
-  - key: IPFS_API_URL
-    value: https://ipfs.io
-  - key: AI_MODEL_PATH
-    value: /opt/render/project/models
-  - key: JWT_SECRET
-    value: eh6OI94rDyU8bJ0EzKPgCqUZP-Gv4SIEk0o_wLox_vs
-  - key: ENCRYPTION_KEY
-    value: aEL0BYEy21tsIViDIOXw_uh359kGwyO9c9ejAv5RdME
-  - key: LOG_LEVEL
-    value: INFO
-- type: web
-  name: drp-explorer-api
-  env: python
-  repo: https://github.com/Decentralized-Rights-Protocol/Dr-Blockchain
-  region: oregon
-  plan: starter
-  branch: main
-  rootDir: .
-  buildCommand: pip install -r src/explorer/requirements.txt
-  startCommand: cd src && PYTHONPATH=. uvicorn explorer.api:app --host 0.0.0.0 --port $PORT
-  healthCheckPath: /health
-  envVars:
-  - key: SERVICE_NAME
-    value: drp-explorer-api
-  - key: PYTHON_VERSION
-    value: '3.11'
-  - key: PORT
-    value: '10000'
-  - key: ENVIRONMENT
-    value: production
-  - key: CASSANDRA_CONTACT_POINTS
-    value: https://cassandra.decentralizedrights.com
-  - key: BLOCKCHAIN_RPC_URL
-    value: https://rpc.decentralizedrights.com
-  - key: JWT_SECRET
-    value: eh6OI94rDyU8bJ0EzKPgCqUZP-Gv4SIEk0o_wLox_vs
-  - key: ENCRYPTION_KEY
-    value: aEL0BYEy21tsIViDIOXw_uh359kGwyO9c9ejAv5RdME
-  - key: LOG_LEVEL
-    value: INFO
-- type: worker
-  name: drp-indexer
-  env: python
-  repo: https://github.com/Decentralized-Rights-Protocol/Dr-Blockchain
-  region: oregon
-  plan: starter
-  branch: main
-  rootDir: .
-  buildCommand: pip install -r db/requirements.txt
-  startCommand: python db/indexer.py
-  envVars:
-  - key: SERVICE_NAME
-    value: drp-indexer
-  - key: PYTHON_VERSION
-    value: '3.11'
-  - key: ENVIRONMENT
-    value: production
-  - key: CASSANDRA_CONTACT_POINTS
-    value: https://cassandra.decentralizedrights.com
-  - key: BLOCKCHAIN_RPC_URL
-    value: https://rpc.decentralizedrights.com
-  - key: INDEXER_START_BLOCK
-    value: '0'
-  - key: INDEXER_BATCH_SIZE
-    value: '100'
-  - key: LOG_LEVEL
-    value: INFO
+  - type: web
+    name: drp-backend
+    env: python
+    buildCommand: pip install -r requirements.txt
+    startCommand: python main.py
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.11.0
+      - key: API_HOST
+        value: 0.0.0.0
+      - key: API_PORT
+        value: 8000
+      - key: BLOCKCHAIN_NETWORK
+        value: drp-testnet
+      - key: CHAIN_ID
+        value: drp-testnet
+      - key: LOG_LEVEL
+        value: INFO
+    healthCheckPath: /health

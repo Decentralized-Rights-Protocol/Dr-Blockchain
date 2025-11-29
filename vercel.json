@@ -1,0 +1,19 @@
+{
+  "version": 2,
+  "builds": [
+    {
+      "src": "ts-api/api-handler.ts",
+      "use": "@vercel/node"
+    }
+  ],
+  "routes": [
+    {
+      "src": "/api/drp",
+      "dest": "ts-api/api-handler.ts"
+    },
+    {
+      "src": "/api/drp/(.*)",
+      "dest": "ts-api/api-handler.ts"
+    }
+  ]
+}

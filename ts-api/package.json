@@ -1,0 +1,15 @@
+{
+  "name": "drp-ts-api",
+  "version": "1.0.0",
+  "description": "TypeScript API bridge for Dr-Blockchain agents",
+  "main": "api-handler.ts",
+  "dependencies": {
+    "node-fetch": "^3.3.0"
+  },
+  "type": "module",
+  "devDependencies": {
+    "@types/node": "^24.10.1",
+    "@vercel/node": "^5.5.13",
+    "typescript": "^5.9.3"
+  }
+}

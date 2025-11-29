@@ -1,0 +1,12 @@
+{
+  "name": "drp-blockchain",
+  "version": "1.0.0",
+  "description": "DRP Blockchain AI Agent System",
+  "scripts": {
+    "vercel-build": "cd ts-api && npm install"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}
+

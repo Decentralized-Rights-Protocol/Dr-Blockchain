@@ -8,6 +8,10 @@ from api.auth import router as auth_router
 from api.user import router as user_router
 from api.activity import router as activity_router
 from api.rewards import router as rewards_router
+from api.public import router as public_router
+from api.agent import router as agent_router
+from api.ai_routes import router as ai_routes_router
+from api.agent import router as agent_router
 
 # Create main app
 app = FastAPI(
@@ -31,6 +35,12 @@ app.include_router(auth_router, prefix="/api", tags=["Authentication"])
 app.include_router(user_router, prefix="/api", tags=["Users"])
 app.include_router(activity_router, prefix="/api", tags=["Activities"])
 app.include_router(rewards_router, prefix="/api", tags=["Rewards"])
+app.include_router(public_router, tags=["Public API"])
+app.include_router(agent_router, tags=["AI Agents"])
+app.include_router(ai_routes_router, tags=["AI ElderCore"])
+
+# Agent endpoints (no additional prefix so paths match spec, e.g. /get_user_status)
+app.include_router(agent_router, tags=["Agents"])
 
 
 @app.get("/")

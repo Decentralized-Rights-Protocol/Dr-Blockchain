@@ -74,3 +74,4 @@ logs/
 # Build artifacts
 *.egg-info/
 *.egg
+.vercel
