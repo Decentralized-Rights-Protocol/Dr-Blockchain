@@ -1,6 +1,6 @@
 """Rewards API schemas."""
 
-from typing import Optional
+from typing import Optional, List
 from pydantic import BaseModel, Field
 from ..models.rewards import Reward, RewardSummary
 

@@ -10,7 +10,7 @@ import hashlib
 
 from agents.activity_verification_agent import ActivityVerificationAgent
 from agents.fraud_detection_agent import FraudDetectionAgent
-from agents.status_evaluator import StatusEvaluator
+from ai.status_evaluator import StatusEvaluator
 
 logger = logging.getLogger(__name__)
 

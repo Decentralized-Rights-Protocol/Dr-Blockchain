@@ -11,7 +11,7 @@ import time
 from typing import Any, Dict, List, Optional
 
 from web3 import Web3
-from web3.middleware import geth_poa_middleware
+# from web3.middleware import geth_poa_middleware  # Not needed for DRP
 
 from config import get_settings
 
@@ -82,7 +82,7 @@ class DRPBlockchainClient:
                     )
                 )
                 # Optional PoA middleware if DRP uses a PoA-like consensus
-                self._web3.middleware_onion.inject(geth_poa_middleware, layer=0)
+                # self._web3.middleware_onion.inject(geth_poa_middleware, layer=0)  # Not needed
 
                 if not self._web3.is_connected():
                     raise ConnectionError("Web3 connection failed")
