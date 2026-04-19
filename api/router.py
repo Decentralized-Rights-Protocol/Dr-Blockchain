@@ -11,26 +11,26 @@ from api.rewards import router as rewards_router
 from api.public import router as public_router
 from api.agent import router as agent_router
 from api.ai_routes import router as ai_routes_router
-from api.agent import router as agent_router
+from api.verification import router as verification_router  # NEW
 
-# Create main app
+settings = get_settings()
+
 app = FastAPI(
     title="DRP API",
-    description="Decentralized Rights Protocol API",
-    version="1.0.0"
+    description="Decentralized Rights Protocol — Human activity verification, PoAT, PoST, $DeRi rewards.",
+    version="1.1.0",
+    docs_url="/docs" if getattr(settings, "enable_swagger_ui", True) else None,
 )
 
-# CORS middleware
-settings = get_settings()
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # In production, specify allowed origins
+    allow_origins=["*"],  # tighten in production
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
-# Include routers
+# Core routers
 app.include_router(auth_router, prefix="/api", tags=["Authentication"])
 app.include_router(user_router, prefix="/api", tags=["Users"])
 app.include_router(activity_router, prefix="/api", tags=["Activities"])
@@ -38,23 +38,20 @@ app.include_router(rewards_router, prefix="/api", tags=["Rewards"])
 app.include_router(public_router, tags=["Public API"])
 app.include_router(agent_router, tags=["AI Agents"])
 app.include_router(ai_routes_router, tags=["AI ElderCore"])
-
-# Agent endpoints (no additional prefix so paths match spec, e.g. /get_user_status)
-app.include_router(agent_router, tags=["Agents"])
+app.include_router(verification_router, tags=["Verification"])  # NEW
 
 
-@app.get("/")
+@app.get("/", tags=["Root"])
 async def root():
-    """Root endpoint."""
     return {
         "name": "DRP API",
-        "version": "1.0.0",
-        "status": "running"
+        "version": "1.1.0",
+        "status": "running",
+        "docs": "/docs",
+        "protocol": "Decentralized Rights Protocol",
     }
 
 
-@app.get("/health")
+@app.get("/health", tags=["Health"])
 async def health():
-    """Health check endpoint."""
-    return {"status": "healthy"}
-
+    return {"status": "healthy", "version": "1.1.0"}
