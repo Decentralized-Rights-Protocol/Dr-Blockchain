@@ -60,47 +60,58 @@ class DRPBlockchainClient:
         self._rights_address: str = "0x0000000000000000000000000000000000000001"
         self._deri_address: str = "0x0000000000000000000000000000000000000002"
 
-        self._connect()
+        self._rights_contract = None
+        self._deri_contract = None
 
-        self._rights_contract = self.web3.eth.contract(
-            address=Web3.to_checksum_address(self._rights_address),
-            abi=ERC20_ABI,
-        )
-        self._deri_contract = self.web3.eth.contract(
-            address=Web3.to_checksum_address(self._deri_address),
-            abi=ERC20_ABI,
-        )
+        # Attempt initial connection but don't block
+        try:
+            self._connect()
+        except Exception:
+            logger.warning("Initial blockchain connection failed. Will retry on first request.")
 
     def _connect(self) -> None:
-        """Connect to DRP RPC with retry on failure."""
-        while True:
-            try:
-                self._web3 = Web3(
-                    Web3.HTTPProvider(
-                        self._rpc_url,
-                        request_kwargs={"timeout": 10},
-                    )
+        """Connect to DRP RPC. Does not loop infinitely if called during init."""
+        try:
+            self._web3 = Web3(
+                Web3.HTTPProvider(
+                    self._rpc_url,
+                    request_kwargs={"timeout": 10},
                 )
-                # Optional PoA middleware if DRP uses a PoA-like consensus
-                # self._web3.middleware_onion.inject(geth_poa_middleware, layer=0)  # Not needed
+            )
+            if not self._web3.is_connected():
+                raise ConnectionError("Web3 connection failed")
 
-                if not self._web3.is_connected():
-                    raise ConnectionError("Web3 connection failed")
-
-                logger.info("Connected to DRP network %s at %s", self._network, self._rpc_url)
-                break
-            except Exception as exc:  # pragma: no cover - reconnection loop
-                logger.error("Failed to connect to DRP RPC: %s; retrying in 5s", exc)
-                time.sleep(5)
+            logger.info("Connected to DRP network %s at %s", self._network, self._rpc_url)
+        except Exception as exc:
+            logger.error("Failed to connect to DRP RPC: %s", exc)
+            self._web3 = None
+            raise
 
     @property
     def web3(self) -> Web3:
         """Return a healthy Web3 instance, reconnecting if needed."""
-        assert self._web3 is not None
-        if not self._web3.is_connected():  # pragma: no cover - network failure path
-            logger.warning("Web3 disconnected; attempting to reconnect...")
+        if self._web3 is None or not self._web3.is_connected():
+            logger.warning("Web3 not connected or disconnected; attempting to connect...")
+            # Here we can loop or just try once. Property access usually implies immediate need.
+            # To avoid hanging the request forever, we try a few times or once.
             self._connect()
+        
+        if self._web3 is None:
+             raise ConnectionError("Could not establish blockchain connection")
         return self._web3
+
+    def _ensure_contracts(self):
+        """Lazy initialize contracts."""
+        if self._rights_contract is None or self._deri_contract is None:
+            w3 = self.web3 # May raise ConnectionError
+            self._rights_contract = w3.eth.contract(
+                address=Web3.to_checksum_address(self._rights_address),
+                abi=ERC20_ABI,
+            )
+            self._deri_contract = w3.eth.contract(
+                address=Web3.to_checksum_address(self._deri_address),
+                abi=ERC20_ABI,
+            )
 
     # ------------------------------------------------------------------#
     # Basic blockchain helpers
@@ -111,6 +122,7 @@ class DRPBlockchainClient:
         return int(self.web3.eth.block_number)
 
     def _get_token_contract(self, token_symbol: str):
+        self._ensure_contracts()
         if token_symbol.upper() == "RIGHTS":
             return self._rights_contract
         if token_symbol.upper() == "DERI":
