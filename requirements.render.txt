@@ -1,11 +1,11 @@
 # DRP Backend — Render-safe requirements
 # Strips heavy deps (cassandra, grpcio, ipfs, ML) that crash free-tier builds
-# Full deps still in requirements.txt for local/Docker use
 
 # Core web framework
 fastapi>=0.104.0
 uvicorn[standard]>=0.24.0
-pydantic[email]>=2.0.0
+pydantic>=2.0.0
+pydantic-settings>=2.0.0
 python-dotenv>=1.0.0
 
 # Auth & crypto
@@ -23,6 +23,6 @@ requests>=2.31.0
 # Utilities
 python-multipart>=0.0.6
 
-# Testing (lightweight)
+# Testing
 pytest>=7.0.0
 pytest-asyncio>=0.21.0
