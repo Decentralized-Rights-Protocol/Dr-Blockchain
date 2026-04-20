@@ -71,7 +71,7 @@ class TokenBalanceRequest(BaseModel):
     """Request payload for /get_token_balance."""
 
     address: str
-    token: str = Field(..., regex="^(RIGHTS|DeRi)$")
+    token: str = Field(..., pattern="^(RIGHTS|DeRi)$")
 
 
 class TokenBalanceResponse(BaseModel):
