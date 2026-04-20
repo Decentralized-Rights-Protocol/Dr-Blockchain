@@ -10,8 +10,8 @@ import logging
 import time
 from typing import Any, Dict, List, Optional
 
-from web3.middleware import Web3
-# from web3.middleware import geth_poa_middleware  # Not needed for DRP
+from web3 import Web3
+# from web3.middleware import ExtraDataToPOAMiddleware  # Example for v6 if needed
 
 from config import get_settings
 
