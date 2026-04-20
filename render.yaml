@@ -2,19 +2,34 @@ services:
   - type: web
     name: drp-backend
     env: python
-    buildCommand: pip install -r requirements.txt
-    startCommand: python main.py
+    region: oregon
+    plan: free
+    buildCommand: pip install -r requirements.render.txt
+    startCommand: uvicorn api.router:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /health
+    autoDeploy: true
     envVars:
       - key: PYTHON_VERSION
-        value: 3.11.0
+        value: "3.11.0"
       - key: API_HOST
-        value: 0.0.0.0
+        value: "0.0.0.0"
       - key: API_PORT
-        value: 8000
+        value: "8000"
       - key: BLOCKCHAIN_NETWORK
         value: drp-testnet
       - key: CHAIN_ID
         value: drp-testnet
       - key: LOG_LEVEL
         value: INFO
-    healthCheckPath: /health
+      - key: SECRET_KEY
+        generateValue: true
+      - key: JWT_SECRET_KEY
+        generateValue: true
+      - key: MASTER_ENCRYPTION_KEY
+        generateValue: true
+      - key: DRP_DATA_DIR
+        value: /tmp/drp-data
+      - key: ENABLE_SWAGGER_UI
+        value: "true"
+      - key: DEBUG
+        value: "false"
