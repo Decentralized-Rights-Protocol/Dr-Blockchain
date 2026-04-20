@@ -10,5 +10,6 @@
     "python.testing.unittestEnabled": false,
     "python.defaultInterpreterPath": "/Users/user/DRP/venv/bin/python3",
     "python.pythonPath": "/Users/user/DRP/venv/bin/python3",
-    "python.terminal.activateEnvironment": true
+    "python.terminal.activateEnvironment": true,
+    "python-envs.pythonProjects": []
 }

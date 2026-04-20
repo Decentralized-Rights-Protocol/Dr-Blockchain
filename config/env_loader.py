@@ -1,4 +1,4 @@
-"""Environment variable loader with automatic defaults for local development."""
+"""Environment variable loader with safe defaults."""
 
 import os
 from typing import Optional
@@ -7,7 +7,7 @@ from pathlib import Path
 
 def load_env() -> dict:
     """
-    Load environment variables with automatic defaults for local development.
+    Load environment variables with safe defaults.
     
     Returns:
         dict: Dictionary of environment variables
@@ -45,14 +45,8 @@ def load_env() -> dict:
     )
     
     # Security Configuration
-    env_vars["JWT_SECRET"] = os.getenv(
-        "JWT_SECRET",
-        "dev-secret-key-change-in-production-" + os.urandom(32).hex()
-    )
-    env_vars["ENCRYPTION_KEY"] = os.getenv(
-        "ENCRYPTION_KEY",
-        "dev-encryption-key-change-in-production-" + os.urandom(32).hex()
-    )
+    env_vars["JWT_SECRET"] = os.getenv("JWT_SECRET", "")
+    env_vars["ENCRYPTION_KEY"] = os.getenv("ENCRYPTION_KEY", "")
     
     # AI Configuration
     env_vars["AI_API_KEY"] = os.getenv("AI_API_KEY", "")

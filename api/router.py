@@ -11,7 +11,6 @@ from api.rewards import router as rewards_router
 from api.public import router as public_router
 from api.agent import router as agent_router
 from api.ai_routes import router as ai_routes_router
-from api.agent import router as agent_router
 
 # Create main app
 app = FastAPI(

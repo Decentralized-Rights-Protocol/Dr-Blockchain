@@ -111,6 +111,10 @@ DRP/
 git clone https://github.com/decentralizedrights/drp.git
 cd drp
 
+# Configure environment
+cp .env.example .env
+# Edit .env and set strong secret values before running services
+
 # Install dependencies
 pip install -e .
 npm install
@@ -124,6 +128,19 @@ npm test
 
 # Start local testnet
 python -m src.core.blockchain.main
+```
+
+### Security Setup (Required)
+
+- Never commit `.env` or key material (`.pem`, `.key`, wallet/keystore files).
+- Set strong values for `JWT_SECRET`, `ENCRYPTION_KEY`, `GRAFANA_ADMIN_PASSWORD`, and `DRP_NEO4J_PASSWORD`.
+- Rotate any credential that has ever been committed to git history.
+- Enable pre-commit secret scanning (recommended):
+
+```bash
+pip install pre-commit detect-secrets
+pre-commit install
+detect-secrets scan > .secrets.baseline
 ```
 
 ## 🧪 Testing & Validation

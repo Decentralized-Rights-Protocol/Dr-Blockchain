@@ -9,7 +9,7 @@ services:
       - "7474:7474"  # HTTP
       - "7687:7687"  # Bolt
     environment:
-      - NEO4J_AUTH=neo4j/drp_password
+      - NEO4J_AUTH=neo4j/${DRP_NEO4J_PASSWORD:-YOUR_NEO4J_PASSWORD_HERE}
       - NEO4J_PLUGINS=["apoc"]
       - NEO4J_dbms_security_procedures_unrestricted=apoc.*
       - NEO4J_dbms_security_procedures_allowlist=apoc.*
@@ -25,7 +25,7 @@ services:
       - drp-storage-network
     restart: unless-stopped
     healthcheck:
-      test: ["CMD", "cypher-shell", "-u", "neo4j", "-p", "drp_password", "RETURN 1"]
+      test: ["CMD-SHELL", "cypher-shell -u neo4j -p \"$${DRP_NEO4J_PASSWORD:-YOUR_NEO4J_PASSWORD_HERE}\" \"RETURN 1\""]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -50,6 +50,30 @@ services:
       interval: 30s
       timeout: 10s
       retries: 3
+
+  # Cassandra (wide-column) for off-chain indexing / analytics (NO secrets, no raw evidence on-chain)
+  cassandra:
+    image: cassandra:5.0
+    container_name: drp-cassandra
+    ports:
+      - "9042:9042" # CQL
+    environment:
+      - CASSANDRA_CLUSTER_NAME=drp
+      - CASSANDRA_DC=dc1
+      - CASSANDRA_RACK=rack1
+      - CASSANDRA_ENDPOINT_SNITCH=GossipingPropertyFileSnitch
+      - MAX_HEAP_SIZE=1G
+      - HEAP_NEWSIZE=256M
+    volumes:
+      - cassandra_data:/var/lib/cassandra
+    networks:
+      - drp-storage-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "cqlsh -e \"DESCRIBE KEYSPACES\" 127.0.0.1 9042 >/dev/null 2>&1 || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 10
 
   # Redis for caching and session management
   redis:
@@ -95,7 +119,7 @@ services:
     ports:
       - "3000:3000"
     environment:
-      - GF_SECURITY_ADMIN_PASSWORD=drp_admin
+      - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_ADMIN_PASSWORD:-YOUR_GRAFANA_ADMIN_PASSWORD_HERE}
     volumes:
       - grafana_data:/var/lib/grafana
       - ./scripts/monitoring/grafana/dashboards:/etc/grafana/provisioning/dashboards
@@ -116,6 +140,8 @@ volumes:
   neo4j_plugins:
     driver: local
   ipfs_data:
+    driver: local
+  cassandra_data:
     driver: local
   redis_data:
     driver: local

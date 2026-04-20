@@ -223,7 +223,7 @@ The system includes comprehensive health monitoring:
 
 ### Grafana Dashboard
 
-Access the monitoring dashboard at `http://localhost:3000` (admin/drp_admin) to view:
+Access the monitoring dashboard at `http://localhost:3000` (admin/YOUR_GRAFANA_ADMIN_PASSWORD_HERE) to view:
 - Block production rates
 - Storage utilization
 - API performance metrics

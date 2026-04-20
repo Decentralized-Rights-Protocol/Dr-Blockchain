@@ -1,0 +1,81 @@
+# =============================================================================
+# DRP Chain Docker Compose — Local Chain + IPFS
+# =============================================================================
+# Starts the DRP Cosmos L1 chain node alongside a local IPFS node.
+# This is the minimal setup for DRP evidence commitment flows.
+#
+# Usage:
+#   cd chain
+#   docker-compose -f docker/docker-compose.chain.yml up -d
+#
+# Environment variables: copy chain/.env.chain.example → chain/.env.chain
+# =============================================================================
+version: '3.8'
+
+services:
+
+  # ── DRP Sovereign L1 Node ────────────────────────────────────────────────────
+  drp-cosmos:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile.drp-cosmos
+    container_name: drp-cosmos-node
+    image: drp-cosmos:latest
+    ports:
+      - "26656:26656"   # CometBFT P2P
+      - "26657:26657"   # CometBFT RPC
+      - "1317:1317"     # Cosmos REST API
+      - "9090:9090"     # gRPC
+    volumes:
+      - drp-cosmos-data:/root/.drpd
+    environment:
+      - CHAIN_ID=${DRP_CHAIN_ID:-drp-testnet-1}
+      - MONIKER=${DRP_CHAIN_MONIKER:-drp-validator-1}
+      - DRPD_HOME=/root/.drpd
+    env_file:
+      - ../.env.chain
+    networks:
+      - drp-chain-network
+    healthcheck:
+      test: ["CMD", "curl", "-sf", "http://localhost:26657/health"]
+      interval: 15s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
+    restart: unless-stopped
+
+  # ── IPFS Node ─────────────────────────────────────────────────────────────────
+  # Evidence bundles are pinned here. Only CIDs ever reach the chain.
+  ipfs:
+    image: ipfs/kubo:v0.27.0
+    container_name: drp-ipfs
+    ports:
+      - "4001:4001"   # IPFS swarm (P2P)
+      - "5001:5001"   # IPFS API (off-chain services use this)
+      - "8080:8080"   # IPFS Gateway (CID resolution)
+    volumes:
+      - drp-ipfs-data:/data/ipfs
+    environment:
+      - IPFS_PROFILE=server
+    networks:
+      - drp-chain-network
+    healthcheck:
+      test: ["CMD", "ipfs", "id"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 20s
+    restart: unless-stopped
+
+volumes:
+  drp-cosmos-data:
+    driver: local
+  drp-ipfs-data:
+    driver: local
+
+networks:
+  drp-chain-network:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.29.0.0/24

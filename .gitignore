@@ -6,10 +6,25 @@
 *.key
 *.p12
 *.pfx
+*.jks
+*.pkcs12
+*.asc
+*.gpg
+*.kdbx
+*.seed
+*.mnemonic
+*.wallet
+wallet*.json
+id_rsa
+id_ed25519
 .env
+.env.*
+!.env.example
+!.env.*.example
 .env.local
 .env.production
 .env.staging
+.envrc
 
 # Node.js
 node_modules/
@@ -75,3 +90,18 @@ logs/
 *.egg-info/
 *.egg
 .vercel
+
+# Go / Cosmos Chain
+chain/bin/
+chain/go.sum
+chain/.env.chain
+*.go.sum.bak
+
+# CometBFT / Cosmos node data (never commit chain state)
+.drpd/
+drpd-data/
+**/node_key.json
+**/priv_validator_key.json
+**/priv_validator_state.json
+**/validator_key.json
+gentx-*.json

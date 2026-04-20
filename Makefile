@@ -2,9 +2,20 @@
 # DRP Project Makefile
 # =============================================================================
 # This Makefile provides convenient commands for building, running, and managing
-# the DRP project using Docker and other development tools
+# the DRP project.
+#
+# Chain (Cosmos SDK sovereign L1) targets are prefixed with chain-:
+#   make chain-setup        — first-time chain dependency setup
+#   make chain-build        — build the drpd binary
+#   make chain-localnet     — start a single-validator local DRP chain
+#   make chain-multivalidator — start a 2-node local DRP testnet
+#   make chain-docker-up    — start chain + IPFS via Docker Compose
+#
+# All other targets relate to the Python/storage backend services.
 
-.PHONY: help build run dev test clean logs shell lint format security scan
+.PHONY: help build run dev test clean logs shell lint format security scan \
+        chain-setup chain-build chain-install chain-test chain-localnet \
+        chain-multivalidator chain-stop chain-docker-up chain-docker-down
 
 # =============================================================================
 # Variables
@@ -203,6 +214,43 @@ network-info: ## Show network information
 	@echo "  Development: http://localhost:8004"
 	@echo "  Grafana: http://localhost:3000 (admin/drp123)"
 	@echo "  Prometheus: http://localhost:9090"
+
+##@ ⛓️  Chain (Cosmos SDK Sovereign L1)
+
+chain-setup: ## First-time setup: go mod tidy + build drpd binary
+	@echo "⛓️  Setting up DRP chain..."
+	@cd chain && chmod +x scripts/setup.sh && ./scripts/setup.sh
+
+chain-build: ## Build the drpd binary (chain/bin/drpd)
+	@echo "⛓️  Building drpd..."
+	@cd chain && $(MAKE) build
+
+chain-install: ## Install drpd to GOPATH/bin
+	@echo "⛓️  Installing drpd..."
+	@cd chain && $(MAKE) install
+
+chain-test: ## Run chain unit tests
+	@echo "⛓️  Running chain tests..."
+	@cd chain && $(MAKE) test
+
+chain-localnet: chain-build ## Start a single-validator DRP local testnet
+	@echo "⛓️  Starting DRP local testnet..."
+	@cd chain && $(MAKE) localnet
+
+chain-multivalidator: chain-build ## Start a 2-node DRP local testnet
+	@echo "⛓️  Starting DRP 2-validator testnet..."
+	@cd chain && $(MAKE) multivalidator
+
+chain-stop: ## Stop background multi-validator nodes
+	@cd chain && $(MAKE) stop
+
+chain-docker-up: ## Start DRP chain + IPFS via Docker Compose
+	@echo "⛓️  Starting DRP chain stack via Docker..."
+	@cd chain && docker-compose -f docker/docker-compose.chain.yml up -d
+
+chain-docker-down: ## Stop the DRP chain Docker stack
+	@echo "⛓️  Stopping DRP chain Docker stack..."
+	@cd chain && docker-compose -f docker/docker-compose.chain.yml down
 
 ##@ 📚  Documentation
 

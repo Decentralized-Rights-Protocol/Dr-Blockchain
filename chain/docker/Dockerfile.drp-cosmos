@@ -1,0 +1,65 @@
+# =============================================================================
+# Dockerfile — DRP Cosmos Chain Node (drpd)
+# =============================================================================
+# Multi-stage build: compile in a Go builder, run in a minimal image.
+# The final image contains only the drpd binary and its runtime dependencies.
+#
+# Build:
+#   docker build -f docker/Dockerfile.drp-cosmos -t drp-cosmos:latest .
+#
+# Run (single validator):
+#   docker run -it -p 26657:26657 -p 26656:26656 -p 1317:1317 -p 9090:9090 \
+#     -v drp-data:/root/.drpd drp-cosmos:latest
+# =============================================================================
+
+# ── Stage 1: Build ────────────────────────────────────────────────────────────
+FROM golang:1.21-alpine AS builder
+
+RUN apk add --no-cache git gcc musl-dev linux-headers
+
+WORKDIR /build
+
+# Copy module files first for layer caching.
+COPY go.mod go.sum* ./
+RUN go mod download
+
+# Copy source and build.
+COPY . .
+RUN go build \
+  -trimpath \
+  -ldflags "-X github.com/cosmos/cosmos-sdk/version.Name=drp -X github.com/cosmos/cosmos-sdk/version.AppName=drpd" \
+  -o /build/bin/drpd ./cmd/drpd
+
+# ── Stage 2: Runtime ──────────────────────────────────────────────────────────
+FROM alpine:3.18
+
+RUN apk add --no-cache \
+  ca-certificates \
+  bash \
+  curl \
+  jq \
+  python3 \
+  && addgroup -S drp \
+  && adduser -S drp -G drp
+
+COPY --from=builder /build/bin/drpd /usr/local/bin/drpd
+
+# Copy the localnet bootstrap script for convenience.
+COPY scripts/localnet.sh /usr/local/bin/drp-localnet.sh
+RUN chmod +x /usr/local/bin/drp-localnet.sh && \
+    sed -i 's|$(dirname "$0")/../bin/drpd|drpd|g' /usr/local/bin/drp-localnet.sh
+
+# DRP chain ports:
+#   26656 — CometBFT P2P (validator peering)
+#   26657 — CometBFT RPC (queries, tx broadcast)
+#   1317  — Cosmos REST API
+#   9090  — gRPC
+EXPOSE 26656 26657 1317 9090
+
+VOLUME ["/root/.drpd"]
+
+USER drp
+
+# Default: start with localnet bootstrap.
+# Override CMD in docker-compose for custom start commands.
+CMD ["drp-localnet.sh"]

@@ -42,8 +42,8 @@ docker build -t drp-backend .
 
 # Run
 docker run -p 8000:8000 \
-  -e JWT_SECRET=test-secret \
-  -e ENCRYPTION_KEY=test-key \
+  -e JWT_SECRET=YOUR_JWT_SECRET_HERE \
+  -e ENCRYPTION_KEY=YOUR_ENCRYPTION_KEY_HERE \
   drp-backend
 ```
 
@@ -62,8 +62,8 @@ DRP_RPC_URL=https://rpc.decentralizedrights.com
 DRP_AI_URL=https://your-url.com/ai
 DRP_IPFS_URL=https://ipfs.decentralizedrights.com/api/v0
 DRP_ORBITDB_PEER=/ip4/127.0.0.1/tcp/4001/p2p/e0831b455d1db193534eb948bcf61bc6b854960e
-JWT_SECRET=VXdPj6d41OMMUQxcKSI4ur1lgLoFVPGgXeMAHeWidec
-ENCRYPTION_KEY=M1eUpZOPk3j0qHzUu0Q3bxarPc_2OvpzO3v1-WF0-t4
+JWT_SECRET=YOUR_JWT_SECRET_HERE
+ENCRYPTION_KEY=YOUR_ENCRYPTION_KEY_HERE
 LOG_LEVEL=INFO
 ```
 
@@ -94,4 +94,10 @@ curl https://your-backend-url.com/ai/analytics/summary
 ✅ **Ready:** For immediate deployment  
 
 **Deploy now and get your backend URL!**
+
+
+
+
+
+
 

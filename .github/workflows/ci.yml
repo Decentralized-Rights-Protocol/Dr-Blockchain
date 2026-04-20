@@ -18,15 +18,20 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
       
+      - name: Secret scan (Gitleaks)
+        uses: gitleaks/gitleaks-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      
       - name: Check for private keys
         run: |
-          echo "🔍 Checking for private key files..."
+          echo "Checking for private key files..."
           if find . -name "*.priv" -o -name "*.pem" -o -name "*.key" -o -name "*.keystore" | grep -v node_modules | grep -v .venv; then
-            echo "❌ CRITICAL: Private key files found in repository!"
+            echo "CRITICAL: Private key files found in repository!"
             echo "Please remove all private key files and follow KEY_ROTATION.md"
             exit 1
           else
-            echo "✅ No private key files found"
+            echo "No private key files found"
           fi
 
   lint-and-format:

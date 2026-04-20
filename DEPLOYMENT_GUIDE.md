@@ -32,8 +32,8 @@ IPFS_GATEWAY_URL=https://ipfs.decentralizedrights.com/ipfs
 DRP_IPFS_URL=https://ipfs.decentralizedrights.com/api/v0
 
 # Security (GENERATE NEW ONES FOR PRODUCTION!)
-JWT_SECRET=VXdPj6d41OMMUQxcKSI4ur1lgLoFVPGgXeMAHeWidec
-ENCRYPTION_KEY=M1eUpZOPk3j0qHzUu0Q3bxarPc_2OvpzO3v1-WF0-t4
+JWT_SECRET=YOUR_JWT_SECRET_HERE
+ENCRYPTION_KEY=YOUR_ENCRYPTION_KEY_HERE
 
 # Logging
 LOG_LEVEL=INFO
@@ -83,8 +83,8 @@ docker build -t drp-backend .
 
 # Run
 docker run -p 8000:8000 \
-  -e JWT_SECRET=your-secret \
-  -e ENCRYPTION_KEY=your-key \
+  -e JWT_SECRET=YOUR_JWT_SECRET_HERE \
+  -e ENCRYPTION_KEY=YOUR_ENCRYPTION_KEY_HERE \
   drp-backend
 ```
 

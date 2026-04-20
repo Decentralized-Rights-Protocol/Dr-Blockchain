@@ -152,7 +152,7 @@ DRP/
 # Neo4j
 DRP_NEO4J_URI=bolt://localhost:7687
 DRP_NEO4J_USERNAME=neo4j
-DRP_NEO4J_PASSWORD=drp_password
+DRP_NEO4J_PASSWORD=YOUR_NEO4J_PASSWORD_HERE
 
 # IPFS
 DRP_IPFS_HOST=localhost
@@ -254,7 +254,7 @@ comprehensive_data = storage_manager.get_comprehensive_block_data(block_hash)
 - API performance metrics
 - Database health status
 
-Access: `http://localhost:3000` (admin/drp_admin)
+Access: `http://localhost:3000` (admin/YOUR_GRAFANA_ADMIN_PASSWORD_HERE)
 
 ## Extensibility
 
