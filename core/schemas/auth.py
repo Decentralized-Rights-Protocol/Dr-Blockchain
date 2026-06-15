@@ -9,8 +9,9 @@ class LoginRequest(BaseModel):
     
     username: Optional[str] = Field(None)
     email: Optional[str] = Field(None)
-    password: str = Field(..., min_length=8)
+    password: Optional[str] = Field(None, min_length=8)
     wallet_address: Optional[str] = Field(None, description="Wallet address for wallet-based auth")
+    signature: Optional[str] = Field(None, description="Signature for wallet-based auth")
 
 
 class LoginResponse(BaseModel):

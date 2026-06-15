@@ -61,9 +61,10 @@ async def login(request: LoginRequest):
     if request.password:
         # Password-based auth
         authenticated = authenticate_user(user_id, password=request.password)
-    elif request.wallet_address:
-        # Wallet-based auth (would need signature in production)
-        authenticated = True  # Simplified
+    elif request.wallet_address and request.signature:
+        # Wallet-based auth
+        message = f"Authenticate {user_id}"
+        authenticated = verify_wallet_signature(message, request.signature, request.wallet_address)
     else:
         raise HTTPException(status_code=400, detail="Password or wallet signature required")
     

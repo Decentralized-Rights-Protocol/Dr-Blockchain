@@ -73,6 +73,23 @@ def hash_data(data: str) -> str:
     return hashlib.sha256(data.encode()).hexdigest()
 
 
+from cryptography.fernet import Fernet
+from cryptography.hazmat.primitives import hashes
+from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
+from cryptography.hazmat.backends import default_backend
+import base64
+
+def derive_key_from_password(password: str) -> bytes:
+    """Derive a key from a password using PBKDF2."""
+    kdf = PBKDF2HMAC(
+        algorithm=hashes.SHA256(),
+        length=32,
+        salt=b'static_salt',  # In production, use a unique salt
+        iterations=100000,
+        backend=default_backend()
+    )
+    return base64.urlsafe_b64encode(kdf.derive(password.encode()))
+
 def encrypt_private_key(private_key: str, password: str) -> str:
     """
     Encrypt a private key with a password.
@@ -84,10 +101,9 @@ def encrypt_private_key(private_key: str, password: str) -> str:
     Returns:
         Encrypted private key
     """
-    # Simple encryption - in production, use proper key derivation
-    key = hashlib.sha256(password.encode()).digest()
-    # This is a placeholder - implement proper encryption
-    return hashlib.sha256((private_key + password).encode()).hexdigest()
+    key = derive_key_from_password(password)
+    f = Fernet(key)
+    return f.encrypt(private_key.encode()).decode()
 
 
 def decrypt_private_key(encrypted_key: str, password: str) -> Optional[str]:
@@ -101,7 +117,10 @@ def decrypt_private_key(encrypted_key: str, password: str) -> Optional[str]:
     Returns:
         Decrypted private key or None if failed
     """
-    # Placeholder implementation
-    # In production, implement proper decryption
-    return None
+    key = derive_key_from_password(password)
+    f = Fernet(key)
+    try:
+        return f.decrypt(encrypted_key.encode()).decode()
+    except Exception:
+        return None
 

@@ -1,7 +1,8 @@
 """Authentication utilities."""
 
 from typing import Optional
-from ..utils.crypto import verify_signature
+from eth_account.messages import encode_defunct
+from eth_account import Account
 
 
 def verify_wallet_signature(message: str, signature: str, wallet_address: str) -> bool:
@@ -16,12 +17,10 @@ def verify_wallet_signature(message: str, signature: str, wallet_address: str) -
     Returns:
         True if signature is valid
     """
-    # In a real implementation, recover public key from signature
-    # and verify it matches the wallet address
-    # This is a simplified version
     try:
-        # Placeholder - implement proper signature recovery
-        return len(signature) == 130 and signature.startswith('0x')
+        message_encoded = encode_defunct(text=message)
+        recovered_address = Account.recover_message(message_encoded, signature=signature)
+        return recovered_address.lower() == wallet_address.lower()
     except Exception:
         return False
 
