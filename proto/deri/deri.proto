@@ -1,0 +1,107 @@
+syntax = "proto3";
+
+package drp.deri;
+
+option go_package = "github.com/Decentralized-Rights-Protocol/drp/x/deri/types";
+
+message MsgMint {
+  string recipient = 1;
+  string amount = 2;
+  string reason = 3;
+  string activity_id = 4;
+  string verification_hash = 5;
+}
+
+message MsgMintResponse {
+  string minted_amount = 1;
+}
+
+message MsgBurn {
+  string sender = 1;
+  string amount = 2;
+  string reason = 3;
+}
+
+message MsgBurnResponse {
+  string burned_amount = 1;
+}
+
+message MsgTransfer {
+  string from = 1;
+  string to = 2;
+  string amount = 3;
+}
+
+message MsgTransferResponse {
+  string transferred_amount = 1;
+}
+
+message MsgSetMintAuthority {
+  string authority = 1;
+  string new_mint_authority = 2;
+}
+
+message MsgSetMintAuthorityResponse {
+  string new_mint_authority = 1;
+}
+
+message MsgUpdateEmissionLimits {
+  string authority = 1;
+  string max_per_block = 2;
+  string max_per_epoch = 3;
+  string max_per_activity = 4;
+  string max_per_identity = 5;
+}
+
+message MsgUpdateEmissionLimitsResponse {
+  string status = 1;
+}
+
+message QueryBalanceRequest {
+  string address = 1;
+}
+
+message QueryBalanceResponse {
+  string balance = 1;
+}
+
+message QuerySupplyRequest {}
+
+message QuerySupplyResponse {
+  string total_supply = 1;
+  string circulating_supply = 2;
+}
+
+message QueryMintAuthorityRequest {}
+
+message QueryMintAuthorityResponse {
+  string mint_authority = 1;
+}
+
+message QueryEmissionLimitsRequest {}
+
+message QueryEmissionLimitsResponse {
+  string max_per_block = 1;
+  string max_per_epoch = 2;
+  string max_per_activity = 3;
+  string max_per_identity = 4;
+}
+
+message GenesisState {
+  repeated BalanceEntry balances = 1;
+  string total_supply = 2;
+  string mint_authority = 3;
+  EmissionLimits emission_limits = 4;
+}
+
+message BalanceEntry {
+  string address = 1;
+  string balance = 2;
+}
+
+message EmissionLimits {
+  string max_per_block = 1;
+  string max_per_epoch = 2;
+  string max_per_activity = 3;
+  string max_per_identity = 4;
+}

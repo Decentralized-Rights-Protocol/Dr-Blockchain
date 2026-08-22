@@ -1,0 +1,34 @@
+syntax = "proto3";
+
+package drp.rights;
+
+option go_package = "github.com/Decentralized-Rights-Protocol/drp/x/rights/types";
+
+message MsgTransfer {
+  string from = 1;
+  string to = 2;
+  string amount = 3;
+}
+
+message MsgTransferResponse {
+  string transferred_amount = 1;
+}
+
+message MsgDelegate {
+  string delegator = 1;
+  string validator = 2;
+  string amount = 3;
+}
+
+message MsgDelegateResponse {
+  string delegated_amount = 1;
+}
+
+message QueryBalanceRequest {
+  string address = 1;
+}
+
+message QueryBalanceResponse {
+  string balance = 1;
+  string staked = 2;
+}
