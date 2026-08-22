@@ -2,106 +2,94 @@ syntax = "proto3";
 
 package drp.deri;
 
-option go_package = "github.com/Decentralized-Rights-Protocol/drp/x/deri/types";
+option go_package = "github.com/Decentralized-Rights-Protocol/Dr-Blockchain/chain/x/deri/types";
 
-message MsgMint {
-  string recipient = 1;
-  string amount = 2;
-  string reason = 3;
-  string activity_id = 4;
-  string verification_hash = 5;
+// Msg defines the Msg service for the deri module
+service Msg {
+  rpc Transfer(rpcMsgTransfer) returns (MsgTransferResponse);
+  rpc Mint(rpcMsgMint) returns (MsgMintResponse);
+  rpc Burn(rpcMsgBurn) returns (MsgBurnResponse);
 }
 
-message MsgMintResponse {
-  string minted_amount = 1;
+// Query defines the Query service for the deri module
+service Query {
+  rpc Balance(QueryBalanceRequest) returns (QueryBalanceResponse);
+  rpc TotalSupply(QueryTotalSupplyRequest) returns (QueryTotalSupplyResponse);
+  rpc Params(QueryParamsRequest) returns (QueryParamsResponse);
 }
 
-message MsgBurn {
-  string sender = 1;
-  string amount = 2;
-  string reason = 3;
-}
-
-message MsgBurnResponse {
-  string burned_amount = 1;
-}
-
-message MsgTransfer {
+// MsgTransfer defines a transfer message for $DeRi tokens
+message rpcMsgTransfer {
   string from = 1;
   string to = 2;
-  string amount = 3;
+  string amount = 3; // in uderi (1 deri = 1,000,000 uderi)
 }
 
+// MsgTransferResponse defines the response for MsgTransfer
 message MsgTransferResponse {
-  string transferred_amount = 1;
+  bool success = 1;
+  string error = 2;
 }
 
-message MsgSetMintAuthority {
-  string authority = 1;
-  string new_mint_authority = 2;
+// MsgMint defines a mint message for $DeRi tokens
+message rpcMsgMint {
+  string to = 1;
+  string amount = 2; // in uderi
+  string reason = 3; // e.g., "reward", "initial_distribution"
 }
 
-message MsgSetMintAuthorityResponse {
-  string new_mint_authority = 1;
+// MsgMintResponse defines the response for MsgMint
+message MsgMintResponse {
+  bool success = 1;
+  string error = 2;
+  string minted_amount = 3;
 }
 
-message MsgUpdateEmissionLimits {
-  string authority = 1;
-  string max_per_block = 2;
-  string max_per_epoch = 3;
-  string max_per_activity = 4;
-  string max_per_identity = 5;
+// MsgBurn defines a burn message for $DeRi tokens
+message rpcMsgBurn {
+  string from = 1;
+  string amount = 2; // in uderi
+  string reason = 3;
 }
 
-message MsgUpdateEmissionLimitsResponse {
-  string status = 1;
+// MsgBurnResponse defines the response for MsgBurn
+message MsgBurnResponse {
+  bool success = 1;
+  string error = 2;
+  string burned_amount = 3;
 }
 
+// QueryBalanceRequest defines the request for balance query
 message QueryBalanceRequest {
   string address = 1;
 }
 
+// QueryBalanceResponse defines the response for balance query
 message QueryBalanceResponse {
-  string balance = 1;
+  string balance = 1; // in uderi
 }
 
-message QuerySupplyRequest {}
+// QueryTotalSupplyRequest defines the request for total supply query
+message QueryTotalSupplyRequest {}
 
-message QuerySupplyResponse {
-  string total_supply = 1;
-  string circulating_supply = 2;
+// QueryTotalSupplyResponse defines the response for total supply query
+message QueryTotalSupplyResponse {
+  string total_supply = 1; // in uderi
 }
 
-message QueryMintAuthorityRequest {}
+// QueryParamsRequest defines the request for params query
+message QueryParamsRequest {}
 
-message QueryMintAuthorityResponse {
-  string mint_authority = 1;
+// QueryParamsResponse defines the response for params query
+message QueryParamsResponse {
+  Params params = 1;
 }
 
-message QueryEmissionLimitsRequest {}
-
-message QueryEmissionLimitsResponse {
-  string max_per_block = 1;
-  string max_per_epoch = 2;
-  string max_per_activity = 3;
-  string max_per_identity = 4;
-}
-
-message GenesisState {
-  repeated BalanceEntry balances = 1;
-  string total_supply = 2;
-  string mint_authority = 3;
-  EmissionLimits emission_limits = 4;
-}
-
-message BalanceEntry {
-  string address = 1;
-  string balance = 2;
-}
-
-message EmissionLimits {
-  string max_per_block = 1;
-  string max_per_epoch = 2;
-  string max_per_activity = 3;
-  string max_per_identity = 4;
+// Params defines the parameters for the deri module
+message Params {
+  string max_per_block = 1; // e.g., "1000000" uderi
+  string max_per_epoch = 2; // e.g., "100000000" uderi
+  string max_per_activity = 3; // e.g., "10000" uderi
+  string max_per_identity = 4; // e.g., "1000000" uderi
+  string denom = 5; // e.g., "uderi"
 }
