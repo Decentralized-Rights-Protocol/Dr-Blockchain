@@ -5,29 +5,60 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	"github.com/Decentralized-Rights-Protocol/drp/x/deri/types"
+	"github.com/Decentralized-Rights-Protocol/Dr-Blockchain/chain/x/deri/types"
 )
 
-type QueryServer struct {
+// queryServer is the server API for Query service
+// It implements the deri.Query service
+type queryServer struct {
 	Keeper
 }
 
+// NewQueryServerImpl returns an implementation of the QueryServer interface
+// for the provided Keeper
 func NewQueryServerImpl(keeper Keeper) types.QueryServer {
-	return &QueryServer{Keeper: keeper}
+	return &queryServer{Keeper: keeper}
 }
 
-func (qs QueryServer) Balance(goCtx context.Context, req *types.QueryBalanceRequest) (*types.QueryBalanceResponse, error) {
+var _ types.QueryServer = queryServer{}
+
+// Balance implements the Query/Balance RPC method
+func (s queryServer) Balance(goCtx context.Context, req *types.QueryBalanceRequest) (*types.QueryBalanceResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
-	addr, err := sdk.AccAddressFromBech32(req.Address)
+
+	address, err := sdk.AccAddressFromBech32(req.Address)
+	if err != nil {
+		return nil, sdk.ErrInvalidAddress.Wrapf("invalid address: %s", req.Address)
+	}
+
+	balance := s.Keeper.GetBalance(ctx, address)
+
+	return &types.QueryBalanceResponse{
+		Balance: balance.String(),
+	}, nil
+}
+
+// TotalSupply implements the Query/TotalSupply RPC method
+func (s queryServer) TotalSupply(goCtx context.Context, req *types.QueryTotalSupplyRequest) (*types.QueryTotalSupplyResponse, error) {
+	ctx := sdk.UnwrapSDKContext(goCtx)
+
+	totalSupply := s.Keeper.GetTotalSupply(ctx)
+
+	return &types.QueryTotalSupplyResponse{
+		TotalSupply: totalSupply.String(),
+	}, nil
+}
+
+// Params implements the Query/Params RPC method
+func (s queryServer) Params(goCtx context.Context, req *types.QueryParamsRequest) (*types.QueryParamsResponse, error) {
+	ctx := sdk.UnwrapSDKContext(goCtx)
+
+	params, err := s.Keeper.GetParams(ctx)
 	if err != nil {
 		return nil, err
 	}
-	balance := qs.Keeper.GetBalance(ctx, addr)
-	return &types.QueryBalanceResponse{Balance: balance.String()}, nil
-}
 
-func (qs QueryServer) Supply(goCtx context.Context, req *types.QuerySupplyRequest) (*types.QuerySupplyResponse, error) {
-	ctx := sdk.UnwrapSDKContext(goCtx)
-	totalSupply := qs.Keeper.GetTotalSupply(ctx)
-	return &types.QuerySupplyResponse{TotalSupply: totalSupply.String(), CirculatingSupply: totalSupply.String()}, nil
+	return &types.QueryParamsResponse{
+		Params: params,
+	}, nil
 }
