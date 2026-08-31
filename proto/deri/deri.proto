@@ -1,0 +1,95 @@
+syntax = "proto3";
+
+package drp.deri;
+
+option go_package = "github.com/Decentralized-Rights-Protocol/Dr-Blockchain/chain/x/deri/types";
+
+// Msg defines the Msg service for the deri module
+service Msg {
+  rpc Transfer(rpcMsgTransfer) returns (MsgTransferResponse);
+  rpc Mint(rpcMsgMint) returns (MsgMintResponse);
+  rpc Burn(rpcMsgBurn) returns (MsgBurnResponse);
+}
+
+// Query defines the Query service for the deri module
+service Query {
+  rpc Balance(QueryBalanceRequest) returns (QueryBalanceResponse);
+  rpc TotalSupply(QueryTotalSupplyRequest) returns (QueryTotalSupplyResponse);
+  rpc Params(QueryParamsRequest) returns (QueryParamsResponse);
+}
+
+// MsgTransfer defines a transfer message for $DeRi tokens
+message rpcMsgTransfer {
+  string from = 1;
+  string to = 2;
+  string amount = 3; // in uderi (1 deri = 1,000,000 uderi)
+}
+
+// MsgTransferResponse defines the response for MsgTransfer
+message MsgTransferResponse {
+  bool success = 1;
+  string error = 2;
+}
+
+// MsgMint defines a mint message for $DeRi tokens
+message rpcMsgMint {
+  string to = 1;
+  string amount = 2; // in uderi
+  string reason = 3; // e.g., "reward", "initial_distribution"
+}
+
+// MsgMintResponse defines the response for MsgMint
+message MsgMintResponse {
+  bool success = 1;
+  string error = 2;
+  string minted_amount = 3;
+}
+
+// MsgBurn defines a burn message for $DeRi tokens
+message rpcMsgBurn {
+  string from = 1;
+  string amount = 2; // in uderi
+  string reason = 3;
+}
+
+// MsgBurnResponse defines the response for MsgBurn
+message MsgBurnResponse {
+  bool success = 1;
+  string error = 2;
+  string burned_amount = 3;
+}
+
+// QueryBalanceRequest defines the request for balance query
+message QueryBalanceRequest {
+  string address = 1;
+}
+
+// QueryBalanceResponse defines the response for balance query
+message QueryBalanceResponse {
+  string balance = 1; // in uderi
+}
+
+// QueryTotalSupplyRequest defines the request for total supply query
+message QueryTotalSupplyRequest {}
+
+// QueryTotalSupplyResponse defines the response for total supply query
+message QueryTotalSupplyResponse {
+  string total_supply = 1; // in uderi
+}
+
+// QueryParamsRequest defines the request for params query
+message QueryParamsRequest {}
+
+// QueryParamsResponse defines the response for params query
+message QueryParamsResponse {
+  Params params = 1;
+}
+
+// Params defines the parameters for the deri module
+message Params {
+  string max_per_block = 1; // e.g., "1000000" uderi
+  string max_per_epoch = 2; // e.g., "100000000" uderi
+  string max_per_activity = 3; // e.g., "10000" uderi
+  string max_per_identity = 4; // e.g., "1000000" uderi
+  string denom = 5; // e.g., "uderi"
+}

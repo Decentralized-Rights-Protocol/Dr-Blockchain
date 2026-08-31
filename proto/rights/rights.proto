@@ -1,0 +1,162 @@
+syntax = "proto3";
+
+package drp.rights;
+
+option go_package = "github.com/Decentralized-Rights-Protocol/Dr-Blockchain/chain/x/rights/types";
+
+// Msg defines the Msg service for the rights module
+service Msg {
+  rpc CreateProposal(rpcMsgCreateProposal) returns (MsgCreateProposalResponse);
+  rpc Vote(rpcMsgVote) returns (MsgVoteResponse);
+  rpc Delegate(rpcMsgDelegate) returns (MsgDelegateResponse);
+}
+
+// Query defines the Query service for the rights module
+service Query {
+  rpc Proposal(QueryProposalRequest) returns (QueryProposalResponse);
+  rpc Proposals(QueryProposalsRequest) returns (QueryProposalsResponse);
+  rpc Vote(QueryVoteRequest) returns (QueryVoteResponse);
+  rpc Votes(QueryVotesRequest) returns (QueryVotesResponse);
+  rpc Delegation(QueryDelegationRequest) returns (QueryDelegationResponse);
+  rpc Params(QueryParamsRequest) returns (QueryParamsResponse);
+}
+
+// MsgCreateProposal defines a message to create a governance proposal
+message rpcMsgCreateProposal {
+  string creator = 1;
+  string title = 2;
+  string description = 3;
+  string type = 4; // e.g., "parameter_change", "funding", "policy"
+  repeated string changes = 5; // JSON-encoded changes
+}
+
+// MsgCreateProposalResponse defines the response for MsgCreateProposal
+message MsgCreateProposalResponse {
+  bool success = 1;
+  string error = 2;
+  uint64 proposal_id = 3;
+}
+
+// MsgVote defines a message to vote on a proposal
+message rpcMsgVote {
+  string voter = 1;
+  uint64 proposal_id = 2;
+  string vote = 3; // "yes", "no", "abstain", "veto"
+}
+
+// MsgVoteResponse defines the response for MsgVote
+message MsgVoteResponse {
+  bool success = 1;
+  string error = 2;
+}
+
+// MsgDelegate defines a message to delegate voting power
+message rpcMsgDelegate {
+  string delegator = 1;
+  string delegatee = 2;
+  string amount = 3; // in $RIGHTS tokens
+}
+
+// MsgDelegateResponse defines the response for MsgDelegate
+message MsgDelegateResponse {
+  bool success = 1;
+  string error = 2;
+}
+
+// QueryProposalRequest defines the request for proposal query
+message QueryProposalRequest {
+  uint64 proposal_id = 1;
+}
+
+// QueryProposalResponse defines the response for proposal query
+message QueryProposalResponse {
+  Proposal proposal = 1;
+}
+
+// QueryProposalsRequest defines the request for proposals query
+message QueryProposalsRequest {
+  string status = 1; // "open", "passed", "rejected", "executed"
+  uint64 limit = 2;
+  uint64 offset = 3;
+}
+
+// QueryProposalsResponse defines the response for proposals query
+message QueryProposalsResponse {
+  repeated Proposal proposals = 1;
+}
+
+// QueryVoteRequest defines the request for vote query
+message QueryVoteRequest {
+  uint64 proposal_id = 1;
+  string voter = 2;
+}
+
+// QueryVoteResponse defines the response for vote query
+message QueryVoteResponse {
+  Vote vote = 1;
+}
+
+// QueryVotesRequest defines the request for votes query
+message QueryVotesRequest {
+  uint64 proposal_id = 1;
+}
+
+// QueryVotesResponse defines the response for votes query
+message QueryVotesResponse {
+  repeated Vote votes = 1;
+}
+
+// QueryDelegationRequest defines the request for delegation query
+message QueryDelegationRequest {
+  string delegator = 1;
+}
+
+// QueryDelegationResponse defines the response for delegation query
+message QueryDelegationResponse {
+  Delegation delegation = 1;
+}
+
+// QueryParamsRequest defines the request for params query
+message QueryParamsRequest {}
+
+// QueryParamsResponse defines the response for params query
+message QueryParamsResponse {
+  Params params = 1;
+}
+
+// Proposal defines a governance proposal
+message Proposal {
+  uint64 id = 1;
+  string creator = 2;
+  string title = 3;
+  string description = 4;
+  string type = 5;
+  string status = 6; // "open", "passed", "rejected", "executed"
+  repeated string changes = 7;
+  uint64 created_at = 8;
+  uint64 voting_end = 9;
+}
+
+// Vote defines a vote on a proposal
+message Vote {
+  uint64 proposal_id = 1;
+  string voter = 2;
+  string vote = 3; // "yes", "no", "abstain", "veto"
+  uint64 timestamp = 4;
+}
+
+// Delegation defines a delegation of voting power
+message Delegation {
+  string delegator = 1;
+  string delegatee = 2;
+  string amount = 3; // in $RIGHTS tokens
+}
+
+// Params defines the parameters for the rights module
+message Params {
+  string min_delegation = 1; // minimum delegation amount
+  uint64 voting_period = 2; // in seconds
+  string quorum = 3; // e.g., "0.33" for 33%
+  string threshold = 4; // e.g., "0.5" for 50%
+  string veto_threshold = 5; // e.g., "0.33" for 33%
+}
