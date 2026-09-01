@@ -46,8 +46,6 @@ class HouseholdScoreRequest(BaseModel):
     income: float = Field(ge=0)
     locality: Literal["Urban","Peri-urban","Rural"] = "Rural"
 
-@app_placeholder = None
-
 @router.get("/health")
 def model_health():
     return {"status": "ok" if _models_loaded else "degraded", "model_version": _meta.get("model_version"), "loaded": _models_loaded, "error": _load_error}
