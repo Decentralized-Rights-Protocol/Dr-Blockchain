@@ -34,7 +34,7 @@ class ScyllaSyncWorker:
             raise
     
     async def _start(self, orbitdb_service):
-       "Start the sync worker"
+        """Start the sync worker."""
         self.running = True
         logger.info("🟣 Starting Scylla sync worker")
         
