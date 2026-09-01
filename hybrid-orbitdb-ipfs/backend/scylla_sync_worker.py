@@ -43,6 +43,18 @@ class ScyllaSyncWorker:
         """Run one sync cycle. The concrete OrbitDB adapter supplies the entries."""
         return None
 
+    async def _create_schema(self):
+        """Create required schema when the worker connects."""
+        if self.session is None:
+            return
+        self.session.execute("CREATE KEYSPACE IF NOT EXISTS drp WITH replication = {'class': 'SimpleStrategy', 'replication_factor': 1}")
+        self.session.set_keyspace("drp")
+        self.session.execute("CREATE TABLE IF NOT EXISTS orbitdb_entries (cid text PRIMARY KEY, payload text, updated_at timestamp)")
+
+    async def _sync_cycle(self, orbitdb_service):
+        """Run one sync cycle. The concrete OrbitDB adapter supplies the entries."""
+        return None
+
     async def _start(self, orbitdb_service):
         """Start the sync worker."""
         self.running = True
