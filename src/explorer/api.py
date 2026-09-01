@@ -79,6 +79,7 @@ proof_storage = None
 
 def get_ledger():
     """Dependency to get ledger instance"""
+    global ledger
     if ledger is None:
         ledger = create_ledger()
     return ledger
@@ -409,8 +410,6 @@ async def startup_event():
 async def shutdown_event():
     """Clean up storage connections on shutdown"""
     logging.info("Shutting down DRP Explorer API...")
-    global ledger, indexer, proof_storage
-    
     if ledger:
         ledger.close()
     if indexer:
