@@ -4,8 +4,8 @@ services:
     env: python
     region: oregon
     plan: free
-    buildCommand: pip install -r requirements.render.txt
-    startCommand: uvicorn api.router:app --host 0.0.0.0 --port $PORT
+    buildCommand: pip install -r requirements.render.txt && cd orbitdb && npm install --legacy-peer-deps
+    startCommand: node orbitdb/orbit_manager.js & uvicorn api.router:app --host 0.0.0.0 --port $PORT
     healthCheckPath: /health
     autoDeploy: true
     envVars:
