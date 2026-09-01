@@ -74,7 +74,7 @@ class OrbitDBManager {
         try {
             const store = await this.orbitdb.log(name, {
                 accessController: {
-                    write: ['*'] // Allow all to write for now
+                    write: [this.orbitdb.identity.id] // Only the DRP backend identity may write
                 },
                 ...options
             });
