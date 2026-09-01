@@ -225,9 +225,5 @@ if __name__ == "__main__":
     print("DRP Decentralized Storage System Test")
     print("Make sure the system is running with: docker-compose up")
     print("Waiting 5 seconds for services to be ready...")
-    
-    # Wait for services to be ready
-    await asyncio.sleep(5)
-    
-    # Run tests
+    asyncio.run(asyncio.sleep(5))
     asyncio.run(main())
