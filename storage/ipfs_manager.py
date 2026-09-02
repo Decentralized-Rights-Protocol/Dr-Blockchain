@@ -64,13 +64,7 @@ class IPFSManager:
                 return {'success': False, 'error': f"HTTP {response.status_code}"}
         except Exception as e:
             logger.error(f"IPFS add error: {e}")
-            # Fallback: return mock CID for offline mode
-            return {
-                'success': True,
-                'cid': f"Qm{hashlib.sha256(file_path.encode()).hexdigest()[:44]}",
-                'size': 0,
-                'gateway_url': f"{self.gateway_url}/mock"
-            }
+            return {'success': False, 'error': f"IPFS add error: {e}"}
     
     def add_data(self, data: Dict[str, Any], pin: bool = True) -> Dict[str, Any]:
         """
@@ -105,24 +99,10 @@ class IPFSManager:
                     'gateway_url': f"{self.gateway_url}/{cid}"
                 }
             else:
-                # Fallback for offline mode
-                data_str = json.dumps(data, sort_keys=True)
-                mock_cid = f"Qm{hashlib.sha256(data_str.encode()).hexdigest()[:44]}"
-                return {
-                    'success': True,
-                    'cid': mock_cid,
-                    'gateway_url': f"{self.gateway_url}/{mock_cid}"
-                }
+                return {'success': False, 'error': f"IPFS add failed: HTTP {response.status_code}"}
         except Exception as e:
             logger.error(f"IPFS add data error: {e}")
-            # Offline fallback
-            data_str = json.dumps(data, sort_keys=True)
-            mock_cid = f"Qm{hashlib.sha256(data_str.encode()).hexdigest()[:44]}"
-            return {
-                'success': True,
-                'cid': mock_cid,
-                'gateway_url': f"{self.gateway_url}/{mock_cid}"
-            }
+            return {'success': False, 'error': f"IPFS add data error: {e}"}
     
     def get_file(self, cid: str) -> Optional[bytes]:
         """
