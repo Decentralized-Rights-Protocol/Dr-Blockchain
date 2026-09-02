@@ -1,32 +1,22 @@
-IyEvdXNyL2Jpbi9lbnYgcHl0aG9uMwoi
-IiIKRFJQIFJpZ2h0cyBBY2Nlc3MgU2Nv
-cmluZyBNb2RlbAo9PT09PT09PT09PT09
-PT09PT09PT09PT09PT09PT09PT09PT09
-ClBoYW5hIEFJIElubm92YXRpb24gQ2hh
-bGxlbmdlIDIwMjYKRGVjZW50cmFsaXpl
-ZCBSaWdodHMgUHJvdG9jb2wgLS0gTmty
-dW1haCBKb2VsLCBVQ0MKClRoaXMgc2Ny
-aXB0OgoxLiBHZW5lcmF0ZXMgc3ludGhl
-dGljIFBIQy1zdHJ1Y3R1cmVkIGRhdGEg
-KHJlcGxhY2Ugd2l0aCByZWFsIEdTUyBt
-aWNyb2RhdGEpCjIuIEVuZ2luZWVycyB0
-aGUgZGVwcml2YXRpb24gY29tcG9zaXRl
-IGluZGV4CjMuIFRyYWlucyBSYW5kb20g
-Rm9yZXN0ICsgWEdCb29zdCBjbGFzc2lm
-aWVycwo0LiBFdmFsdWF0ZXMgbW9kZWwg
-KyBwcmludHMgcmVzdWx0cwo1LiBFeHBv
-cnRzIHRyYWluZWQgbW9kZWwgKyBzY2Fs
-ZXIgZm9yIEZhc3RBUEkgaW50ZWdyYXRp
-b24KNi4gR2VuZXJhdGVzIGEgZmVhdHVy
-ZSBpbXBvcnRhbmNlIGNoYXJ0CgpXaGVu
-IHlvdSBkb3dubG9hZCB0aGUgcmVhbCAy
-MDIxIFBIQyBtaWNyb2RhdGEgZnJvbToK
-ICBodHRwczovL21pY3JvZGF0YS5zdGF0
-c2doYW5hLmdvdi5naCAoQ2F0YWxvZyAj
-MTEwKQpSZXBsYWNlIHRoZSBzeW50aGV0
-aWMgZGF0YSBibG9jayAoU2VjdGlvbiAx
-KSB3aXRoOgogIGRmID0gcGQucmVhZF9j
-c3YoIlBIQ18yMDIxX2hvdXNlaG9sZC5j
-c3YiKQogIG9yCiAgZGYgPSBwZC5yZWFk
-X3Nwc3MoIlBIQ18yMDIxX2hvdXNlaG9s
-ZC5zYXYiKQoiIiIK
+#!/usr/bin/env python3
+"""
+DRP Rights Access Scoring Model
+=====================================
+Phana AI Innovation Challenge 2026
+Decentralized Rights Protocol -- Nkrumah Joel, UCC
+
+This script:
+1. Generates synthetic PHC-structured data (replace with real GSS microdata)
+2. Engineers the deprivation composite index
+3. Trains Random Forest + XGBoost classifiers
+4. Evaluates model + prints results
+5. Exports trained model + scaler for FastAPI integration
+6. Generates a feature importance chart
+
+When you download the real 2021 PHC microdata from:
+  https://microdata.statsghana.gov.gh (Catalog #110)
+Replace the synthetic data block (Section 1) with:
+  df = pd.read_csv("PHC_2021_household.csv")
+  or
+  df = pd.read_spss("PHC_2021_household.sav")
+"""
