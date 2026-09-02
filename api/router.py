@@ -12,6 +12,7 @@ from api.public import router as public_router
 from api.agent import router as agent_router
 from api.ai_routes import router as ai_routes_router
 from api.verification import router as verification_router
+from api.storage import router as storage_router
 
 settings = get_settings()
 
