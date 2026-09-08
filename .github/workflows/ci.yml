@@ -133,10 +133,37 @@ jobs:
           flags: backend
           name: backend-coverage
 
+  chain-build-test:
+    name: DRP Chain Build & Tests
+    runs-on: ubuntu-latest
+    needs: security-check
+    defaults:
+      run:
+        working-directory: chain
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.24.4'
+          cache: true
+          cache-dependency-path: chain/go.sum
+
+      - name: Download Go modules
+        run: go mod download
+
+      - name: Run chain tests
+        run: go test ./... -count=1
+
+      - name: Build drpd binary
+        run: go build -o build/drpd ./cmd/drpd
+
   build-and-test:
     name: Build & Integration Tests
     runs-on: ubuntu-latest
-    needs: [lint-and-format, test-backend]
+    needs: [lint-and-format, test-backend, chain-build-test]
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
