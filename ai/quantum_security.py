@@ -1,6 +1,6 @@
 """Quantum-secure hashing for DRP."""
 
-from typing import Optional
+from typing import Any, Dict, Optional
 from core.utils.quantum import generate_quantum_hash, verify_quantum_hash
 
 

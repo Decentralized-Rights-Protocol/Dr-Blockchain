@@ -25,9 +25,9 @@ class BlockResponse(BaseModel):
     miner_id: str
     activity: Dict[str, Any]
     proof: Dict[str, Any]
-    elder_signatures: List[Dict[str, Any]] = []
-    post_proofs: List[Dict[str, Any]] = []
-    poat_proofs: List[Dict[str, Any]] = []
+    elder_signatures: List[Dict[str, Any]] = Field(default_factory=list)
+    post_proofs: List[Dict[str, Any]] = Field(default_factory=list)
+    poat_proofs: List[Dict[str, Any]] = Field(default_factory=list)
 
 class ActorActivityResponse(BaseModel):
     activity_id: str
@@ -50,7 +50,7 @@ class IoTLogResponse(BaseModel):
     log_type: str
     data: Dict[str, Any]
     metadata: Dict[str, Any]
-    drp_references: List[str] = []
+    drp_references: List[str] = Field(default_factory=list)
 
 class ProofSubmissionResponse(BaseModel):
     hash: str
@@ -79,6 +79,7 @@ proof_storage = None
 
 def get_ledger():
     """Dependency to get ledger instance"""
+    global ledger
     if ledger is None:
         ledger = create_ledger()
     return ledger
@@ -409,8 +410,6 @@ async def startup_event():
 async def shutdown_event():
     """Clean up storage connections on shutdown"""
     logging.info("Shutting down DRP Explorer API...")
-    global ledger, indexer, proof_storage
-    
     if ledger:
         ledger.close()
     if indexer:

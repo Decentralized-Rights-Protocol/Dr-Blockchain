@@ -1,57 +1,51 @@
-IiIiCkRSUCBTY29yaW5nIEFQSSAtLS0g
-RmFzdEFQSSBSb3V0ZXIKPT09PT09PT09
-PT09PT09PT09PT09PT09PT09PT09PT09
-PT09PQpHaGFuYSBBSSBJbm5vdmF0aW9u
-IENoYWxsZW5nZSAyMDI2CkRlY2VudHJh
-bGl6ZWQgUmlnaHRzIFByb3RvY29sCgpV
-c2FnZSAtLS0gYWRkIHRvIGFwcC9tYWlu
-LnB5OgogICAgZnJvbSBhcHAucm91dGVy
-cy5zY29yaW5nIGltcG9ydCByb3V0ZXIg
-YXMgc2NvcmluZ19yb3V0ZXIKICAgIGFw
-cC5pbmNsdWRlX3JvdXRlcihzY29yaW5n
-X3JvdXRlciwgcHJlZml4PSIvYXBpL3Yx
-L3Njb3JlIiwgdGFncz1bIlNjb3Jpbmci
-XSkKCkVuZHBvaW50czoKICAgIFBPU1Qg
-L2FwaS92MS9zY29yZS9ob3VzZWhvbGQg
-ICAgICBTY29yZSBhIHNpbmdsZSBob3Vz
-ZWhvbGQKICAgIEdFVCAgL2FwaS92MS9z
-Y29yZS92ZXJpZnkve2hhc2h9ICBWZXJp
-ZnkgYSBzY29yZSBhdHRlc3RhdGlvbgog
-ICAgR0VUICAzIC9hcGkvdjEvc2NvcmUv
-aGVhbHRoICAgICAgICBNb2RlbCBoZWFs
-dGggY2hlY2sKIiIiCgpmcm9tIGZhc3Rh
-cGkgaW1wb3J0IEFQSVJvdXRlciwgSFRU
-UEV4Y2VwdGlvbgpmcm9tIHB5ZGFudGlj
-IGltcG9ydCBCYXNlTW9kZWwsIEZpZWxk
-CmZyb20gdHlwaW5nIGltcG9ydCBMaXRl
-cmFsLCBPcHRpb25hbAppbXBvcnQgam9i
-bGliLCBudW1weSBhcyBucCwgaGFzaGxp
-YiwganNvbiwgb3MKZnJvbSBkYXRldGlt
-ZSBpbXBvcnQgZGF0ZXRpbWUsIHRpbWV6
-b25lCgpyb3V0ZXIgPSBBUElSb3V0ZXIo
-KQoKTU9ERUxfRElSID0gb3MuZ2V0ZW52
-KCJEUlBfTU9ERUxfRElSIiwgImRycF9t
-b2RlbF9vdXRwdXQiKQoKdHJ5OgogICAg
-X3JmICAgICA9IGpvYmxpYi5sb2FkKGYi
-e01PREVMX0RJUn0vcmZfY2xhc3NpZmll
-ci5qb2JsaWIiKQogICAgX3hnYiAgICA9
-IGpvYmxpYi5sb2FkKGYie01PREVMX0RJ
-Un0veGdiX3JlZ3Jlc3Nvci5qb2JsaWIi
-KQogICAgX3NjYWxlciA9IGpvYmxpYi5s
-b2FkKGYie01PREVMX0RJUn0vc2NhbGVy
-LmpvYmxpYiIpCiAgICB3aXRoIG9wZW4o
-ZiJ7TU9ERUxfRElSfS9tb2RlbF9tZXRh
-ZGF0YS5qc29uIikgYXMgZjoKICAgICAg
-ICBfbWV0YSA9IGpzb24ubG9hZChmKQog
-ICAgX21vZGVsc19sb2FkZWQgPSBUcnVl
-CiAgICBfbG9hZF9lcnJvciA9IE5vbmUK
-ZXhjZXB0IEV4Y2VwdGlvbiBhcyBlOgog
-ICAgX21vZGVsc19sb2FkZWQgPSBGYWxz
-ZQogICAgX2xvYWRfZXJyb3IgPSBzdHIo
-ZSkKICAgIF9tZXRhID0geyJtb2RlbF92
-ZXJzaW9uIjogIjEuMC4wIn0KClRJRVJf
-TEFCRUxTICAgPSBbIkNyaXRpY2FsIiwg
-Ik1vZGVyYXRlIiwgIkFkZXF1YXRlIiwg
-IlNlY3VyZSJdCkxPQ0FMSVRZTUFQICA9
-IHsiVXJiYW4iOiAyLCAiUGVyaS11cmJh
-biI6IDEsICJSdXJhbCI6IDB9Cg==
+"""
+DRP Scoring API --- FastAPI Router
+=====================================
+Ghana AI Innovation Challenge 2026
+Decentralized Rights Protocol
+
+Usage --- add to app/main.py:
+    from app.routers.scoring import router as scoring_router
+    app.include_router(scoring_router, prefix="/api/v1/score", tags=["Scoring"])
+
+Endpoints:
+    POST /api/v1/score/household      Score a single household
+    GET  /api/v1/score/verify/{hash}  Verify a score attestation
+    GET  3 /api/v1/score/health        Model health check
+"""
+
+from fastapi import APIRouter, HTTPException
+from pydantic import BaseModel, Field
+from typing import Literal, Optional
+import joblib, numpy as np, hashlib, json, os
+from datetime import datetime, timezone
+
+router = APIRouter()
+
+MODEL_DIR = os.getenv("DRP_MODEL_DIR", "drp_model_output")
+
+try:
+    _rf     = joblib.load(f"{MODEL_DIR}/rf_classifier.joblib")
+    _xgb    = joblib.load(f"{MODEL_DIR}/xgb_regressor.joblib")
+    _scaler = joblib.load(f"{MODEL_DIR}/scaler.joblib")
+    with open(f"{MODEL_DIR}/model_metadata.json") as f:
+        _meta = json.load(f)
+    _models_loaded = True
+    _load_error = None
+except Exception as e:
+    _models_loaded = False
+    _load_error = str(e)
+    _meta = {"model_version": "1.0.0"}
+
+TIER_LABELS   = ["Critical", "Moderate", "Adequate", "Secure"]
+LOCALITYMAP  = {"Urban": 2, "Peri-urban": 1, "Rural": 0}
+
+
+class HouseholdScoreRequest(BaseModel):
+    household_size: int = Field(ge=1, le=100)
+    income: float = Field(ge=0)
+    locality: Literal["Urban","Peri-urban","Rural"] = "Rural"
+
+@router.get("/health")
+def model_health():
+    return {"status": "ok" if _models_loaded else "degraded", "model_version": _meta.get("model_version"), "loaded": _models_loaded, "error": _load_error}
