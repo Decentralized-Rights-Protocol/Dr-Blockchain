@@ -6,6 +6,7 @@ a health endpoint. Household scoring remains unavailable until the model input
 schema and trained artifacts are defined and tested; no synthetic score is returned.
 """
 
+import json
 import os
 from typing import Any
 
@@ -24,7 +25,7 @@ try:
     _xgb = joblib.load(f"{MODEL_DIR}/xgb_regressor.joblib")
     _scaler = joblib.load(f"{MODEL_DIR}/scaler.joblib")
     with open(f"{MODEL_DIR}/model_metadata.json", encoding="utf-8") as metadata_file:
-        _meta = joblib.json.load(metadata_file) if hasattr(joblib, "json") else {"model_version": "1.0.0"}
+        _meta = json.load(metadata_file)
     _models_loaded = True
     _load_error = None
 except Exception as error:
