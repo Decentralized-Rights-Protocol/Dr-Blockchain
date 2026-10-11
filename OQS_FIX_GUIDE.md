@@ -52,15 +52,15 @@ Added informative messages to help with debugging:
 try:
     import oqs  # This is correct for python-oqs package
     OQS_AVAILABLE = True
-    print("✅ Real liboqs available - using actual post-quantum crypto")
+    print("â Real liboqs available - using actual post-quantum crypto")
 except ImportError:
     try:
         from .mock_oqs import oqs
         OQS_AVAILABLE = True
-        print("⚠️  Using mock post-quantum implementation")
+        print("â ï¸  Using mock post-quantum implementation")
     except ImportError:
         OQS_AVAILABLE = False
-        print("❌ No post-quantum crypto available")
+        print("â No post-quantum crypto available")
 ```
 
 ## Installation Instructions
@@ -126,43 +126,43 @@ This script will:
 
 **Success**:
 ```
-🔍 Testing OQS (Open Quantum Safe) library...
+ð Testing OQS (Open Quantum Safe) library...
 ==================================================
 1. Testing direct OQS import...
-   ✅ OQS imported successfully
+   â OQS imported successfully
 2. Testing Signature class...
-   ✅ Signature class available
-   ✅ Generated Dilithium2 key pair
-   ✅ Generated signature (length: 3293 bytes)
-   ✅ Signature verification: PASSED
+   â Signature class available
+   â Generated Dilithium2 key pair
+   â Generated signature (length: 3293 bytes)
+   â Signature verification: PASSED
 3. Testing KeyEncapsulation class...
-   ✅ KeyEncapsulation class available
-   ✅ Generated Kyber512 key pair
+   â KeyEncapsulation class available
+   â Generated Kyber512 key pair
 
-✅ All OQS tests passed!
+â All OQS tests passed!
 
-🔍 Testing DRP post-quantum modules...
+ð Testing DRP post-quantum modules...
 ==================================================
 1. Testing pq_keys module...
-   ✅ pq_keys module imported successfully
+   â pq_keys module imported successfully
 2. Testing key generation...
-   ✅ Generated Kyber key: a1b2c3d4e5f6g7h8
-   ✅ Generated Dilithium key: i9j0k1l2m3n4o5p6
+   â Generated Kyber key: <redacted-example-key>
+   â Generated Dilithium key: <redacted-example-key>
 3. Testing key manager...
-   ✅ Key manager operations successful
+   â Key manager operations successful
 
-✅ All DRP post-quantum module tests passed!
+â All DRP post-quantum module tests passed!
 
-🎉 ALL TESTS PASSED!
-✅ OQS library is working correctly
-✅ DRP post-quantum modules are working correctly
+ð ALL TESTS PASSED!
+â OQS library is working correctly
+â DRP post-quantum modules are working correctly
 ```
 
 **Failure**:
 ```
-❌ OQS import failed: No module named 'oqs'
+â OQS import failed: No module named 'oqs'
 
-💡 Solution:
+ð¡ Solution:
    1. Uninstall the wrong package: pip uninstall oqs
    2. Install the correct package: pip install python-oqs
    3. Run this test again
@@ -312,4 +312,4 @@ For issues or questions:
 
 **Last Updated**: 2025
 **Version**: 1.0.0
-**Status**: ✅ Fixed and Verified
+**Status**: â Fixed and Verified
