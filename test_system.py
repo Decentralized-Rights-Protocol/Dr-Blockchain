@@ -218,6 +218,7 @@ class DRPSystemTester:
 
 async def main():
     """Main test function"""
+    await asyncio.sleep(5)
     async with DRPSystemTester() as tester:
         await tester.run_comprehensive_test()
 
@@ -226,8 +227,5 @@ if __name__ == "__main__":
     print("Make sure the system is running with: docker-compose up")
     print("Waiting 5 seconds for services to be ready...")
     
-    # Wait for services to be ready
-    await asyncio.sleep(5)
-    
-    # Run tests
+    # Run tests after the async entry point waits for service startup.
     asyncio.run(main())
