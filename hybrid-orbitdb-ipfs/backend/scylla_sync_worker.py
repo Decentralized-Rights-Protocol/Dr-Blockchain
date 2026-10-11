@@ -126,6 +126,8 @@ async def get_sync_worker() -> ScyllaSyncWorker:
         import os
 
         contact_points = os.getenv("CASSANDRA_CONTACT_POINTS", "localhost").split(",")
-        _sync_worker = ScyllaSyncWorker([point.strip() for point in contact_points if point.strip()])
+        _sync_worker = ScyllaSyncWorker(
+            [point.strip() for point in contact_points if point.strip()]
+        )
         await _sync_worker.connect()
     return _sync_worker
