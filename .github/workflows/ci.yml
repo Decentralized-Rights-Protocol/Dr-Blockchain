@@ -25,7 +25,7 @@ jobs:
 
       - name: Install and run Gitleaks CLI
         run: |
-          go install github.com/gitleaks/gitleaks/v8@v8.25.0
+          go install github.com/zricethezav/gitleaks/v8@v8.25.0
           "$(go env GOPATH)/bin/gitleaks" dir . --redact --no-banner --exit-code 1
       
       - name: Check for private keys
