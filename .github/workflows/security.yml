@@ -60,19 +60,40 @@ jobs:
       
       - name: Check for hardcoded secrets
         run: |
-          echo "Checking for hardcoded secrets..."
-          # Check for common secret patterns (excluding examples and documentation)
-          if grep -r -i "password.*=" --include="*.py" --include="*.js" --include="*.ts" --include="*.json" . | grep -v node_modules | grep -v .venv | grep -v "example" | grep -v "test" | grep -v "your_" | grep -v "mock_"; then
-            echo "❌ Potential hardcoded passwords found!"
-            exit 1
-          fi
-          
-          if grep -r -i "api.*key.*=" --include="*.py" --include="*.js" --include="*.ts" --include="*.json" . | grep -v node_modules | grep -v .venv | grep -v "example" | grep -v "test" | grep -v "your_" | grep -v "mock_"; then
-            echo "❌ Potential hardcoded API keys found!"
-            exit 1
-          fi
-          
-          echo "✅ No hardcoded secrets found"
+          python - <<'PY'
+          import re
+          import sys
+          from pathlib import Path
+
+          skip_parts = {".git", "node_modules", ".venv", "venv", "__pycache__"}
+          placeholders = re.compile(r"(?i)(example|your_|mock_|changeme|replace[_-]?me|dummy|placeholder)")
+          patterns = [
+              ("hardcoded password", re.compile(r"""(?i)\bpassword\s*[:=]\s*["']([^"']{4,})["']""")),
+              ("hardcoded API key", re.compile(r"""(?i)\b(?:api[_-]?key|secret[_-]?key|access[_-]?token)\s*[:=]\s*["']([A-Za-z0-9_./+=-]{16,})["']""")),
+          ]
+          findings = []
+          allowed_suffixes = {".py", ".js", ".ts", ".tsx", ".json", ".yml", ".yaml"}
+          for path in Path(".").rglob("*"):
+              if not path.is_file() or any(part in skip_parts for part in path.parts):
+                  continue
+              if path.suffix.lower() not in allowed_suffixes:
+                  continue
+              if "example" in path.name.lower() or "test" in path.name.lower():
+                  continue
+              try:
+                  source = path.read_text(errors="ignore")
+              except OSError:
+                  continue
+              for label, pattern in patterns:
+                  for match in pattern.finditer(source):
+                      if not placeholders.search(match.group(1)):
+                          findings.append((path, label))
+          if findings:
+              for path, label in findings:
+                  print(f"{path}: possible {label} literal")
+              sys.exit(1)
+          print("No hardcoded secret literals detected.")
+          PY
 
   dependency-scan:
     name: Dependency Vulnerability Scan
