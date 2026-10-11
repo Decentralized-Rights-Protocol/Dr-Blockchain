@@ -26,7 +26,7 @@ jobs:
       - name: Install and run Gitleaks CLI
         run: |
           go install github.com/zricethezav/gitleaks/v8@v8.25.0
-          "$(go env GOPATH)/bin/gitleaks" dir . --redact --no-banner --exit-code 1
+          "$(go env GOPATH)/bin/gitleaks" dir . --redact --no-banner --verbose --exit-code 1
       
       - name: Check for private keys
         run: |
@@ -180,13 +180,11 @@ jobs:
       
       - name: Install dependencies
         run: |
-          # Install Python dependencies
           python -m pip install --upgrade pip
           pip install -r requirements.txt
       
       - name: Run integration tests
         run: |
-          # Run demo scripts to verify integration
           if [ -f "examples/ai_verification_demo.py" ]; then
             python examples/ai_verification_demo.py --demo || true
           fi
@@ -198,8 +196,6 @@ jobs:
       - name: Create build artifacts
         run: |
           mkdir -p build-artifacts
-          
-          # Copy Python packages
           if [ -d "dist" ]; then
             cp -r dist build-artifacts/python
           fi
