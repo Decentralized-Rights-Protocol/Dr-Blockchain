@@ -206,20 +206,6 @@ func (msg *MsgBurn) GetSigners() []sdk.AccAddress {
 	return []sdk.AccAddress{from}
 }
 
-// RegisterLegacyAminoCodec registers the legacy amino codec
-func RegisterLegacyAminoCodec(cdc *sdk.LegacyAmino) {
-	cdc.RegisterConcrete(&MsgTransfer{}, "drp/deri/MsgTransfer", nil)
-	cdc.RegisterConcrete(&MsgMint{}, "drp/deri/MsgMint", nil)
-	cdc.RegisterConcrete(&MsgBurn{}, "drp/deri/MsgBurn", nil)
-}
-
-// ModuleCdc defines the codec for the deri module
-var ModuleCdc = sdk.NewLegacyAmino()
-
-func init() {
-	RegisterLegacyAminoCodec(ModuleCdc)
-}
-
 // GetMsgTypeURL returns the type URL for a message type
 func GetMsgTypeURL(msg sdk.Msg) string {
 	switch m := msg.(type) {

@@ -7,6 +7,13 @@ import (
 	"github.com/cosmos/cosmos-sdk/types/msgservice"
 )
 
+// ModuleCdc defines the legacy amino codec for the deri module.
+var ModuleCdc = codec.NewLegacyAmino()
+
+func init() {
+	RegisterLegacyAminoCodec(ModuleCdc)
+}
+
 // RegisterInterfaces registers the interfaces for the deri module
 func RegisterInterfaces(registry cdctypes.InterfaceRegistry) {
 	registry.RegisterImplementations(
