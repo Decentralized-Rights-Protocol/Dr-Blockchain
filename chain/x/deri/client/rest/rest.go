@@ -293,5 +293,5 @@ func ParseHTTPArgs(r *http.Request) ([]string, error) {
 
 //nolint:unused
 func strToInt64(s string) (int64, error) {
-	return strconv.ParseInt64(s, 10, 64)
+	return strconv.ParseInt(s, 10, 64)
 }

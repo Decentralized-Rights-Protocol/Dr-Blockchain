@@ -10,9 +10,6 @@ import (
 // Constants for the deri module
 const (
 	ModuleName = "deri"
-	StoreKey   = ModuleName
-	RouterKey  = ModuleName
-	MemStoreKey = "mem_deri"
 
 	// Denomination for $DeRi token
 	DeRiDenom = "uderi"
