@@ -180,7 +180,7 @@ try:
     # --- 13.1 Connect to IPFS ---
     client = ipfshttpclient.connect("/ip4/127.0.0.1/tcp/5001/http")
     IPFS_AVAILABLE = True
-except ImportError:
+except Exception:  # package missing or daemon unreachable
     client = None
     IPFS_AVAILABLE = False
 
