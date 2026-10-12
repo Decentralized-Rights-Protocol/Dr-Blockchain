@@ -22,7 +22,6 @@ from agents import (
     GovernanceAgent,
 )
 
-
 router = APIRouter()
 
 _client = DRPBlockchainClient()
@@ -178,5 +177,3 @@ async def get_governance_proposals() -> GovernanceProposalsResponse:
         score = _gov_agent.evaluate_proposal(p)
         enriched.append({**p, **score})
     return GovernanceProposalsResponse(proposals=enriched)
-
-

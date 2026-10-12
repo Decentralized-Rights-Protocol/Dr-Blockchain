@@ -7,13 +7,13 @@ from ..models.status import StatusScore
 
 class StatusProfileRequest(BaseModel):
     """Request to get status profile."""
-    
+
     user_id: str = Field(..., description="User ID")
 
 
 class StatusProfileResponse(BaseModel):
     """Status profile response."""
-    
+
     user_id: str
     status_score: StatusScore
     total_activities: int
@@ -25,7 +25,6 @@ class StatusProfileResponse(BaseModel):
 
 class StatusUpdateRequest(BaseModel):
     """Request to update status."""
-    
+
     user_id: str
     force_recalculate: bool = Field(default=False)
-

@@ -12,10 +12,10 @@ def get_timestamp() -> float:
 def format_datetime(dt: Optional[datetime] = None) -> str:
     """
     Format datetime as ISO string.
-    
+
     Args:
         dt: Datetime object (defaults to now)
-        
+
     Returns:
         ISO formatted string
     """
@@ -27,12 +27,11 @@ def format_datetime(dt: Optional[datetime] = None) -> str:
 def parse_datetime(iso_string: str) -> datetime:
     """
     Parse ISO datetime string.
-    
+
     Args:
         iso_string: ISO formatted datetime string
-        
+
     Returns:
         Datetime object
     """
-    return datetime.fromisoformat(iso_string.replace('Z', '+00:00'))
-
+    return datetime.fromisoformat(iso_string.replace("Z", "+00:00"))

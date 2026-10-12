@@ -14,10 +14,4 @@ from .proof_of_service import *
 from .idolized_miner import *
 from .mining import *
 
-__all__ = [
-    'consensus',
-    'voting_protocol',
-    'proof_of_service',
-    'idolized_miner',
-    'mining'
-]
+__all__ = ["consensus", "voting_protocol", "proof_of_service", "idolized_miner", "mining"]

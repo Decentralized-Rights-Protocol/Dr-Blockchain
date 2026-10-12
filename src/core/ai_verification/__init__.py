@@ -26,10 +26,10 @@ __author__ = "DRP Development Team"
 
 __all__ = [
     "FaceVerificationEngine",
-    "ActivityDetectionEngine", 
+    "ActivityDetectionEngine",
     "VoiceCommandEngine",
     "TextAnalysisEngine",
     "AIVerificationIntegrator",
     "DRPBlockchainClient",
-    "BlockchainTransaction"
+    "BlockchainTransaction",
 ]

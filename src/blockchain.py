@@ -8,6 +8,7 @@ import time
 
 DIFFICULTY = 4  # number of leading zeros required in hash
 
+
 class Block:
     def __init__(self, index, previous_hash, timestamp, data, nonce=0):
         self.index = index
@@ -18,20 +19,24 @@ class Block:
         self.hash = self.calculate_hash()
 
     def calculate_hash(self):
-        block_string = json.dumps({
-            "index": self.index,
-            "previous_hash": self.previous_hash,
-            "timestamp": self.timestamp,
-            "data": self.data,
-            "nonce": self.nonce
-        }, sort_keys=True).encode()
+        block_string = json.dumps(
+            {
+                "index": self.index,
+                "previous_hash": self.previous_hash,
+                "timestamp": self.timestamp,
+                "data": self.data,
+                "nonce": self.nonce,
+            },
+            sort_keys=True,
+        ).encode()
         return hashlib.sha256(block_string).hexdigest()
 
     def mine_block(self):
-        while self.hash[:DIFFICULTY] != '0' * DIFFICULTY:
+        while self.hash[:DIFFICULTY] != "0" * DIFFICULTY:
             self.nonce += 1
             self.hash = self.calculate_hash()
         print(f"Block mined: {self.hash}")
+
 
 class Blockchain:
     def __init__(self):
@@ -57,6 +62,7 @@ class Blockchain:
             if curr.previous_hash != prev.hash:
                 return False
         return True
+
 
 # === Example Usage ===
 if __name__ == "__main__":

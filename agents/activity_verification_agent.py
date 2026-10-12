@@ -8,7 +8,6 @@ from __future__ import annotations
 from typing import Any, Dict
 import logging
 
-
 logger = logging.getLogger(__name__)
 
 
@@ -57,13 +56,5 @@ class ActivityVerificationAgent:
         )
         return result
 
-{
-  "cells": [],
-  "metadata": {
-    "language_info": {
-      "name": "python"
-    }
-  },
-  "nbformat": 4,
-  "nbformat_minor": 2
-}
+
+{"cells": [], "metadata": {"language_info": {"name": "python"}}, "nbformat": 4, "nbformat_minor": 2}

@@ -7,12 +7,14 @@ import time
 proposals = []
 votes = {}
 
+
 # --- 12.3 Find Proposal Helper ---
 def find_proposal(pid):
     for p in proposals:
         if p["id"] == pid:
             return p
     return None
+
 
 # --- 12.4 Tally Votes ---
 def tally_votes(proposal_id):
@@ -25,7 +27,7 @@ def tally_votes(proposal_id):
         "title": proposal["title"],
         "for": proposal["votes_for"],
         "against": proposal["votes_against"],
-        "status": "PASSED" if proposal["votes_for"] > proposal["votes_against"] else "REJECTED"
+        "status": "PASSED" if proposal["votes_for"] > proposal["votes_against"] else "REJECTED",
     }
     print(f"[Tally] Proposal '{proposal['title']}' result: {result['status']}")
     return result
@@ -41,12 +43,13 @@ def create_proposal(creator_wallet, title, description):
         "description": description,
         "timestamp": time.time(),
         "votes_for": 0,
-        "votes_against": 0
+        "votes_against": 0,
     }
     proposals.append(proposal)
     votes[proposal_id] = {}  # Initialize empty vote record
     print(f"[Proposal] New proposal created: {title}")
     return proposal_id
+
 
 # --- 12.2 Vote on Proposal ---
 def vote_on_proposal(proposal_id, voter_wallet, vote, activity_score=1):
@@ -70,4 +73,3 @@ def vote_on_proposal(proposal_id, voter_wallet, vote, activity_score=1):
     votes[proposal_id][voter_wallet] = vote
     print(f"[Vote] {voter_wallet} voted '{vote}' with weight {weighted_vote}.")
     return True
-

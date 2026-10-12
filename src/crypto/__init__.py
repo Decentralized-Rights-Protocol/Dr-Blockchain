@@ -13,9 +13,4 @@ from .gen_wallet import *
 from .hashing import *
 from .asm_hash_wrapper import *
 
-__all__ = [
-    'crypto_module',
-    'gen_wallet', 
-    'hashing',
-    'asm_hash_wrapper'
-]
+__all__ = ["crypto_module", "gen_wallet", "hashing", "asm_hash_wrapper"]

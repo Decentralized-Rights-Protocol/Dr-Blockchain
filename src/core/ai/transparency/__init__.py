@@ -8,7 +8,7 @@ from .decision_logger import (
     AIDecisionLog,
     DecisionType,
     DecisionOutcome,
-    ExplainabilityVector
+    ExplainabilityVector,
 )
 
 from .model_governance import (
@@ -18,7 +18,7 @@ from .model_governance import (
     PerformanceMetrics,
     BiasAssessment,
     AuditStatus,
-    BiasLevel
+    BiasLevel,
 )
 
 from .zkp_explainability import (
@@ -26,7 +26,7 @@ from .zkp_explainability import (
     ZKProof,
     ProofType,
     ModelCircuit,
-    ZKPResearchRoadmap
+    ZKPResearchRoadmap,
 )
 
 __version__ = "1.0.0"
@@ -36,24 +36,22 @@ __email__ = "ai-team@decentralizedrights.com"
 __all__ = [
     # Decision logging
     "AITransparencyLogger",
-    "AIDecisionLog", 
+    "AIDecisionLog",
     "DecisionType",
     "DecisionOutcome",
     "ExplainabilityVector",
-    
     # Model governance
     "ModelGovernanceManager",
     "ModelCard",
     "DatasetInfo",
-    "PerformanceMetrics", 
+    "PerformanceMetrics",
     "BiasAssessment",
     "AuditStatus",
     "BiasLevel",
-    
     # ZKP explainability
     "ZKPExplainabilityManager",
     "ZKProof",
     "ProofType",
     "ModelCircuit",
-    "ZKPResearchRoadmap"
+    "ZKPResearchRoadmap",
 ]

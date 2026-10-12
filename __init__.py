@@ -1,7 +1,7 @@
 """
 Decentralized Rights Protocol (DRP) Blockchain Implementation
 
-A blockchain system with proof-of-activity consensus, 
+A blockchain system with proof-of-activity consensus,
 cryptographic wallets, and assembly-accelerated hashing.
 """
 
@@ -15,11 +15,11 @@ from src.crypto.hashing import generate_key_pair, get_wallet_address, sign_messa
 from src.consensus.idolized_miner import idolized_halting_miner
 
 __all__ = [
-    'Blockchain',
-    'Block', 
-    'generate_key_pair',
-    'get_wallet_address',
-    'sign_message',
-    'verify_signature',
-    'idolized_halting_miner'
+    "Blockchain",
+    "Block",
+    "generate_key_pair",
+    "get_wallet_address",
+    "sign_message",
+    "verify_signature",
+    "idolized_halting_miner",
 ]

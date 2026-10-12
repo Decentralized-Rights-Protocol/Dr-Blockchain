@@ -66,10 +66,13 @@ async def sync_record(request: SyncRequest) -> Dict[str, Any]:
 
     orbit = OrbitClient()
     try:
-        orbit_result = await orbit.add("drp.activities", {
-            **payload,
-            "evidence_cid": evidence_cid,
-        })
+        orbit_result = await orbit.add(
+            "drp.activities",
+            {
+                **payload,
+                "evidence_cid": evidence_cid,
+            },
+        )
     except Exception as exc:
         raise HTTPException(status_code=502, detail=f"OrbitDB write failed: {exc}") from exc
 

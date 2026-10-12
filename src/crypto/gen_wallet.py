@@ -6,12 +6,14 @@ from cryptography.hazmat.primitives.ciphers.aead import AESGCM
 from dataclasses import dataclass
 from .crypto_module import pubkey_to_address  # reuse from earlier module
 
+
 # ---------- Wallet data structures ----------
 @dataclass
 class HDKey:
     path: str
     pub: bytes
     priv: bytes
+
 
 @dataclass
 class Wallet:
@@ -21,11 +23,13 @@ class Wallet:
     created_at: int
     version: int = 1
 
+
 # ---------- BIP39 mnemonic ----------
 def generate_mnemonic(strength_bits=128) -> str:
     # 128 bits => 12 words, 256 bits => 24 words
     mnemo = Mnemonic("english")
     return mnemo.generate(strength=strength_bits)
+
 
 def mnemonic_to_seed(mnemonic: str, passphrase: str = "") -> bytes:
     # BIP39: seed = PBKDF2(mnemonic + "mnemonic", salt="mnemonic"+passphrase, iterations=2048, HMAC-SHA512)
@@ -33,8 +37,11 @@ def mnemonic_to_seed(mnemonic: str, passphrase: str = "") -> bytes:
     seed_bytes = Bip39SeedGenerator(mnemonic).Generate(passphrase)
     return seed_bytes
 
+
 # ---------- SLIP-0010 Ed25519 derivation ----------
-def derive_ed25519_seed_key(seed_bytes: bytes, derivation_path: str = "m/0'") -> Tuple[bytes, bytes]:
+def derive_ed25519_seed_key(
+    seed_bytes: bytes, derivation_path: str = "m/0'"
+) -> Tuple[bytes, bytes]:
     """
     Derive an ed25519 keypair deterministically using SLIP-0010.
     derivation_path example: "m/0'/1'"
@@ -47,6 +54,7 @@ def derive_ed25519_seed_key(seed_bytes: bytes, derivation_path: str = "m/0'") ->
     priv = node.PrivateKey().Raw().ToBytes()
     pub = node.PublicKey().RawCompressed().ToBytes()  # compressed pubkey
     return priv, pub
+
 
 # ---------- High-level: create wallet with N derived accounts ----------
 def create_wallet(num_accounts: int = 5, mnemonic: str = None, passphrase: str = "") -> Wallet:
@@ -65,11 +73,14 @@ def create_wallet(num_accounts: int = 5, mnemonic: str = None, passphrase: str =
     wallet = Wallet(mnemonic=mnemonic, seed_hex=seed_hex, keys=keys, created_at=int(time.time()))
     return wallet
 
+
 # ---------- Encryption utilities (AES-GCM) ----------
 def _derive_key_from_password(password: str, salt: bytes, iterations: int = 200000) -> bytes:
     from hashlib import pbkdf2_hmac
+
     # derive 32-byte key for AES-256-GCM
-    return pbkdf2_hmac('sha256', password.encode(), salt, iterations, dklen=32)
+    return pbkdf2_hmac("sha256", password.encode(), salt, iterations, dklen=32)
+
 
 def encrypt_wallet(wallet: Wallet, password: str) -> bytes:
     # create JSON payload
@@ -79,11 +90,9 @@ def encrypt_wallet(wallet: Wallet, password: str) -> bytes:
         "mnemonic": wallet.mnemonic,
         "seed_hex": wallet.seed_hex,
         "keys": {
-            p: {
-                "pub": binascii.hexlify(k.pub).decode(),
-                "priv": binascii.hexlify(k.priv).decode()
-            } for p, k in wallet.keys.items()
-        }
+            p: {"pub": binascii.hexlify(k.pub).decode(), "priv": binascii.hexlify(k.priv).decode()}
+            for p, k in wallet.keys.items()
+        },
     }
     data = json.dumps(payload).encode()
     salt = os.urandom(16)
@@ -94,6 +103,7 @@ def encrypt_wallet(wallet: Wallet, password: str) -> bytes:
     # store as: salt || nonce || ct (hex)
     blob = binascii.hexlify(salt + nonce + ct)
     return blob
+
 
 def decrypt_wallet(blob_hex: bytes, password: str) -> Wallet:
     raw = binascii.unhexlify(blob_hex)
@@ -107,15 +117,18 @@ def decrypt_wallet(blob_hex: bytes, password: str) -> Wallet:
     # rebuild Wallet
     keys = {}
     for p, info in payload["keys"].items():
-        keys[p] = HDKey(path=p, pub=binascii.unhexlify(info["pub"]), priv=binascii.unhexlify(info["priv"]))
+        keys[p] = HDKey(
+            path=p, pub=binascii.unhexlify(info["pub"]), priv=binascii.unhexlify(info["priv"])
+        )
     wallet = Wallet(
         mnemonic=payload["mnemonic"],
         seed_hex=payload["seed_hex"],
         keys=keys,
         created_at=payload["created_at"],
-        version=payload.get("version", 1)
+        version=payload.get("version", 1),
     )
     return wallet
+
 
 # ---------- Example usage ----------
 if __name__ == "__main__":

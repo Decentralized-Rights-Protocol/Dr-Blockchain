@@ -31,7 +31,5 @@ __all__ = [
     "OracleService",
     "MerkleProofVerifier",
     "HeaderVerifier",
-    "ConsensusOracle"
+    "ConsensusOracle",
 ]
-
-

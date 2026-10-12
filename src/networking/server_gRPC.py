@@ -9,6 +9,7 @@ from . import drp_pb2_grpc
 BLOCKCHAIN = []
 MEMPOOL = []
 
+
 class DrpNodeServicer(drp_pb2_grpc.DrpNodeServicer):
     def BroadcastTransaction(self, request, context):
         # Mock validation: accept everything
@@ -34,10 +35,11 @@ class DrpNodeServicer(drp_pb2_grpc.DrpNodeServicer):
         else:
             return drp_pb2.VerificationResponse(valid=False, reason="Failed heuristic checks")
 
+
 def serve():
     server = grpc.server(futures.ThreadPoolExecutor(max_workers=10))
     drp_pb2_grpc.add_DrpNodeServicer_to_server(DrpNodeServicer(), server)
-    server.add_insecure_port('[::]:50051')
+    server.add_insecure_port("[::]:50051")
     server.start()
     print("DRP gRPC server started on :50051")
     try:
@@ -45,6 +47,7 @@ def serve():
             time.sleep(86400)
     except KeyboardInterrupt:
         server.stop(0)
+
 
 if __name__ == "__main__":
     serve()

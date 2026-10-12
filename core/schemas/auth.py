@@ -6,7 +6,7 @@ from pydantic import BaseModel, Field
 
 class LoginRequest(BaseModel):
     """Login request."""
-    
+
     username: Optional[str] = Field(None)
     email: Optional[str] = Field(None)
     password: Optional[str] = Field(None, min_length=8)
@@ -16,7 +16,7 @@ class LoginRequest(BaseModel):
 
 class LoginResponse(BaseModel):
     """Login response with JWT token."""
-    
+
     access_token: str
     token_type: str = Field(default="bearer")
     user_id: str
@@ -25,7 +25,7 @@ class LoginResponse(BaseModel):
 
 class WalletLinkRequest(BaseModel):
     """Request to link a wallet."""
-    
+
     user_id: str
     wallet_address: str = Field(..., description="Wallet address")
     signature: str = Field(..., description="Signature proving wallet ownership")
@@ -33,8 +33,7 @@ class WalletLinkRequest(BaseModel):
 
 class WalletLinkResponse(BaseModel):
     """Wallet link response."""
-    
+
     success: bool
     wallet_address: str
     message: str
-

@@ -12,8 +12,4 @@ from .client_gRPC import *
 from .server_gRPC import *
 from .ipfs import *
 
-__all__ = [
-    'client_gRPC',
-    'server_gRPC', 
-    'ipfs'
-]
+__all__ = ["client_gRPC", "server_gRPC", "ipfs"]

@@ -8,7 +8,7 @@ from pydantic import BaseModel, Field
 
 class ActivityType(str, Enum):
     """Types of activities that can be verified."""
-    
+
     EDUCATION = "education"
     HEALTH = "health"
     ENGINEERING = "engineering"
@@ -22,7 +22,7 @@ class ActivityType(str, Enum):
 
 class Activity(BaseModel):
     """Activity log entry."""
-    
+
     id: str = Field(..., description="Unique activity ID")
     user_id: str = Field(..., description="User who performed the activity")
     activity_type: ActivityType = Field(..., description="Type of activity")
@@ -35,14 +35,14 @@ class Activity(BaseModel):
     verified: bool = Field(default=False, description="AI verification status")
     verification_score: float = Field(default=0.0, ge=0.0, le=1.0)
     orbitdb_cid: Optional[str] = Field(None, description="OrbitDB entry CID")
-    
+
     class Config:
         use_enum_values = True
 
 
 class ActivityProof(BaseModel):
     """Proof of Activity for blockchain submission."""
-    
+
     activity_id: str
     user_id: str
     orbitdb_cid: str
@@ -51,4 +51,3 @@ class ActivityProof(BaseModel):
     ai_verification_score: float = Field(..., ge=0.0, le=1.0)
     timestamp: datetime = Field(default_factory=datetime.utcnow)
     signature: Optional[str] = Field(None, description="Cryptographic signature")
-

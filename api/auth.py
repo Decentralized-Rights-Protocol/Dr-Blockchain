@@ -22,14 +22,14 @@ def get_current_user(credentials: HTTPAuthorizationCredentials = Depends(securit
     """Get current authenticated user from JWT token."""
     token = credentials.credentials
     payload = decode_jwt_token(token)
-    
+
     if not payload:
         raise HTTPException(status_code=401, detail="Invalid or expired token")
-    
+
     user_id = payload.get("user_id")
     if not user_id:
         raise HTTPException(status_code=401, detail="Invalid token")
-    
+
     return {"user_id": user_id}
 
 
@@ -37,11 +37,11 @@ def get_current_user(credentials: HTTPAuthorizationCredentials = Depends(securit
 async def login(request: LoginRequest):
     """
     Login endpoint.
-    
+
     Supports both password-based and wallet-based authentication.
     """
     user_id = None
-    
+
     # Find user
     if request.username:
         user_id = request.username
@@ -56,7 +56,7 @@ async def login(request: LoginRequest):
             raise HTTPException(status_code=400, detail="Invalid wallet address")
     else:
         raise HTTPException(status_code=400, detail="Username, email, or wallet address required")
-    
+
     # Authenticate
     if request.password:
         # Password-based auth
@@ -67,24 +67,17 @@ async def login(request: LoginRequest):
         authenticated = verify_wallet_signature(message, request.signature, request.wallet_address)
     else:
         raise HTTPException(status_code=400, detail="Password or wallet signature required")
-    
+
     if not authenticated:
         raise HTTPException(status_code=401, detail="Invalid credentials")
-    
+
     # Create JWT token
     token = create_jwt_token(user_id, expires_in=3600)
-    
+
     # Store session
-    sessions_db[user_id] = {
-        "token": token,
-        "user_id": user_id
-    }
-    
-    return LoginResponse(
-        access_token=token,
-        user_id=user_id,
-        expires_in=3600
-    )
+    sessions_db[user_id] = {"token": token, "user_id": user_id}
+
+    return LoginResponse(access_token=token, user_id=user_id, expires_in=3600)
 
 
 @router.post("/auth/wallet-link", response_model=WalletLinkResponse)
@@ -94,33 +87,27 @@ async def link_wallet(request: WalletLinkRequest, current_user: dict = Depends(g
     """
     if not validate_wallet_address(request.wallet_address):
         raise HTTPException(status_code=400, detail="Invalid wallet address")
-    
+
     if not validate_user_id(request.user_id):
         raise HTTPException(status_code=400, detail="Invalid user ID")
-    
+
     # Verify signature
     message = f"Link wallet {request.wallet_address} to user {request.user_id}"
     if not verify_wallet_signature(message, request.signature, request.wallet_address):
         raise HTTPException(status_code=401, detail="Invalid signature")
-    
+
     # Link wallet (in production, save to database)
     if request.user_id not in users_db:
         users_db[request.user_id] = {}
-    
+
     users_db[request.user_id]["wallet_address"] = request.wallet_address
-    
+
     return WalletLinkResponse(
-        success=True,
-        wallet_address=request.wallet_address,
-        message="Wallet linked successfully"
+        success=True, wallet_address=request.wallet_address, message="Wallet linked successfully"
     )
 
 
 @router.get("/auth/me")
 async def get_current_user_info(current_user: dict = Depends(get_current_user)):
     """Get current user information."""
-    return {
-        "user_id": current_user["user_id"],
-        "authenticated": True
-    }
-
+    return {"user_id": current_user["user_id"], "authenticated": True}

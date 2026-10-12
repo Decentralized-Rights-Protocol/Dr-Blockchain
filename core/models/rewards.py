@@ -8,7 +8,7 @@ from pydantic import BaseModel, Field
 
 class RewardType(str, Enum):
     """Types of rewards."""
-    
+
     ACTIVITY_VERIFICATION = "activity_verification"
     STATUS_MAINTENANCE = "status_maintenance"
     CONSISTENCY_BONUS = "consistency_bonus"
@@ -19,7 +19,7 @@ class RewardType(str, Enum):
 
 class Reward(BaseModel):
     """Individual reward entry."""
-    
+
     reward_id: str = Field(..., description="Unique reward ID")
     user_id: str = Field(..., description="Recipient user ID")
     reward_type: RewardType
@@ -31,14 +31,14 @@ class Reward(BaseModel):
     timestamp: datetime = Field(default_factory=datetime.utcnow)
     transaction_hash: Optional[str] = Field(None, description="Blockchain transaction hash")
     claimed: bool = Field(default=False, description="Whether reward has been claimed")
-    
+
     class Config:
         use_enum_values = True
 
 
 class RewardSummary(BaseModel):
     """Summary of rewards for a user."""
-    
+
     user_id: str
     total_earned: float = Field(..., ge=0.0, description="Total DeRi earned")
     total_claimed: float = Field(..., ge=0.0, description="Total DeRi claimed")
@@ -46,4 +46,3 @@ class RewardSummary(BaseModel):
     rewards: list[Reward] = Field(default_factory=list, description="All rewards")
     current_multiplier: float = Field(default=1.0, ge=0.0)
     last_updated: datetime = Field(default_factory=datetime.utcnow)
-

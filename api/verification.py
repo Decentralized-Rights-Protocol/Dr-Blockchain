@@ -19,6 +19,7 @@ router = APIRouter(prefix="/api/verify", tags=["Verification"])
 
 # ── Schemas ──────────────────────────────────────────────────────────────────
 
+
 class VerificationRequest(BaseModel):
     user_id: str = Field(..., min_length=3, max_length=128)
     source_text: str = Field(..., min_length=100, max_length=10_000)
@@ -46,9 +47,10 @@ class QuestionRequest(BaseModel):
 
 # ── Scoring helpers ───────────────────────────────────────────────────────────
 
+
 def _kw_overlap(response: str, source: str) -> float:
-    source_words = set(re.findall(r'\b\w{4,}\b', source.lower()))
-    resp_words = set(re.findall(r'\b\w{4,}\b', response.lower()))
+    source_words = set(re.findall(r"\b\w{4,}\b", source.lower()))
+    resp_words = set(re.findall(r"\b\w{4,}\b", response.lower()))
     if not source_words:
         return 0.5
     return min(1.0, (len(source_words & resp_words) / len(source_words)) * 2.0)
@@ -64,6 +66,7 @@ def _consistency(text: str) -> float:
 
 def _entropy(text: str) -> float:
     import math
+
     freq: Dict[str, int] = {}
     for c in text:
         freq[c] = freq.get(c, 0) + 1
@@ -74,16 +77,18 @@ def _entropy(text: str) -> float:
 
 
 def _score_to_tier(score: float) -> str:
-    if score >= 0.85: return "platinum"
-    if score >= 0.70: return "gold"
-    if score >= 0.50: return "silver"
-    if score >= 0.30: return "bronze"
+    if score >= 0.85:
+        return "platinum"
+    if score >= 0.70:
+        return "gold"
+    if score >= 0.50:
+        return "silver"
+    if score >= 0.30:
+        return "bronze"
     return "unranked"
 
 
-def _score_responses(
-    combined: str, source: str, time_spent: int
-) -> Dict[str, float]:
+def _score_responses(combined: str, source: str, time_spent: int) -> Dict[str, float]:
     word_count = len(combined.split())
     src_wc = len(source.split()) if source else 100
 
@@ -117,11 +122,13 @@ def _score_responses(
 
 def _hash_record(data: dict) -> str:
     import json
+
     canonical = json.dumps(data, sort_keys=True, separators=(",", ":"))
     return hashlib.sha3_256(canonical.encode()).hexdigest()
 
 
 # ── Endpoints ─────────────────────────────────────────────────────────────────
+
 
 @router.post("/reading", response_model=VerificationResult, status_code=201)
 async def verify_reading(req: VerificationRequest):
@@ -139,13 +146,15 @@ async def verify_reading(req: VerificationRequest):
     created_at = time.time()
 
     # Build tamper-evident hash
-    record_hash = _hash_record({
-        "id": poat_id,
-        "user_id": req.user_id,
-        "type": "reading_verification",
-        "final_score": final,
-        "created_at": created_at,
-    })
+    record_hash = _hash_record(
+        {
+            "id": poat_id,
+            "user_id": req.user_id,
+            "type": "reading_verification",
+            "final_score": final,
+            "created_at": created_at,
+        }
+    )
 
     feedback = _build_feedback(scores, passed, tier)
 
@@ -194,6 +203,7 @@ async def check_record_integrity(record_hash: str):
 
 
 # ── Helpers ───────────────────────────────────────────────────────────────────
+
 
 def _build_feedback(scores: dict, passed: bool, tier: str) -> str:
     if not passed:

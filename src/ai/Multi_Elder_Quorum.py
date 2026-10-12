@@ -26,6 +26,7 @@ Security notes
 - Enable audit logging and rotation policies.
 
 """
+
 from __future__ import annotations
 
 import base64
@@ -49,6 +50,7 @@ from cryptography.hazmat.primitives import serialization
 # -----------------------------
 # Helpers
 # -----------------------------
+
 
 def b64(data: bytes) -> str:
     return base64.b64encode(data).decode("ascii")
@@ -80,11 +82,11 @@ if M_REQUIRED > N_ELDERS:
 # -----------------------------
 @dataclass
 class Elder:
-    id: str                 # e.g., elder-0
+    id: str  # e.g., elder-0
     private: Ed25519PrivateKey
     public: Ed25519PublicKey
     pub_b64: str
-    fingerprint: str        # first 16 hex of sha256(pub)
+    fingerprint: str  # first 16 hex of sha256(pub)
 
 
 def derive_seed32(namespace: str, idx: int) -> bytes:
@@ -107,17 +109,23 @@ def load_or_create_elder(idx: int) -> Elder:
         else:
             priv = Ed25519PrivateKey.generate()
         pub = priv.public_key()
-        priv_path.write_bytes(priv.private_bytes(
-            encoding=serialization.Encoding.Raw,
-            format=serialization.PrivateFormat.Raw,
-            encryption_algorithm=serialization.NoEncryption(),
-        ))
-        pub_path.write_bytes(pub.public_bytes(
-            encoding=serialization.Encoding.Raw,
-            format=serialization.PublicFormat.Raw,
-        ))
+        priv_path.write_bytes(
+            priv.private_bytes(
+                encoding=serialization.Encoding.Raw,
+                format=serialization.PrivateFormat.Raw,
+                encryption_algorithm=serialization.NoEncryption(),
+            )
+        )
+        pub_path.write_bytes(
+            pub.public_bytes(
+                encoding=serialization.Encoding.Raw,
+                format=serialization.PublicFormat.Raw,
+            )
+        )
 
-    pub_raw = pub.public_bytes(encoding=serialization.Encoding.Raw, format=serialization.PublicFormat.Raw)
+    pub_raw = pub.public_bytes(
+        encoding=serialization.Encoding.Raw, format=serialization.PublicFormat.Raw
+    )
     return Elder(
         id=f"elder-{idx}",
         private=priv,
@@ -248,7 +256,10 @@ class PolicyEngine:
 
         score = min(1.0, max(0.0, score - recency_penalty))
         if score >= 0.6:
-            verdict, rationale = "approve", "Sufficient diversified evidence meeting policy thresholds."
+            verdict, rationale = (
+                "approve",
+                "Sufficient diversified evidence meeting policy thresholds.",
+            )
         elif score >= 0.35:
             verdict, rationale = "review", "Moderate evidence; requires human/AI auditor review."
         else:
@@ -259,8 +270,11 @@ class PolicyEngine:
             obligations.append("If possible, add regional sustainability context")
 
         return AssessResponse(
-            score=round(score, 3), verdict=verdict, rationale=rationale,
-            obligations=obligations, policy_tags=list(set(tags))
+            score=round(score, 3),
+            verdict=verdict,
+            rationale=rationale,
+            obligations=obligations,
+            policy_tags=list(set(tags)),
         )
 
 
@@ -271,9 +285,12 @@ POLICY = PolicyEngine()
 # Signing / Verification
 # -----------------------------
 
+
 def sign_with_elder(elder: Elder, canonical: str) -> SingleSignature:
     sig = elder.private.sign(canonical.encode("utf-8"))
-    pub_raw = elder.public.public_bytes(encoding=serialization.Encoding.Raw, format=serialization.PublicFormat.Raw)
+    pub_raw = elder.public.public_bytes(
+        encoding=serialization.Encoding.Raw, format=serialization.PublicFormat.Raw
+    )
     return SingleSignature(
         elder_id=elder.id,
         signer=b64(pub_raw),
@@ -353,22 +370,28 @@ def sign_block_quorum(req: SignRequest):
 def verify_quorum_api(req: VerifyQuorumRequest):
     valid, ids = verify_quorum(req.header_canonical, req.quorum, M_REQUIRED)
     distinct = len(set(ids))
-    return VerifyQuorumResponse(valid=valid, valid_signers=ids, required_m=M_REQUIRED, total_distinct=distinct)
+    return VerifyQuorumResponse(
+        valid=valid, valid_signers=ids, required_m=M_REQUIRED, total_distinct=distinct
+    )
 
 
 # -----------------------------
 # DEV: Example payloads (curl)
 # -----------------------------
-EXAMPLE_CANONICAL = json.dumps({
-    "index": 0,
-    "previous_hash": "0",
-    "timestamp": 1735142096,
-    "merkle_root": "",
-    "data_hash": "",
-    "miner_id": "genesis",
-    "nonce": 0,
-    "difficulty": 0
-}, separators=(",", ":"), sort_keys=True)
+EXAMPLE_CANONICAL = json.dumps(
+    {
+        "index": 0,
+        "previous_hash": "0",
+        "timestamp": 1735142096,
+        "merkle_root": "",
+        "data_hash": "",
+        "miner_id": "genesis",
+        "nonce": 0,
+        "difficulty": 0,
+    },
+    separators=(",", ":"),
+    sort_keys=True,
+)
 
 """
 # List elders (see fingerprints & m)
@@ -407,4 +430,5 @@ PY)",
 
 if __name__ == "__main__":
     import uvicorn
+
     uvicorn.run(app, host="0.0.0.0", port=8088)

@@ -15,4 +15,3 @@ __all__ = [
     "validate_user_id",
     "validate_wallet_address",
 ]
-

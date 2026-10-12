@@ -8,7 +8,7 @@ from pydantic import BaseModel, Field
 
 class TransactionType(str, Enum):
     """Types of blockchain transactions."""
-    
+
     ACTIVITY_PROOF = "activity_proof"
     STATUS_PROOF = "status_proof"
     REWARD_CLAIM = "reward_claim"
@@ -18,7 +18,7 @@ class TransactionType(str, Enum):
 
 class Transaction(BaseModel):
     """Blockchain transaction."""
-    
+
     hash: str = Field(..., description="Transaction hash")
     from_address: str = Field(..., description="Sender address")
     to_address: Optional[str] = Field(None, description="Recipient address")
@@ -33,14 +33,14 @@ class Transaction(BaseModel):
     block_hash: Optional[str] = Field(None, description="Block hash if mined")
     status: str = Field(default="pending", description="Transaction status")
     signature: Optional[str] = Field(None, description="Transaction signature")
-    
+
     class Config:
         use_enum_values = True
 
 
 class Block(BaseModel):
     """Blockchain block."""
-    
+
     number: int = Field(..., description="Block number")
     hash: str = Field(..., description="Block hash")
     parent_hash: str = Field(..., description="Parent block hash")
@@ -52,4 +52,3 @@ class Block(BaseModel):
     gas_used: int = Field(default=0)
     gas_limit: int = Field(default=8000000)
     extra_data: Dict[str, Any] = Field(default_factory=dict)
-

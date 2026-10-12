@@ -14,4 +14,3 @@ __all__ = [
     "verify_wallet_signature",
     "authenticate_user",
 ]
-

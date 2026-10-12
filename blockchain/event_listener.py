@@ -12,7 +12,6 @@ from typing import Any, Callable, Dict, List, Optional
 
 from .drp_client import DRPBlockchainClient
 
-
 logger = logging.getLogger(__name__)
 
 
@@ -71,5 +70,3 @@ class EventListener:
             except Exception as exc:  # pragma: no cover - resilience
                 logger.error("EventListener error: %s", exc)
                 time.sleep(self.poll_interval)
-
-

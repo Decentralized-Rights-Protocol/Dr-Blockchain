@@ -49,4 +49,3 @@ async def get_analytics_summary(time_range: str = "24h"):
     """Get AI analytics summary."""
     summary = ai_elder.get_analytics_summary(time_range)
     return summary
-

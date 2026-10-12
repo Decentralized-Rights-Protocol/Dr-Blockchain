@@ -51,5 +51,3 @@ def get_decrypted(cid: str) -> bytes:
     nonce, ct = payload[:12], payload[12:]
     aesgcm = AESGCM(key)
     return aesgcm.decrypt(nonce, ct, None)
-
-

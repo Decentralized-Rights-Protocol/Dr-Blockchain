@@ -4,5 +4,3 @@ from .drp_client import DRPBlockchainClient
 from .event_listener import EventListener
 
 __all__ = ["DRPBlockchainClient", "EventListener"]
-
-
