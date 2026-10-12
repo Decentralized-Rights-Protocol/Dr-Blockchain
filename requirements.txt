@@ -19,6 +19,7 @@ uvicorn>=0.24.0
 pydantic[dotenv]>=2.0.0
 pydantic-settings>=2.0.0
 httpx>=0.24.0
+python-multipart>=0.0.18
 
 # Database dependencies
 cassandra-driver>=3.29.2

@@ -6,9 +6,9 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/auth/keeper"
 	"github.com/cosmos/cosmos-sdk/x/bank/keeper"
 
-	"github.com/Decentralized-Rights-Protocol/Dr-Blockchain/chain/x/deri"
-	"github.com/Decentralized-Rights-Protocol/Dr-Blockchain/chain/x/deri/keeper"
-	"github.com/Decentralized-Rights-Protocol/Dr-Blockchain/chain/x/deri/types"
+	"github.com/decentralized-rights-protocol/drp/chain/x/deri"
+	"github.com/decentralized-rights-protocol/drp/chain/x/deri/keeper"
+	"github.com/decentralized-rights-protocol/drp/chain/x/deri/types"
 )
 
 // AddDeriModule adds the deri module to the module manager

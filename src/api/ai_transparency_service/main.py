@@ -22,25 +22,25 @@ import uuid
 from datetime import datetime, timezone
 from typing import Any, Dict, Optional
 
+from cryptography.hazmat.primitives import hashes, serialization
+from cryptography.hazmat.primitives.asymmetric import ed25519
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel, Field
 
-from api.ai_transparency_service import db
-from api.ai_transparency_service.ipfs_utils import encrypt_and_pin, get_decrypted
-
-from cryptography.hazmat.primitives.asymmetric import ed25519
-from cryptography.hazmat.primitives import serialization
-from cryptography.hazmat.primitives import hashes
+from . import db
+from .ipfs_utils import encrypt_and_pin, get_decrypted
 
 try:
     import shap  # noqa: F401
+
     SHAP_AVAILABLE = True
 except Exception:
     SHAP_AVAILABLE = False
 
 try:
-    import numpy as np
     import matplotlib.pyplot as plt
+    import numpy as np
+
     NUMPY_AVAILABLE = True
 except Exception:
     NUMPY_AVAILABLE = False
@@ -54,7 +54,9 @@ class DecideInput(BaseModel):
     model_version: str
     input_type: str = Field(..., description="image|gps|text|sensor")
     input_commitment: str = Field(..., description="Hash/commitment of input. Do not send raw data.")
-    features: Optional[Dict[str, float]] = Field(default=None, description="Optional numeric features for local explainability demo")
+    features: Optional[Dict[str, float]] = Field(
+        default=None, description="Optional numeric features for local explainability demo"
+    )
     confidence: float = Field(..., ge=0.0, le=1.0)
     decision: str = Field(..., pattern="^(approved|flagged|denied)$")
 
@@ -118,9 +120,7 @@ def _generate_explanation(features: Optional[Dict[str, float]]) -> Dict[str, Any
         return explanation
     # Take top 5 absolute features
     top = sorted(features.items(), key=lambda kv: abs(kv[1]), reverse=True)[:5]
-    explanation["top_factors"] = [
-        {"feature": k, "contribution": float(v)} for k, v in top
-    ]
+    explanation["top_factors"] = [{"feature": k, "contribution": float(v)} for k, v in top]
     return explanation
 
 
@@ -169,9 +169,7 @@ def decide(payload: DecideInput):
 
     # Encrypt and pin artifacts to IPFS
     explanation_cid = encrypt_and_pin(explanation_json)
-    explanation_png_cid = (
-        encrypt_and_pin(explanation_png_bytes) if explanation_png_bytes else None
-    )
+    explanation_png_cid = encrypt_and_pin(explanation_png_bytes) if explanation_png_bytes else None
 
     # ZK proof placeholder: produce a commitment CID after hypothetical proof
     zk_payload = json.dumps(
@@ -278,5 +276,3 @@ if __name__ == "__main__":
     import uvicorn
 
     uvicorn.run(app, host="0.0.0.0", port=int(os.getenv("PORT", 8000)))
-
-

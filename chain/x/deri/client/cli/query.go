@@ -6,7 +6,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/flags"
 
-	"github.com/Decentralized-Rights-Protocol/drp/x/deri/types"
+	"github.com/decentralized-rights-protocol/drp/chain/x/deri/types"
 )
 
 func GetQueryCmd() *cobra.Command {
