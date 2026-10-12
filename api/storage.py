@@ -7,12 +7,13 @@ storage credentials to the browser.
 
 import os
 from typing import Any, Dict
+
 import httpx
+from backend.orbit.orbit_client import OrbitClient
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel, Field
 
 from storage.ipfs_manager import IPFSManager
-from backend.orbit.orbit_client import OrbitClient
 
 router = APIRouter(prefix="/storage", tags=["Decentralized Storage"])
 
@@ -66,10 +67,13 @@ async def sync_record(request: SyncRequest) -> Dict[str, Any]:
 
     orbit = OrbitClient()
     try:
-        orbit_result = await orbit.add("drp.activities", {
-            **payload,
-            "evidence_cid": evidence_cid,
-        })
+        orbit_result = await orbit.add(
+            "drp.activities",
+            {
+                **payload,
+                "evidence_cid": evidence_cid,
+            },
+        )
     except Exception as exc:
         raise HTTPException(status_code=502, detail=f"OrbitDB write failed: {exc}") from exc
 

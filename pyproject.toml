@@ -74,8 +74,10 @@ warn_unused_configs = true
 disallow_untyped_defs = true
 
 [tool.pytest.ini_options]
-testpaths = ["infrastructure/testing"]
+testpaths = ["."]
+asyncio_mode = "auto"
 python_files = ["test_*.py"]
 python_classes = ["Test*"]
 python_functions = ["test_*"]
-addopts = "-v --tb=short"
+pythonpath = [".", "src/core/ai_verification"]
+addopts = "-v --tb=short --import-mode=importlib"

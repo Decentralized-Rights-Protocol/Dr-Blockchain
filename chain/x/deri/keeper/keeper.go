@@ -7,7 +7,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	paramtypes "github.com/cosmos/cosmos-sdk/x/params/types"
 
-	"github.com/Decentralized-Rights-Protocol/Dr-Blockchain/chain/x/deri/types"
+	"github.com/decentralized-rights-protocol/drp/chain/x/deri/types"
 )
 
 // Keeper defines the keeper for the deri module

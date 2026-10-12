@@ -2,7 +2,8 @@
 
 import hashlib
 import secrets
-from typing import Tuple, Optional
+from typing import Optional, Tuple
+
 from eth_keys import keys
 from eth_utils import to_checksum_address
 
@@ -10,7 +11,7 @@ from eth_utils import to_checksum_address
 def generate_wallet() -> Tuple[str, str, str]:
     """
     Generate a new cryptographic wallet.
-    
+
     Returns:
         Tuple of (address, public_key, private_key)
     """
@@ -18,18 +19,18 @@ def generate_wallet() -> Tuple[str, str, str]:
     private_key = keys.PrivateKey(private_key_bytes)
     public_key = private_key.public_key
     address = public_key.to_checksum_address()
-    
+
     return address, str(public_key), private_key_bytes.hex()
 
 
 def sign_message(message: str, private_key: str) -> str:
     """
     Sign a message with a private key.
-    
+
     Args:
         message: Message to sign
         private_key: Hex-encoded private key
-        
+
     Returns:
         Hex-encoded signature
     """
@@ -42,12 +43,12 @@ def sign_message(message: str, private_key: str) -> str:
 def verify_signature(message: str, signature: str, public_key: str) -> bool:
     """
     Verify a message signature.
-    
+
     Args:
         message: Original message
         signature: Hex-encoded signature
         public_key: Public key
-        
+
     Returns:
         True if signature is valid
     """
@@ -63,41 +64,44 @@ def verify_signature(message: str, signature: str, public_key: str) -> bool:
 def hash_data(data: str) -> str:
     """
     Hash data using SHA-256.
-    
+
     Args:
         data: Data to hash
-        
+
     Returns:
         Hex-encoded hash
     """
     return hashlib.sha256(data.encode()).hexdigest()
 
 
+import base64
+
 from cryptography.fernet import Fernet
+from cryptography.hazmat.backends import default_backend
 from cryptography.hazmat.primitives import hashes
 from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
-from cryptography.hazmat.backends import default_backend
-import base64
+
 
 def derive_key_from_password(password: str) -> bytes:
     """Derive a key from a password using PBKDF2."""
     kdf = PBKDF2HMAC(
         algorithm=hashes.SHA256(),
         length=32,
-        salt=b'static_salt',  # In production, use a unique salt
+        salt=b"static_salt",  # In production, use a unique salt
         iterations=100000,
-        backend=default_backend()
+        backend=default_backend(),
     )
     return base64.urlsafe_b64encode(kdf.derive(password.encode()))
+
 
 def encrypt_private_key(private_key: str, password: str) -> str:
     """
     Encrypt a private key with a password.
-    
+
     Args:
         private_key: Hex-encoded private key
         password: Encryption password
-        
+
     Returns:
         Encrypted private key
     """
@@ -109,11 +113,11 @@ def encrypt_private_key(private_key: str, password: str) -> str:
 def decrypt_private_key(encrypted_key: str, password: str) -> Optional[str]:
     """
     Decrypt a private key with a password.
-    
+
     Args:
         encrypted_key: Encrypted private key
         password: Decryption password
-        
+
     Returns:
         Decrypted private key or None if failed
     """
@@ -123,4 +127,3 @@ def decrypt_private_key(encrypted_key: str, password: str) -> Optional[str]:
         return f.decrypt(encrypted_key.encode()).decode()
     except Exception:
         return None
-

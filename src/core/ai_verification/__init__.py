@@ -15,21 +15,21 @@ All modules are designed to:
 - Provide comprehensive error handling and logging
 """
 
-from .cv_face_verification import FaceVerificationEngine
 from .cv_activity_detection import ActivityDetectionEngine
-from .nlp_voice_command import VoiceCommandEngine
+from .cv_face_verification import FaceVerificationEngine
+from .integration import AIVerificationIntegrator, BlockchainTransaction, DRPBlockchainClient
 from .nlp_text_analysis import TextAnalysisEngine
-from .integration import AIVerificationIntegrator, DRPBlockchainClient, BlockchainTransaction
+from .nlp_voice_command import VoiceCommandEngine
 
 __version__ = "1.0.0"
 __author__ = "DRP Development Team"
 
 __all__ = [
     "FaceVerificationEngine",
-    "ActivityDetectionEngine", 
+    "ActivityDetectionEngine",
     "VoiceCommandEngine",
     "TextAnalysisEngine",
     "AIVerificationIntegrator",
     "DRPBlockchainClient",
-    "BlockchainTransaction"
+    "BlockchainTransaction",
 ]

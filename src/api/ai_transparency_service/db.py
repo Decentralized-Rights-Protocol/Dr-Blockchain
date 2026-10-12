@@ -17,7 +17,6 @@ from typing import Any, Dict, Optional
 from cassandra.cluster import Cluster
 from cassandra.query import SimpleStatement
 
-
 KEYSPACE = "drp_transparency"
 
 
@@ -32,18 +31,15 @@ def ensure_schema() -> None:
     session = cluster.connect()
 
     # Create keyspace
-    session.execute(
-        f"""
+    session.execute(f"""
         CREATE KEYSPACE IF NOT EXISTS {KEYSPACE}
         WITH replication = {{'class': 'SimpleStrategy', 'replication_factor' : 1}};
-        """
-    )
+        """)
 
     session.set_keyspace(KEYSPACE)
 
     # Create decision_records table
-    session.execute(
-        """
+    session.execute("""
         CREATE TABLE IF NOT EXISTS decision_records (
             decision_id text PRIMARY KEY,
             model_id text,
@@ -59,12 +55,10 @@ def ensure_schema() -> None:
             signature text,
             timestamp text
         );
-        """
-    )
+        """)
 
     # Create disputes table
-    session.execute(
-        """
+    session.execute("""
         CREATE TABLE IF NOT EXISTS disputes (
             dispute_id text PRIMARY KEY,
             decision_id text,
@@ -72,8 +66,7 @@ def ensure_schema() -> None:
             status text,
             created_at text
         );
-        """
-    )
+        """)
 
     session.shutdown()
     cluster.shutdown()
@@ -82,14 +75,12 @@ def ensure_schema() -> None:
 def insert_decision_record(record: Dict[str, Any]) -> None:
     cluster = _get_cluster()
     session = cluster.connect(KEYSPACE)
-    query = SimpleStatement(
-        """
+    query = SimpleStatement("""
         INSERT INTO decision_records (
             decision_id, model_id, model_version, input_type, input_commitment, outcome,
             confidence, explanation_cid, explanation_png_cid, zk_proof_cid, elder_pub, signature, timestamp
         ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-        """
-    )
+        """)
     session.execute(
         query,
         (
@@ -142,5 +133,3 @@ def create_dispute(decision_id: str, reason: str) -> bool:
     session.shutdown()
     cluster.shutdown()
     return True
-
-

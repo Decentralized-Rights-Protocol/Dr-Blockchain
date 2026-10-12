@@ -1,14 +1,16 @@
 """Activity API schemas."""
 
-from typing import Optional, List, Dict, Any
-from pydantic import BaseModel, Field
 from datetime import datetime
+from typing import Any, Dict, List, Optional
+
+from pydantic import BaseModel, Field
+
 from ..models.activity import ActivityType
 
 
 class ActivitySubmitRequest(BaseModel):
     """Request to submit an activity."""
-    
+
     user_id: str = Field(..., description="User ID")
     activity_type: ActivityType = Field(..., description="Type of activity")
     title: str = Field(..., min_length=1, max_length=200)
@@ -20,7 +22,7 @@ class ActivitySubmitRequest(BaseModel):
 
 class ActivitySubmitResponse(BaseModel):
     """Response after submitting an activity."""
-    
+
     activity_id: str
     orbitdb_cid: str
     ipfs_cids: List[str] = Field(default_factory=list)
@@ -30,7 +32,7 @@ class ActivitySubmitResponse(BaseModel):
 
 class ActivityFeedResponse(BaseModel):
     """Activity feed response."""
-    
+
     activities: List[Dict[str, Any]]
     total: int
     page: int = Field(default=1)
@@ -39,7 +41,6 @@ class ActivityFeedResponse(BaseModel):
 
 class ActivityVerificationRequest(BaseModel):
     """Request to verify an activity."""
-    
+
     activity_id: str
     force_reverify: bool = Field(default=False)
-

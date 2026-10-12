@@ -5,9 +5,8 @@ Ensures fair allocation of RIGHTS/DeRi tokens based on DRP Proof-of-Status rules
 
 from __future__ import annotations
 
-from typing import Any, Dict
 import logging
-
+from typing import Any, Dict
 
 logger = logging.getLogger(__name__)
 
@@ -68,13 +67,5 @@ class RightsValidatorAgent:
         )
         return result
 
-{
-  "cells": [],
-  "metadata": {
-    "language_info": {
-      "name": "python"
-    }
-  },
-  "nbformat": 4,
-  "nbformat_minor": 2
-}
+
+{"cells": [], "metadata": {"language_info": {"name": "python"}}, "nbformat": 4, "nbformat_minor": 2}

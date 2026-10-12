@@ -1,7 +1,8 @@
 # === Module 9: Distributed Ledger and Consensus ===
-import json
 import hashlib
+import json
 import time
+
 
 class Block:
     def __init__(self, index, previous_hash, transactions, timestamp, nonce=0):
@@ -13,14 +14,18 @@ class Block:
         self.hash = self.compute_hash()
 
     def compute_hash(self):
-        block_string = json.dumps({
-            "index": self.index,
-            "previous_hash": self.previous_hash,
-            "transactions": self.transactions,
-            "timestamp": self.timestamp,
-            "nonce": self.nonce
-        }, sort_keys=True).encode()
+        block_string = json.dumps(
+            {
+                "index": self.index,
+                "previous_hash": self.previous_hash,
+                "transactions": self.transactions,
+                "timestamp": self.timestamp,
+                "nonce": self.nonce,
+            },
+            sort_keys=True,
+        ).encode()
         return hashlib.sha256(block_string).hexdigest()
+
 
 class Blockchain:
     def __init__(self):
@@ -61,10 +66,12 @@ class Blockchain:
         if not self.unconfirmed_transactions:
             return False
         last_block = self.get_last_block()
-        new_block = Block(index=last_block.index + 1,
-                          previous_hash=last_block.hash,
-                          transactions=self.unconfirmed_transactions,
-                          timestamp=time.time())
+        new_block = Block(
+            index=last_block.index + 1,
+            previous_hash=last_block.hash,
+            transactions=self.unconfirmed_transactions,
+            timestamp=time.time(),
+        )
         proof = self.proof_of_work(new_block)
         self.add_block(new_block, proof)
         self.unconfirmed_transactions = []

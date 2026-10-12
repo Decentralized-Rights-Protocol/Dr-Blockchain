@@ -1,13 +1,14 @@
 """Status models for Proof of Status (PoST)."""
 
 from datetime import datetime
-from typing import Optional, Dict, Any
+from typing import Any, Dict, Optional
+
 from pydantic import BaseModel, Field
 
 
 class StatusScore(BaseModel):
     """Computed status score for a user."""
-    
+
     overall_score: float = Field(..., ge=0.0, le=100.0, description="Overall status score")
     activity_score: float = Field(..., ge=0.0, le=100.0, description="Activity contribution")
     consistency_score: float = Field(..., ge=0.0, le=100.0, description="Consistency metric")
@@ -18,7 +19,7 @@ class StatusScore(BaseModel):
 
 class StatusProfile(BaseModel):
     """User status profile for long-term tracking."""
-    
+
     user_id: str = Field(..., description="User identifier")
     status_score: StatusScore = Field(..., description="Current status score")
     total_activities: int = Field(default=0, description="Total verified activities")
@@ -34,11 +35,10 @@ class StatusProfile(BaseModel):
 
 class StatusProof(BaseModel):
     """Proof of Status for blockchain submission."""
-    
+
     user_id: str
     status_score: StatusScore
     orbitdb_cid: str
     quantum_hash: str = Field(..., description="Quantum-secure hash")
     timestamp: datetime = Field(default_factory=datetime.utcnow)
     signature: Optional[str] = Field(None, description="Cryptographic signature")
-

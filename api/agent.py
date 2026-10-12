@@ -14,14 +14,13 @@ from typing import Any, Dict, List
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel, Field
 
-from blockchain import DRPBlockchainClient
 from agents import (
     ActivityVerificationAgent,
-    RightsValidatorAgent,
     FraudDetectionAgent,
     GovernanceAgent,
+    RightsValidatorAgent,
 )
-
+from blockchain import DRPBlockchainClient
 
 router = APIRouter()
 
@@ -178,5 +177,3 @@ async def get_governance_proposals() -> GovernanceProposalsResponse:
         score = _gov_agent.evaluate_proposal(p)
         enriched.append({**p, **score})
     return GovernanceProposalsResponse(proposals=enriched)
-
-

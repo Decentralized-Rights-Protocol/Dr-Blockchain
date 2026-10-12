@@ -18,10 +18,15 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
       
-      - name: Secret scan (Gitleaks)
-        uses: gitleaks/gitleaks-action@v2
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Set up Go for Gitleaks
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.24.x'
+
+      - name: Install and run Gitleaks CLI
+        run: |
+          go install github.com/zricethezav/gitleaks/v8@v8.25.0
+          "$(go env GOPATH)/bin/gitleaks" dir . --redact --no-banner --verbose --exit-code 1
       
       - name: Check for private keys
         run: |
@@ -70,6 +75,7 @@ jobs:
           black --check --diff .
       
       - name: Run isort check
+        if: ${{ !cancelled() }}
         run: |
           isort --check-only --diff .
       
@@ -105,26 +111,7 @@ jobs:
           pip install pytest pytest-cov pytest-asyncio
       
       - name: Run Python tests
-        run: |
-          # Run AI verification tests
-          if [ -d "tests_ai" ]; then
-            python -m pytest tests_ai/ -v --cov=ai_verification --cov-report=xml
-          fi
-          
-          # Run security tests
-          if [ -d "security" ]; then
-            python -m pytest security/ -v --cov=security --cov-report=xml --cov-append
-          fi
-          
-          # Run smart contract tests
-          if [ -d "smart_contracts" ]; then
-            python -m pytest smart_contracts/ -v --cov=smart_contracts --cov-report=xml --cov-append
-          fi
-          
-          # Run token tests
-          if [ -d "tokens" ]; then
-            python -m pytest tokens/ -v --cov=tokens --cov-report=xml --cov-append
-          fi
+        run: python -m pytest tests/ infrastructure/testing/tests/ infrastructure/testing/tests_ai/ -v -rs --cov=. --cov-report=xml
       
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v3
@@ -149,10 +136,10 @@ jobs:
         with:
           go-version: '1.24.4'
           cache: true
-          cache-dependency-path: chain/go.sum
+          cache-dependency-path: chain/go.mod
 
       - name: Download Go modules
-        run: go mod download
+        run: go mod download all
 
       - name: Run chain tests
         run: go test ./... -count=1
@@ -175,13 +162,11 @@ jobs:
       
       - name: Install dependencies
         run: |
-          # Install Python dependencies
           python -m pip install --upgrade pip
           pip install -r requirements.txt
       
       - name: Run integration tests
         run: |
-          # Run demo scripts to verify integration
           if [ -f "examples/ai_verification_demo.py" ]; then
             python examples/ai_verification_demo.py --demo || true
           fi
@@ -193,14 +178,12 @@ jobs:
       - name: Create build artifacts
         run: |
           mkdir -p build-artifacts
-          
-          # Copy Python packages
           if [ -d "dist" ]; then
             cp -r dist build-artifacts/python
           fi
       
       - name: Upload build artifacts
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: build-artifacts
           path: build-artifacts/

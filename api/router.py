@@ -1,18 +1,17 @@
 """Main API router combining all routes."""
 
-from fastapi import FastAPI, APIRouter
+from fastapi import APIRouter, FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from config import get_settings
 
-from api.auth import router as auth_router
-from api.user import router as user_router
 from api.activity import router as activity_router
-from api.rewards import router as rewards_router
-from api.public import router as public_router
 from api.agent import router as agent_router
 from api.ai_routes import router as ai_routes_router
+from api.auth import router as auth_router
+from api.public import router as public_router
+from api.rewards import router as rewards_router
+from api.user import router as user_router
 from api.verification import router as verification_router
-from api.storage import router as storage_router
+from config import get_settings
 
 settings = get_settings()
 

@@ -1,7 +1,7 @@
 """
 Decentralized Rights Protocol (DRP) v0.5
 
-A quantum-safe, transparent platform to protect, verify, and advance human rights 
+A quantum-safe, transparent platform to protect, verify, and advance human rights
 globally using cutting-edge blockchain technology.
 
 Website: https://decentralizedrights.com/

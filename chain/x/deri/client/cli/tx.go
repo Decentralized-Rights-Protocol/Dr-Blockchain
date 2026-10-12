@@ -8,7 +8,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/client/tx"
 	"github.com/cosmos/cosmos-sdk/version"
 
-	"github.com/Decentralized-Rights-Protocol/Dr-Blockchain/chain/x/deri/types"
+	"github.com/decentralized-rights-protocol/drp/chain/x/deri/types"
 )
 
 // GetTxCmd returns the transaction commands for the deri module

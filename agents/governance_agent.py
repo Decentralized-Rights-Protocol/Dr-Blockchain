@@ -5,9 +5,8 @@ Evaluates governance proposals and (optionally) triggers frontend notifications.
 
 from __future__ import annotations
 
-from typing import Any, Dict
 import logging
-
+from typing import Any, Dict
 
 logger = logging.getLogger(__name__)
 
@@ -50,13 +49,5 @@ class GovernanceAgent:
         """
         logger.info("Notify frontends about proposal %s", proposal.get("id"))
 
-{
-  "cells": [],
-  "metadata": {
-    "language_info": {
-      "name": "python"
-    }
-  },
-  "nbformat": 4,
-  "nbformat_minor": 2
-}
+
+{"cells": [], "metadata": {"language_info": {"name": "python"}}, "nbformat": 4, "nbformat_minor": 2}

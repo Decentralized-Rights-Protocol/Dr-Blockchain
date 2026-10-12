@@ -7,11 +7,11 @@ Environment:
 """
 
 import os
+import secrets
 from typing import Optional
 
-from cryptography.hazmat.primitives.ciphers.aead import AESGCM
-import secrets
 import ipfshttpclient
+from cryptography.hazmat.primitives.ciphers.aead import AESGCM
 
 
 def _get_key() -> bytes:
@@ -51,5 +51,3 @@ def get_decrypted(cid: str) -> bytes:
     nonce, ct = payload[:12], payload[12:]
     aesgcm = AESGCM(key)
     return aesgcm.decrypt(nonce, ct, None)
-
-

@@ -2,8 +2,9 @@
 AI ElderCore API endpoints.
 """
 
+from typing import Any, Dict
+
 from fastapi import APIRouter, HTTPException
-from typing import Dict, Any
 from pydantic import BaseModel
 
 from ai.elder_core import AIElderCore
@@ -49,4 +50,3 @@ async def get_analytics_summary(time_range: str = "24h"):
     """Get AI analytics summary."""
     summary = ai_elder.get_analytics_summary(time_range)
     return summary
-

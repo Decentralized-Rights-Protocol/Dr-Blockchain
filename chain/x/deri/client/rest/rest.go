@@ -9,7 +9,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/types/rest"
 	"github.com/gorilla/mux"
 
-	"github.com/Decentralized-Rights-Protocol/Dr-Blockchain/chain/x/deri/types"
+	"github.com/decentralized-rights-protocol/drp/chain/x/deri/types"
 )
 
 // RegisterRoutes registers the REST routes for the deri module

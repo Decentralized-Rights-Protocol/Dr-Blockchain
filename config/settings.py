@@ -60,7 +60,7 @@ class Settings(BaseSettings):
         "env_file_encoding": "utf-8",
         "case_sensitive": False,
         "populate_by_name": True,
-        "extra": "ignore"
+        "extra": "ignore",
     }
 
     def model_post_init(self, __context):

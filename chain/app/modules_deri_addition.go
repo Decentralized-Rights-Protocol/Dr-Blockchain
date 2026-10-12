@@ -8,9 +8,9 @@ import (
 	"github.com/grpc-ecosystem/grpc-gateway/runtime"
 	"github.com/spf13/cobra"
 
-	"github.com/Decentralized-Rights-Protocol/Dr-Blockchain/chain/x/deri"
-	"github.com/Decentralized-Rights-Protocol/Dr-Blockchain/chain/x/deri/client/cli"
-	"github.com/Decentralized-Rights-Protocol/Dr-Blockchain/chain/x/deri/client/rest"
+	"github.com/decentralized-rights-protocol/drp/chain/x/deri"
+	"github.com/decentralized-rights-protocol/drp/chain/x/deri/client/cli"
+	"github.com/decentralized-rights-protocol/drp/chain/x/deri/client/rest"
 )
 
 // DeriModule defines the module info for the deri module

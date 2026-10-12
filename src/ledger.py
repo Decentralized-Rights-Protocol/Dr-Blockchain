@@ -6,6 +6,7 @@ import hashlib
 import json
 import time
 
+
 class Block:
     def __init__(self, index, previous_hash, timestamp, activity, proof, miner_id):
         self.index = index
@@ -17,15 +18,19 @@ class Block:
         self.hash = self.calculate_hash()
 
     def calculate_hash(self):
-        block_content = json.dumps({
-            "index": self.index,
-            "previous_hash": self.previous_hash,
-            "timestamp": self.timestamp,
-            "activity": self.activity,
-            "proof": self.proof,
-            "miner_id": self.miner_id
-        }, sort_keys=True).encode()
+        block_content = json.dumps(
+            {
+                "index": self.index,
+                "previous_hash": self.previous_hash,
+                "timestamp": self.timestamp,
+                "activity": self.activity,
+                "proof": self.proof,
+                "miner_id": self.miner_id,
+            },
+            sort_keys=True,
+        ).encode()
         return hashlib.sha256(block_content).hexdigest()
+
 
 class Blockchain:
     def __init__(self):
@@ -45,7 +50,7 @@ class Blockchain:
             timestamp=time.time(),
             activity=activity,
             proof=proof,
-            miner_id=miner_id
+            miner_id=miner_id,
         )
         self.chain.append(new_block)
         return new_block
@@ -60,6 +65,7 @@ class Blockchain:
             if current.previous_hash != previous.hash:
                 return False
         return True
+
 
 # === Example Usage ===
 if __name__ == "__main__":

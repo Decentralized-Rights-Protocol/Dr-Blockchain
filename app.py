@@ -1,13 +1,15 @@
 # === App.py — Main Launcher for Proof of Activities System ===
 import time
 
-from src.crypto.hashing import generate_key_pair, get_wallet_address, sign_message, verify_signature
+from src.blockchain import Block, Blockchain
 from src.consensus.mining import halting_puzzle_miner
 from src.consensus.proof_of_service import validate_and_record
+
 # from consensus import blockchain
 # from ledger import blockchain
-from src.consensus.voting_protocol import create_proposal, vote_on_proposal, tally_votes
-from src.blockchain import Blockchain, Block
+from src.consensus.voting_protocol import create_proposal, tally_votes, vote_on_proposal
+from src.crypto.hashing import generate_key_pair, get_wallet_address, sign_message, verify_signature
+
 
 def run_proof_of_activities():
     print("\n=== 🧠 Decentralized Rights System: Launch ===")
@@ -20,10 +22,10 @@ def run_proof_of_activities():
     # --- 2. Activity Validation ---
     # Create a mock proof for demonstration
     proof = {
-        'id': f"proof_{user_address[:8]}",
-        'miner': user_address,
-        'work': 50000,  # Mock work value
-        'timestamp': time.time()
+        "id": f"proof_{user_address[:8]}",
+        "miner": user_address,
+        "work": 50000,  # Mock work value
+        "timestamp": time.time(),
     }
     activity_score = validate_and_record(proof)
     print(f"📊 Activity Score: {activity_score}")
@@ -31,7 +33,7 @@ def run_proof_of_activities():
     # --- 3. Puzzle Mining (Proof of Status) ---
     print(f"\n🚜 Mining using Idolized Halting Puzzle...")
     mining_result = halting_puzzle_miner(user_address, activity_score)
-    
+
     if "error" in mining_result:
         print("❌ Mining failed — try again later.")
         return
@@ -45,7 +47,9 @@ def run_proof_of_activities():
     print(f"✅ Block Mined and Added to Chain.")
 
     # --- 5. Governance Proposal & Voting ---
-    proposal_id = create_proposal(user_address, "Deploy Clean Energy Kits", "Proposal to distribute solar-powered kits.")
+    proposal_id = create_proposal(
+        user_address, "Deploy Clean Energy Kits", "Proposal to distribute solar-powered kits."
+    )
     vote_result = vote_on_proposal(proposal_id, user_address, "for", activity_score)
     if vote_result:
         print(f"🗳️ Voted successfully.")
@@ -55,10 +59,13 @@ def run_proof_of_activities():
     # --- 6. Tally Governance Votes ---
     result = tally_votes(proposal_id)
     if result:
-        print(f"\n📜 Proposal '{result['title']}' Vote Result: {result['status']} — For: {result['for']}, Against: {result['against']}")
-    
+        print(
+            f"\n📜 Proposal '{result['title']}' Vote Result: {result['status']} — For: {result['for']}, Against: {result['against']}"
+        )
+
     print("\n📦 Current Blockchain:")
     print(f"Chain length: {len(blockchain.chain)}")
+
 
 if __name__ == "__main__":
     run_proof_of_activities()

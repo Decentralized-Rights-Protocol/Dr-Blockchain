@@ -32,5 +32,3 @@ def test_rights_validator_basic():
     agent = RightsValidatorAgent()
     reward = agent.compute_reward("education", status_score=70.0, verification_score=0.8)
     assert reward["amount_DERi"] > 0
-
-

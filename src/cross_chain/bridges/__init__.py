@@ -20,21 +20,19 @@ Features:
 - Event monitoring and handling
 """
 
-from .bridge_manager import BridgeManager
-from .ethereum_bridge import EthereumBridge
 from .bitcoin_bridge import BitcoinBridge
-from .polkadot_bridge import PolkadotBridge
+from .bridge_manager import BridgeManager
 from .bsc_bridge import BSCBridge
+from .ethereum_bridge import EthereumBridge
+from .polkadot_bridge import PolkadotBridge
 from .polygon_bridge import PolygonBridge
 
 __version__ = "1.0.0"
 __all__ = [
     "BridgeManager",
     "EthereumBridge",
-    "BitcoinBridge", 
+    "BitcoinBridge",
     "PolkadotBridge",
     "BSCBridge",
-    "PolygonBridge"
+    "PolygonBridge",
 ]
-
-

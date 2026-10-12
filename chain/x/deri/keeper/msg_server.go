@@ -5,7 +5,7 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	"github.com/Decentralized-Rights-Protocol/Dr-Blockchain/chain/x/deri/types"
+	"github.com/decentralized-rights-protocol/drp/chain/x/deri/types"
 )
 
 // msgServer is the server API for Msg service

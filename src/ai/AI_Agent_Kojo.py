@@ -25,6 +25,7 @@ Security notes
 - Enable request signing & auditing (not implemented in this starter).
 
 """
+
 from __future__ import annotations
 
 import base64
@@ -33,16 +34,15 @@ import json
 import os
 import time
 from pathlib import Path
-from typing import Optional, List, Dict, Any
+from typing import Any, Dict, List, Optional
 
-from fastapi import FastAPI, HTTPException
-from pydantic import BaseModel, Field
-
+from cryptography.hazmat.primitives import serialization
 from cryptography.hazmat.primitives.asymmetric.ed25519 import (
     Ed25519PrivateKey,
     Ed25519PublicKey,
 )
-from cryptography.hazmat.primitives import serialization
+from fastapi import FastAPI, HTTPException
+from pydantic import BaseModel, Field
 
 # -----------------------------
 # Key Management
@@ -79,15 +79,19 @@ def _load_or_create_keypair() -> tuple[Ed25519PrivateKey, Ed25519PublicKey]:
     public_key = private_key.public_key()
 
     # Persist raw key bytes (locked-down directory recommended)
-    PRIV_PATH.write_bytes(private_key.private_bytes(
-        encoding=serialization.Encoding.Raw,
-        format=serialization.PrivateFormat.Raw,
-        encryption_algorithm=serialization.NoEncryption(),
-    ))
-    PUB_PATH.write_bytes(public_key.public_bytes(
-        encoding=serialization.Encoding.Raw,
-        format=serialization.PublicFormat.Raw,
-    ))
+    PRIV_PATH.write_bytes(
+        private_key.private_bytes(
+            encoding=serialization.Encoding.Raw,
+            format=serialization.PrivateFormat.Raw,
+            encryption_algorithm=serialization.NoEncryption(),
+        )
+    )
+    PUB_PATH.write_bytes(
+        public_key.public_bytes(
+            encoding=serialization.Encoding.Raw,
+            format=serialization.PublicFormat.Raw,
+        )
+    )
 
     return private_key, public_key
 
@@ -134,7 +138,7 @@ class BlockHeader(BaseModel):
 
 
 class ActivityEvidence(BaseModel):
-    kind: str = Field(..., examples=["learning", "renewable_energy", "healthcare", "civic_work"]) 
+    kind: str = Field(..., examples=["learning", "renewable_energy", "healthcare", "civic_work"])
     description: str
     proofs: List[str] = Field(default_factory=list, description="URIs or opaque attestations")
     energy_kwh: Optional[float] = None
@@ -162,7 +166,7 @@ class SignRequest(BaseModel):
 
 class SignResponse(BaseModel):
     signature: str  # base64
-    signer: str     # base64 raw public key
+    signer: str  # base64 raw public key
     metadata: Optional[Dict[str, Any]] = None
     signed_at: int
 
@@ -254,11 +258,14 @@ POLICY = PolicyEngine()
 # AI Elder: Sign/Verify
 # -----------------------------
 
+
 def sign_canonical(canonical: str) -> bytes:
     return PRIVATE_KEY.sign(canonical.encode("utf-8"))
 
 
-def verify_signature(canonical: str, signature: bytes, pubkey_bytes: Optional[bytes] = None) -> bool:
+def verify_signature(
+    canonical: str, signature: bytes, pubkey_bytes: Optional[bytes] = None
+) -> bool:
     pub = PUBLIC_KEY if pubkey_bytes is None else Ed25519PublicKey.from_public_bytes(pubkey_bytes)
     try:
         pub.verify(signature, canonical.encode("utf-8"))
@@ -268,7 +275,9 @@ def verify_signature(canonical: str, signature: bytes, pubkey_bytes: Optional[by
 
 
 def pubkey_fingerprint(pub: Ed25519PublicKey) -> str:
-    raw = pub.public_bytes(encoding=serialization.Encoding.Raw, format=serialization.PublicFormat.Raw)
+    raw = pub.public_bytes(
+        encoding=serialization.Encoding.Raw, format=serialization.PublicFormat.Raw
+    )
     return hashlib.sha256(raw).hexdigest()[:16]
 
 
@@ -280,7 +289,9 @@ app = FastAPI(title="DRP AI Agents", version="0.1.0")
 
 @app.get("/v1/agent/public-key")
 def get_public_key() -> Dict[str, str]:
-    raw = PUBLIC_KEY.public_bytes(encoding=serialization.Encoding.Raw, format=serialization.PublicFormat.Raw)
+    raw = PUBLIC_KEY.public_bytes(
+        encoding=serialization.Encoding.Raw, format=serialization.PublicFormat.Raw
+    )
     return {
         "algorithm": "Ed25519",
         "public_key_b64": b64(raw),
@@ -313,7 +324,9 @@ def sign_block(req: SignRequest):
         }
         metadata = assessment
 
-    pub_raw = PUBLIC_KEY.public_bytes(encoding=serialization.Encoding.Raw, format=serialization.PublicFormat.Raw)
+    pub_raw = PUBLIC_KEY.public_bytes(
+        encoding=serialization.Encoding.Raw, format=serialization.PublicFormat.Raw
+    )
 
     return SignResponse(
         signature=b64(sig),
@@ -325,8 +338,12 @@ def sign_block(req: SignRequest):
 
 @app.post("/v1/agent/verify-signature", response_model=VerifyResponse)
 def verify_signature_api(req: VerifyRequest):
-    pub_bytes = b64d(req.signer) if req.signer else PUBLIC_KEY.public_bytes(
-        encoding=serialization.Encoding.Raw, format=serialization.PublicFormat.Raw
+    pub_bytes = (
+        b64d(req.signer)
+        if req.signer
+        else PUBLIC_KEY.public_bytes(
+            encoding=serialization.Encoding.Raw, format=serialization.PublicFormat.Raw
+        )
     )
     ok = verify_signature(req.header_canonical, b64d(req.signature), pub_bytes)
     fp = hashlib.sha256(pub_bytes).hexdigest()[:16]
@@ -336,16 +353,20 @@ def verify_signature_api(req: VerifyRequest):
 # -----------------------------
 # DEV: Example payloads (curl)
 # -----------------------------
-EXAMPLE_CANONICAL = json.dumps({
-    "index": 0,
-    "previous_hash": "0",
-    "timestamp": 1735142096,
-    "merkle_root": "",
-    "data_hash": "",
-    "miner_id": "genesis",
-    "nonce": 0,
-    "difficulty": 0
-}, separators=(",", ":"), sort_keys=True)
+EXAMPLE_CANONICAL = json.dumps(
+    {
+        "index": 0,
+        "previous_hash": "0",
+        "timestamp": 1735142096,
+        "merkle_root": "",
+        "data_hash": "",
+        "miner_id": "genesis",
+        "nonce": 0,
+        "difficulty": 0,
+    },
+    separators=(",", ":"),
+    sort_keys=True,
+)
 
 """
 # Get public key
@@ -388,4 +409,5 @@ curl -s -X POST http://localhost:8088/v1/agent/assess-activity \
 
 if __name__ == "__main__":
     import uvicorn
+
     uvicorn.run(app, host="0.0.0.0", port=8088)

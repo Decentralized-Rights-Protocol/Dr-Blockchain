@@ -14,10 +14,10 @@ import (
 	"github.com/grpc-ecosystem/grpc-gateway/runtime"
 	"github.com/spf13/cobra"
 
-	"github.com/Decentralized-Rights-Protocol/Dr-Blockchain/chain/x/deri/client/cli"
-	"github.com/Decentralized-Rights-Protocol/Dr-Blockchain/chain/x/deri/client/rest"
-	"github.com/Decentralized-Rights-Protocol/Dr-Blockchain/chain/x/deri/keeper"
-	"github.com/Decentralized-Rights-Protocol/Dr-Blockchain/chain/x/deri/types"
+	"github.com/decentralized-rights-protocol/drp/chain/x/deri/client/cli"
+	"github.com/decentralized-rights-protocol/drp/chain/x/deri/client/rest"
+	"github.com/decentralized-rights-protocol/drp/chain/x/deri/keeper"
+	"github.com/decentralized-rights-protocol/drp/chain/x/deri/types"
 )
 
 // ModuleName is the name of the module

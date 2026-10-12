@@ -1,57 +1,50 @@
-IiIiCkRSUCBTY29yaW5nIEFQSSAtLS0g
-RmFzdEFQSSBSb3V0ZXIKPT09PT09PT09
-PT09PT09PT09PT09PT09PT09PT09PT09
-PT09PQpHaGFuYSBBSSBJbm5vdmF0aW9u
-IENoYWxsZW5nZSAyMDI2CkRlY2VudHJh
-bGl6ZWQgUmlnaHRzIFByb3RvY29sCgpV
-c2FnZSAtLS0gYWRkIHRvIGFwcC9tYWlu
-LnB5OgogICAgZnJvbSBhcHAucm91dGVy
-cy5zY29yaW5nIGltcG9ydCByb3V0ZXIg
-YXMgc2NvcmluZ19yb3V0ZXIKICAgIGFw
-cC5pbmNsdWRlX3JvdXRlcihzY29yaW5n
-X3JvdXRlciwgcHJlZml4PSIvYXBpL3Yx
-L3Njb3JlIiwgdGFncz1bIlNjb3Jpbmci
-XSkKCkVuZHBvaW50czoKICAgIFBPU1Qg
-L2FwaS92MS9zY29yZS9ob3VzZWhvbGQg
-ICAgICBTY29yZSBhIHNpbmdsZSBob3Vz
-ZWhvbGQKICAgIEdFVCAgL2FwaS92MS9z
-Y29yZS92ZXJpZnkve2hhc2h9ICBWZXJp
-ZnkgYSBzY29yZSBhdHRlc3RhdGlvbgog
-ICAgR0VUICAzIC9hcGkvdjEvc2NvcmUv
-aGVhbHRoICAgICAgICBNb2RlbCBoZWFs
-dGggY2hlY2sKIiIiCgpmcm9tIGZhc3Rh
-cGkgaW1wb3J0IEFQSVJvdXRlciwgSFRU
-UEV4Y2VwdGlvbgpmcm9tIHB5ZGFudGlj
-IGltcG9ydCBCYXNlTW9kZWwsIEZpZWxk
-CmZyb20gdHlwaW5nIGltcG9ydCBMaXRl
-cmFsLCBPcHRpb25hbAppbXBvcnQgam9i
-bGliLCBudW1weSBhcyBucCwgaGFzaGxp
-YiwganNvbiwgb3MKZnJvbSBkYXRldGlt
-ZSBpbXBvcnQgZGF0ZXRpbWUsIHRpbWV6
-b25lCgpyb3V0ZXIgPSBBUElSb3V0ZXIo
-KQoKTU9ERUxfRElSID0gb3MuZ2V0ZW52
-KCJEUlBfTU9ERUxfRElSIiwgImRycF9t
-b2RlbF9vdXRwdXQiKQoKdHJ5OgogICAg
-X3JmICAgICA9IGpvYmxpYi5sb2FkKGYi
-e01PREVMX0RJUn0vcmZfY2xhc3NpZmll
-ci5qb2JsaWIiKQogICAgX3hnYiAgICA9
-IGpvYmxpYi5sb2FkKGYie01PREVMX0RJ
-Un0veGdiX3JlZ3Jlc3Nvci5qb2JsaWIi
-KQogICAgX3NjYWxlciA9IGpvYmxpYi5s
-b2FkKGYie01PREVMX0RJUn0vc2NhbGVy
-LmpvYmxpYiIpCiAgICB3aXRoIG9wZW4o
-ZiJ7TU9ERUxfRElSfS9tb2RlbF9tZXRh
-ZGF0YS5qc29uIikgYXMgZjoKICAgICAg
-ICBfbWV0YSA9IGpzb24ubG9hZChmKQog
-ICAgX21vZGVsc19sb2FkZWQgPSBUcnVl
-CiAgICBfbG9hZF9lcnJvciA9IE5vbmUK
-ZXhjZXB0IEV4Y2VwdGlvbiBhcyBlOgog
-ICAgX21vZGVsc19sb2FkZWQgPSBGYWxz
-ZQogICAgX2xvYWRfZXJyb3IgPSBzdHIo
-ZSkKICAgIF9tZXRhID0geyJtb2RlbF92
-ZXJzaW9uIjogIjEuMC4wIn0KClRJRVJf
-TEFCRUxTICAgPSBbIkNyaXRpY2FsIiwg
-Ik1vZGVyYXRlIiwgIkFkZXF1YXRlIiwg
-IlNlY3VyZSJdCkxPQ0FMSVRZTUFQICA9
-IHsiVXJiYW4iOiAyLCAiUGVyaS11cmJh
-biI6IDEsICJSdXJhbCI6IDB9Cg==
+"""DRP Rights Access Scoring API router.
+
+The previous file content was accidentally stored as base64 text and ended
+before its endpoint definitions. This repair restores an importable router and
+a health endpoint. Household scoring remains unavailable until the model input
+schema and trained artifacts are defined and tested; no synthetic score is returned.
+"""
+
+import json
+import os
+from typing import Any
+
+from fastapi import APIRouter
+
+router = APIRouter()
+MODEL_DIR = os.getenv("DRP_MODEL_DIR", "drp_model_output")
+_models_loaded = False
+_load_error: str | None = None
+_meta: dict[str, Any] = {"model_version": "1.0.0"}
+
+try:
+    import joblib
+
+    _rf = joblib.load(f"{MODEL_DIR}/rf_classifier.joblib")
+    _xgb = joblib.load(f"{MODEL_DIR}/xgb_regressor.joblib")
+    _scaler = joblib.load(f"{MODEL_DIR}/scaler.joblib")
+    with open(f"{MODEL_DIR}/model_metadata.json", encoding="utf-8") as metadata_file:
+        _meta = json.load(metadata_file)
+    _models_loaded = True
+    _load_error = None
+except Exception as error:
+    _models_loaded = False
+    _load_error = str(error)
+    _meta = {"model_version": "1.0.0"}
+
+
+@router.get("/health")
+def scoring_health() -> dict[str, Any]:
+    """Report whether scoring artifacts are available without exposing paths."""
+    return {
+        "status": "ready" if _models_loaded else "unavailable",
+        "models_loaded": _models_loaded,
+        "model_version": _meta.get("model_version", "1.0.0"),
+        "scoring_enabled": False,
+        "message": (
+            "Model artifacts loaded, but scoring is disabled until the feature schema is defined."
+            if _models_loaded
+            else "Trained model artifacts are not available."
+        ),
+    }

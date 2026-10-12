@@ -8,23 +8,27 @@ Provides:
 - Utilities: sha256, ripemd160, base58check
 """
 
-from dataclasses import dataclass
-from typing import Tuple, Optional
+import binascii
 import hashlib
 import os
-import binascii
+from dataclasses import dataclass
+from typing import Optional, Tuple
 
 # Ed25519 via PyNaCl
 try:
-    from nacl import signing, exceptions as nacl_exc
+    from nacl import exceptions as nacl_exc
+    from nacl import signing
 except ImportError:
     # Use mock implementation
-    from crypto.post_quantum.mock_nacl import signing, nacl_exc
+    from crypto.post_quantum.mock_nacl import nacl_exc, signing
+
     print("⚠️  Using mock PyNaCl implementation")
 
 # Optional secp256k1 via coincurve
 try:
-    from coincurve import PrivateKey as Secp256k1PrivateKey, PublicKey as Secp256k1PublicKey
+    from coincurve import PrivateKey as Secp256k1PrivateKey
+    from coincurve import PublicKey as Secp256k1PublicKey
+
     HAVE_SECP = True
 except Exception:
     HAVE_SECP = False
@@ -32,6 +36,7 @@ except Exception:
 # Optional liboqs (post-quantum)
 try:
     import oqs  # This is correct for python-oqs package
+
     HAVE_OQS = True
     print("✅ Real liboqs available - using actual post-quantum crypto")
 except Exception:
@@ -41,33 +46,38 @@ except Exception:
 # Base58 alphabet
 BASE58_ALPHABET = "123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz"
 
+
 @dataclass
 class KeyPair:
     priv: bytes
     pub: bytes
     key_type: str
 
+
 class CryptoError(Exception):
     pass
+
 
 # ---------- Hash utilities ----------
 def sha256(data: bytes) -> bytes:
     return hashlib.sha256(data).digest()
 
+
 def ripemd160(data: bytes) -> bytes:
     # hashlib supports ripemd160 via new() on most installations
     try:
-        h = hashlib.new('ripemd160')
+        h = hashlib.new("ripemd160")
     except Exception as e:
         raise CryptoError("RIPEMD160 not available in hashlib on this platform") from e
     h.update(data)
     return h.digest()
 
+
 # ---------- Base58Check ----------
 def base58_encode(b: bytes) -> str:
     # Convert bytes to big integer
-    num = int.from_bytes(b, 'big')
-    encode = ''
+    num = int.from_bytes(b, "big")
+    encode = ""
     while num > 0:
         num, rem = divmod(num, 58)
         encode = BASE58_ALPHABET[rem] + encode
@@ -78,9 +88,10 @@ def base58_encode(b: bytes) -> str:
             n_pad += 1
         else:
             break
-    return '1' * n_pad + encode if encode else '1' * n_pad or '1'
+    return "1" * n_pad + encode if encode else "1" * n_pad or "1"
 
-def base58check_encode(payload: bytes, version: bytes = b'\x00') -> str:
+
+def base58check_encode(payload: bytes, version: bytes = b"\x00") -> str:
     """
     payload: data to encode (usually pubkey-hash)
     version: version byte (b'\x00' for BTC-like addresses)
@@ -89,18 +100,21 @@ def base58check_encode(payload: bytes, version: bytes = b'\x00') -> str:
     chk = sha256(sha256(versioned))[:4]
     return base58_encode(versioned + chk)
 
+
 # ---------- Key generation ----------
 def generate_ed25519_keypair() -> KeyPair:
     sk = signing.SigningKey.generate()  # generates new random key
     vk = sk.verify_key
-    return KeyPair(priv=sk.encode(), pub=vk.encode(), key_type='ED25519')
+    return KeyPair(priv=sk.encode(), pub=vk.encode(), key_type="ED25519")
+
 
 def generate_secp256k1_keypair() -> KeyPair:
     if not HAVE_SECP:
         raise CryptoError("secp256k1 (coincurve) not installed")
     priv = Secp256k1PrivateKey()  # random
     pub = priv.public_key.format(compressed=True)  # compressed pubkey 33 bytes
-    return KeyPair(priv=priv.to_hex().encode(), pub=pub, key_type='SECP256K1')
+    return KeyPair(priv=priv.to_hex().encode(), pub=pub, key_type="SECP256K1")
+
 
 def generate_pq_keypair(alg: str = "Dilithium2") -> KeyPair:
     """
@@ -115,14 +129,16 @@ def generate_pq_keypair(alg: str = "Dilithium2") -> KeyPair:
         # liboqs API differs by binding; adapt if needed
         return KeyPair(priv=priv, pub=pub, key_type=f"PQ:{alg}")
 
+
 # ---------- Address derivation ----------
-def pubkey_to_address(pubkey: bytes, version: bytes = b'\x00') -> str:
+def pubkey_to_address(pubkey: bytes, version: bytes = b"\x00") -> str:
     """
     Standard: address = Base58Check(version + RIPEMD160(SHA256(pubkey)))
     """
     sha = sha256(pubkey)
     ripe = ripemd160(sha)
     return base58check_encode(ripe, version=version)
+
 
 # ---------- Sign / Verify ----------
 def sign_ed25519(priv: bytes, msg: bytes) -> bytes:
@@ -134,6 +150,7 @@ def sign_ed25519(priv: bytes, msg: bytes) -> bytes:
     # PyNaCl returns signature + message; signature is first 64 bytes
     return signed.signature
 
+
 def verify_ed25519(pub: bytes, msg: bytes, sig: bytes) -> bool:
     try:
         vk = signing.VerifyKey(pub)
@@ -143,6 +160,7 @@ def verify_ed25519(pub: bytes, msg: bytes, sig: bytes) -> bool:
         return False
     except Exception:
         return False
+
 
 def sign_secp256k1(priv_hex_bytes: bytes, msg: bytes) -> bytes:
     if not HAVE_SECP:
@@ -158,6 +176,7 @@ def sign_secp256k1(priv_hex_bytes: bytes, msg: bytes) -> bytes:
     sig = priv.sign_recoverable(h)  # recoverable signature (65 bytes) if needed
     return sig
 
+
 def verify_secp256k1(pub_bytes: bytes, msg: bytes, sig: bytes) -> bool:
     if not HAVE_SECP:
         raise CryptoError("secp256k1 (coincurve) not installed")
@@ -167,6 +186,7 @@ def verify_secp256k1(pub_bytes: bytes, msg: bytes, sig: bytes) -> bool:
         return pub.verify(sig, h)
     except Exception:
         return False
+
 
 # PQ sign/verify (liboqs)
 def sign_pq(priv: bytes, msg: bytes, alg: str = "Dilithium2") -> bytes:
@@ -178,6 +198,7 @@ def sign_pq(priv: bytes, msg: bytes, alg: str = "Dilithium2") -> bytes:
         sig = signer.sign(msg)
         return sig
 
+
 def verify_pq(pub: bytes, msg: bytes, sig: bytes, alg: str = "Dilithium2") -> bool:
     if not HAVE_OQS:
         raise CryptoError("liboqs not available")
@@ -188,6 +209,7 @@ def verify_pq(pub: bytes, msg: bytes, sig: bytes, alg: str = "Dilithium2") -> bo
             return True
         except Exception:
             return False
+
 
 # ---------- High-level API ----------
 def generate_keypair(key_type: str = "ED25519", pq_alg: Optional[str] = None) -> KeyPair:
@@ -202,6 +224,7 @@ def generate_keypair(key_type: str = "ED25519", pq_alg: Optional[str] = None) ->
     else:
         raise CryptoError(f"Unknown key type: {key_type}")
 
+
 def sign(keypair: KeyPair, msg: bytes, pq_alg: Optional[str] = None) -> bytes:
     kt = keypair.key_type.upper()
     if kt == "ED25519":
@@ -213,6 +236,7 @@ def sign(keypair: KeyPair, msg: bytes, pq_alg: Optional[str] = None) -> bytes:
         return sign_pq(keypair.priv, msg, alg=alg)
     raise CryptoError("Unsupported key type for signing")
 
+
 def verify(keypair: KeyPair, msg: bytes, sig: bytes, pq_alg: Optional[str] = None) -> bool:
     kt = keypair.key_type.upper()
     if kt == "ED25519":
@@ -223,6 +247,7 @@ def verify(keypair: KeyPair, msg: bytes, sig: bytes, pq_alg: Optional[str] = Non
         alg = pq_alg or kt.split(":")[1] if ":" in kt else (pq_alg or "Dilithium2")
         return verify_pq(keypair.pub, msg, sig, alg=alg)
     raise CryptoError("Unsupported key type for verification")
+
 
 # ---------- Demo / Self-test ----------
 if __name__ == "__main__":

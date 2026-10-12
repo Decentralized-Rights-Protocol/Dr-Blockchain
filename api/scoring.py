@@ -58,7 +58,9 @@ def score_activity(
 
     if activity_type == "reading":
         comp = _kw_overlap(content, context)
-        if wc < 20: comp *= 0.5; notes.append("Response too short.")
+        if wc < 20:
+            comp *= 0.5
+            notes.append("Response too short.")
         effort = min(1.0, ts / max(len(context.split()) * 0.5, 30))
         cons = _consistency(content)
         nov = _novelty(content)
@@ -84,7 +86,8 @@ def score_activity(
         effort = min(1.0, len(lines) / 50)
         cons = _consistency(content)
         nov = _novelty(content)
-        if has_comments: notes.append("Code includes documentation — quality bonus.")
+        if has_comments:
+            notes.append("Code includes documentation — quality bonus.")
 
     elif activity_type == "physical":
         duration = float(metadata.get("duration_minutes", 0))
@@ -92,10 +95,13 @@ def score_activity(
         hr = int(metadata.get("heart_rate_avg", 0))
         comp = 0.85
         effort = min(1.0, duration / 60)
-        if hr > 140: effort = min(1.0, effort + 0.15); notes.append("High intensity bonus.")
+        if hr > 140:
+            effort = min(1.0, effort + 0.15)
+            notes.append("High intensity bonus.")
         cons = 0.90 if verified else 0.50
         nov = 0.50
-        if not verified: notes.append("Not device-verified — consistency reduced.")
+        if not verified:
+            notes.append("Not device-verified — consistency reduced.")
 
     else:
         comp, effort, cons, nov = 0.1, 0.1, 0.1, 0.0
@@ -142,8 +148,8 @@ def _tier(score: float) -> str:
 def _kw_overlap(response: str, source: str) -> float:
     if not source:
         return 0.5
-    sw = set(re.findall(r'\b\w{4,}\b', source.lower()))
-    rw = set(re.findall(r'\b\w{4,}\b', response.lower()))
+    sw = set(re.findall(r"\b\w{4,}\b", source.lower()))
+    rw = set(re.findall(r"\b\w{4,}\b", response.lower()))
     return min(1.0, (len(sw & rw) / max(len(sw), 1)) * 2.0)
 
 

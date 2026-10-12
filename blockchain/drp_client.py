@@ -11,9 +11,10 @@ import time
 from typing import Any, Dict, List, Optional
 
 from web3 import Web3
-# from web3.middleware import ExtraDataToPOAMiddleware  # Example for v6 if needed
 
 from config import get_settings
+
+# from web3.middleware import ExtraDataToPOAMiddleware  # Example for v6 if needed
 
 
 logger = logging.getLogger(__name__)
@@ -95,15 +96,15 @@ class DRPBlockchainClient:
             # Here we can loop or just try once. Property access usually implies immediate need.
             # To avoid hanging the request forever, we try a few times or once.
             self._connect()
-        
+
         if self._web3 is None:
-             raise ConnectionError("Could not establish blockchain connection")
+            raise ConnectionError("Could not establish blockchain connection")
         return self._web3
 
     def _ensure_contracts(self):
         """Lazy initialize contracts."""
         if self._rights_contract is None or self._deri_contract is None:
-            w3 = self.web3 # May raise ConnectionError
+            w3 = self.web3  # May raise ConnectionError
             self._rights_contract = w3.eth.contract(
                 address=Web3.to_checksum_address(self._rights_address),
                 abi=ERC20_ABI,
@@ -160,5 +161,3 @@ class DRPBlockchainClient:
                 }
             )
         return transfers
-
-

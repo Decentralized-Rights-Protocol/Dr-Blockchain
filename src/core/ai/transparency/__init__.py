@@ -4,29 +4,27 @@ Comprehensive transparency framework for DRP AI Elder decisions
 """
 
 from .decision_logger import (
-    AITransparencyLogger,
     AIDecisionLog,
-    DecisionType,
+    AITransparencyLogger,
     DecisionOutcome,
-    ExplainabilityVector
+    DecisionType,
+    ExplainabilityVector,
 )
-
 from .model_governance import (
-    ModelGovernanceManager,
-    ModelCard,
-    DatasetInfo,
-    PerformanceMetrics,
-    BiasAssessment,
     AuditStatus,
-    BiasLevel
+    BiasAssessment,
+    BiasLevel,
+    DatasetInfo,
+    ModelCard,
+    ModelGovernanceManager,
+    PerformanceMetrics,
 )
-
 from .zkp_explainability import (
-    ZKPExplainabilityManager,
-    ZKProof,
-    ProofType,
     ModelCircuit,
-    ZKPResearchRoadmap
+    ProofType,
+    ZKPExplainabilityManager,
+    ZKPResearchRoadmap,
+    ZKProof,
 )
 
 __version__ = "1.0.0"
@@ -36,24 +34,22 @@ __email__ = "ai-team@decentralizedrights.com"
 __all__ = [
     # Decision logging
     "AITransparencyLogger",
-    "AIDecisionLog", 
+    "AIDecisionLog",
     "DecisionType",
     "DecisionOutcome",
     "ExplainabilityVector",
-    
     # Model governance
     "ModelGovernanceManager",
     "ModelCard",
     "DatasetInfo",
-    "PerformanceMetrics", 
+    "PerformanceMetrics",
     "BiasAssessment",
     "AuditStatus",
     "BiasLevel",
-    
     # ZKP explainability
     "ZKPExplainabilityManager",
     "ZKProof",
     "ProofType",
     "ModelCircuit",
-    "ZKPResearchRoadmap"
+    "ZKPResearchRoadmap",
 ]

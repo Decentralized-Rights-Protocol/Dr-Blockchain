@@ -14,19 +14,17 @@ Endpoints:
 - /v1/chains/ - Chain integration management
 """
 
-from .cross_chain_api import CrossChainAPI
 from .bridge_endpoints import BridgeEndpoints
-from .relay_endpoints import RelayEndpoints
+from .cross_chain_api import CrossChainAPI
 from .crypto_endpoints import CryptoEndpoints
 from .quantum_endpoints import QuantumEndpoints
+from .relay_endpoints import RelayEndpoints
 
 __version__ = "1.0.0"
 __all__ = [
     "CrossChainAPI",
     "BridgeEndpoints",
-    "RelayEndpoints", 
+    "RelayEndpoints",
     "CryptoEndpoints",
-    "QuantumEndpoints"
+    "QuantumEndpoints",
 ]
-
-
