@@ -5,12 +5,13 @@ This module provides Ethereum bridge functionality for cross-chain interoperabil
 including smart contract interactions, ERC-20/ERC-721 support, and quantum-resistant upgrades.
 """
 
+import asyncio
 import json
 import time
-import asyncio
-from typing import Dict, List, Optional, Any, Tuple
 from dataclasses import dataclass
-from ..core import ICrossChainBridge, CrossChainTransaction, BridgeConfig, BridgeError
+from typing import Any, Dict, List, Optional, Tuple
+
+from ..core import BridgeConfig, BridgeError, CrossChainTransaction, ICrossChainBridge
 
 
 @dataclass

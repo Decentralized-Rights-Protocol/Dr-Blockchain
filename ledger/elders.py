@@ -8,12 +8,13 @@ import hashlib
 import json
 import logging
 import os
+import secrets
 from datetime import datetime, timezone
-from typing import Dict, Any, Optional, List, Tuple
+from typing import Any, Dict, List, Optional, Tuple
+
 from cryptography.hazmat.primitives import hashes, serialization
 from cryptography.hazmat.primitives.asymmetric import ed25519
 from cryptography.hazmat.primitives.kdf.hkdf import HKDF
-import secrets
 
 logger = logging.getLogger(__name__)
 

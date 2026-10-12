@@ -2,15 +2,16 @@
 
 import os
 import sys
-import uvicorn
 from pathlib import Path
+
+import uvicorn
 
 # Add project root to path
 project_root = Path(__file__).parent
 sys.path.insert(0, str(project_root))
 
-from config import get_settings
 from api.router import app  # noqa: F401 — exported for uvicorn
+from config import get_settings
 
 if __name__ == "__main__":
     settings = get_settings()

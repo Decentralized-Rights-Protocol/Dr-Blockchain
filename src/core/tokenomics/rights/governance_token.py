@@ -5,14 +5,14 @@ This module implements the $RIGHTS governance token that enables holders to part
 in protocol governance, stake for consensus, and earn rewards for sustainable activities.
 """
 
-import time
 import hashlib
 import json
 import logging
-from typing import Dict, List, Optional, Any, Tuple
-from dataclasses import dataclass, asdict
-from enum import Enum
 import math
+import time
+from dataclasses import asdict, dataclass
+from enum import Enum
+from typing import Any, Dict, List, Optional, Tuple
 
 logger = logging.getLogger(__name__)
 

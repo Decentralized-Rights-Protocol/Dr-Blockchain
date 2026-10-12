@@ -13,10 +13,9 @@ os.environ.setdefault("API_PORT", "8000")
 os.environ.setdefault("BLOCKCHAIN_NETWORK", "drp-testnet")
 
 import pytest
-from httpx import AsyncClient, ASGITransport
+from httpx import ASGITransport, AsyncClient
 
 from api.router import app
-
 
 # ── Fixtures ─────────────────────────────────────────────────────────────────
 

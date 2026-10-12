@@ -3,8 +3,8 @@
 # Dependencies: hashlib, time, random
 
 import hashlib
-import time
 import random
+import time
 
 
 # --- 8.1 The Halting Puzzle Generator ---

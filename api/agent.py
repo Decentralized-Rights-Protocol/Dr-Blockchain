@@ -14,13 +14,13 @@ from typing import Any, Dict, List
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel, Field
 
-from blockchain import DRPBlockchainClient
 from agents import (
     ActivityVerificationAgent,
-    RightsValidatorAgent,
     FraudDetectionAgent,
     GovernanceAgent,
+    RightsValidatorAgent,
 )
+from blockchain import DRPBlockchainClient
 
 router = APIRouter()
 

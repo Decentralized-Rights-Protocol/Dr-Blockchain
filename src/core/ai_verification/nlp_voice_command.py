@@ -4,19 +4,20 @@ NLP Voice Command Module for DRP Blockchain
 Implements voice command recognition and intent understanding for blockchain actions
 """
 
-import speech_recognition as sr
+import argparse
+import hashlib
 import json
 import logging
-import hashlib
-import argparse
-import pyaudio
-import wave
-import tempfile
 import os
-from typing import Dict, List, Optional, Tuple
+import tempfile
+import wave
 from datetime import datetime
-from transformers import pipeline, AutoTokenizer, AutoModelForSequenceClassification
+from typing import Dict, List, Optional, Tuple
+
+import pyaudio
+import speech_recognition as sr
 import torch
+from transformers import AutoModelForSequenceClassification, AutoTokenizer, pipeline
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)

@@ -8,25 +8,25 @@ import asyncio
 import json
 import time
 from datetime import datetime, timezone
-from typing import Dict, Any
+from typing import Any, Dict
+
+from governance.ai_oversight import AIOversightManager, DisputeStatus, ReviewVote
 
 # Import DRP AI Transparency modules
 from ai.transparency import (
     AITransparencyLogger,
-    DecisionType,
-    DecisionOutcome,
-    ModelGovernanceManager,
-    ModelCard,
-    DatasetInfo,
-    PerformanceMetrics,
-    BiasAssessment,
     AuditStatus,
+    BiasAssessment,
     BiasLevel,
-    ZKPExplainabilityManager,
+    DatasetInfo,
+    DecisionOutcome,
+    DecisionType,
+    ModelCard,
+    ModelGovernanceManager,
+    PerformanceMetrics,
     ProofType,
+    ZKPExplainabilityManager,
 )
-
-from governance.ai_oversight import AIOversightManager, DisputeStatus, ReviewVote
 
 
 async def demo_ai_transparency_system():

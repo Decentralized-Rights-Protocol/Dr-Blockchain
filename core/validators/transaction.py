@@ -1,8 +1,9 @@
 """Transaction validation utilities."""
 
-from typing import Optional
-from ..models.transaction import Transaction
 import re
+from typing import Optional
+
+from ..models.transaction import Transaction
 
 
 def validate_address(address: str) -> bool:

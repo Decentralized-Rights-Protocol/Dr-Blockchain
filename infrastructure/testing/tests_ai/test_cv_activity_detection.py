@@ -65,7 +65,9 @@ class TestActivityDetectionEngine(unittest.TestCase):
     def test_classify_activity(self):
         """Test activity classification"""
         with patch.object(self.engine.model, "predict") as mock_predict:
-            with patch("tensorflow.keras.applications.mobilenet_v2.decode_predictions") as mock_decode:
+            with patch(
+                "tensorflow.keras.applications.mobilenet_v2.decode_predictions"
+            ) as mock_decode:
                 # Mock prediction results
                 mock_predict.return_value = np.array([[0.1, 0.2, 0.3, 0.4]])
                 mock_decode.return_value = [

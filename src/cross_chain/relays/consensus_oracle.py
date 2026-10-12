@@ -5,8 +5,8 @@ This module provides consensus mechanisms for oracle services.
 """
 
 import time
-from typing import Dict, List, Optional, Any
 from dataclasses import dataclass
+from typing import Any, Dict, List, Optional
 
 
 @dataclass

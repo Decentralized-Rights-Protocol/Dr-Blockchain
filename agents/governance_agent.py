@@ -5,8 +5,8 @@ Evaluates governance proposals and (optionally) triggers frontend notifications.
 
 from __future__ import annotations
 
-from typing import Any, Dict
 import logging
+from typing import Any, Dict
 
 logger = logging.getLogger(__name__)
 

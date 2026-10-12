@@ -4,17 +4,17 @@ HMAC Protection for DRP P2P Messages
 Implements HMAC-SHA256 protection with session keys for node-to-node communication
 """
 
-import hmac
+import argparse
 import hashlib
+import hmac
 import json
 import logging
 import secrets
 import time
-from typing import Dict, List, Optional, Any, Union
-from dataclasses import dataclass, asdict
+from dataclasses import asdict, dataclass
 from datetime import datetime, timedelta
 from enum import Enum
-import argparse
+from typing import Any, Dict, List, Optional, Union
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)

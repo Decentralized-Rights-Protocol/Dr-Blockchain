@@ -36,16 +36,15 @@ import os
 import time
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Optional, List, Dict, Any, Tuple
+from typing import Any, Dict, List, Optional, Tuple
 
-from fastapi import FastAPI, HTTPException
-from pydantic import BaseModel, Field
-
+from cryptography.hazmat.primitives import serialization
 from cryptography.hazmat.primitives.asymmetric.ed25519 import (
     Ed25519PrivateKey,
     Ed25519PublicKey,
 )
-from cryptography.hazmat.primitives import serialization
+from fastapi import FastAPI, HTTPException
+from pydantic import BaseModel, Field
 
 # -----------------------------
 # Helpers

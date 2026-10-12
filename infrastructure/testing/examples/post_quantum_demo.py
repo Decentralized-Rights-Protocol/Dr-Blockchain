@@ -14,10 +14,10 @@ with DRP's elder quorum system. It shows:
 Run with: python examples/post_quantum_demo.py
 """
 
-import sys
-import os
-import time
 import json
+import os
+import sys
+import time
 from pathlib import Path
 
 # Add src to path for imports
@@ -25,15 +25,15 @@ sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
 
 try:
     from crypto.post_quantum import (  # pyright: ignore[reportMissingImports]
-        PostQuantumKeyManager,
         DRPPostQuantumElderQuorum,
+        PostQuantumCryptoError,
+        PostQuantumKeyManager,
+        create_drp_block_signature,
         generate_dilithium_keypair,
         generate_kyber_keypair,
         sign_with_dilithium,
         verify_dilithium_signature,
-        create_drp_block_signature,
         verify_drp_block_signature,
-        PostQuantumCryptoError,
     )
 
     PQ_AVAILABLE = True
@@ -45,9 +45,10 @@ except ImportError as e:
 
 try:
     from fastapi.testclient import TestClient  # pyright: ignore[reportMissingImports]
-    from crypto.post_quantum.drp_integration import (
+
+    from crypto.post_quantum.drp_integration import (  # pyright: ignore[reportMissingImports]
         DRPPostQuantumAPI,
-    )  # pyright: ignore[reportMissingImports]
+    )
 
     FASTAPI_AVAILABLE = True
 except ImportError as e:

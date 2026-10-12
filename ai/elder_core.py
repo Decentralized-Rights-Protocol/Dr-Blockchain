@@ -3,10 +3,10 @@ AI ElderCore - Lightweight AI verification system for DRP.
 Uses local models and heuristics (no expensive cloud AI).
 """
 
-import logging
-from typing import Dict, Any, List
-from datetime import datetime
 import hashlib
+import logging
+from datetime import datetime
+from typing import Any, Dict, List
 
 from agents.activity_verification_agent import ActivityVerificationAgent
 from agents.fraud_detection_agent import FraudDetectionAgent

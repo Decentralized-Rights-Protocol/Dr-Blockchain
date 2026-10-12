@@ -5,8 +5,8 @@ Stores governance data, Elder votes, PoST/PoAT relationships as graph nodes and 
 
 import json
 import logging
-from typing import Optional, Dict, Any, List, Tuple
 from datetime import datetime
+from typing import Any, Dict, List, Optional, Tuple
 
 try:
     from neo4j import GraphDatabase

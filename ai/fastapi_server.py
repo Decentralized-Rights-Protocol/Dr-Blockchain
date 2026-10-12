@@ -1,14 +1,15 @@
 """FastAPI server for AI verification services."""
 
+from typing import Any, Dict, List, Optional
+
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
-from typing import Dict, Any, Optional, List
 
-from config import get_settings
 from ai.activity_classifier import ActivityClassifier
-from ai.status_evaluator import StatusEvaluator
 from ai.quantum_security import QuantumSecurity
+from ai.status_evaluator import StatusEvaluator
+from config import get_settings
 
 app = FastAPI(
     title="DRP AI Verification Service",

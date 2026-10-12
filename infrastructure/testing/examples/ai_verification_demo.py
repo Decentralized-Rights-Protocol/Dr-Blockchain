@@ -4,24 +4,25 @@ AI Verification Layer Demo for DRP Blockchain
 Demonstrates the complete AI verification workflow
 """
 
-import sys
-import os
-import json
 import asyncio
+import json
+import os
+import sys
 import tempfile
-import numpy as np
+
 import cv2
+import numpy as np
 
 # Add the ai_verification directory to the path
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "ai_verification"))
 
 from ai_verification import (
-    FaceVerificationEngine,
     ActivityDetectionEngine,
-    VoiceCommandEngine,
-    TextAnalysisEngine,
     AIVerificationIntegrator,
     DRPBlockchainClient,
+    FaceVerificationEngine,
+    TextAnalysisEngine,
+    VoiceCommandEngine,
 )
 
 

@@ -7,12 +7,13 @@ storage credentials to the browser.
 
 import os
 from typing import Any, Dict
+
 import httpx
+from backend.orbit.orbit_client import OrbitClient
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel, Field
 
 from storage.ipfs_manager import IPFSManager
-from backend.orbit.orbit_client import OrbitClient
 
 router = APIRouter(prefix="/storage", tags=["Decentralized Storage"])
 

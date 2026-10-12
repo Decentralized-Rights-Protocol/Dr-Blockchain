@@ -1,15 +1,10 @@
 """API request/response schemas."""
 
 from .activity import (
+    ActivityFeedResponse,
     ActivitySubmitRequest,
     ActivitySubmitResponse,
-    ActivityFeedResponse,
     ActivityVerificationRequest,
-)
-from .status import (
-    StatusProfileRequest,
-    StatusProfileResponse,
-    StatusUpdateRequest,
 )
 from .auth import (
     LoginRequest,
@@ -21,6 +16,11 @@ from .rewards import (
     RewardClaimRequest,
     RewardClaimResponse,
     RewardSummaryResponse,
+)
+from .status import (
+    StatusProfileRequest,
+    StatusProfileResponse,
+    StatusUpdateRequest,
 )
 
 __all__ = [

@@ -5,11 +5,12 @@ This module provides a centralized manager for all cross-chain bridges,
 handling routing, load balancing, and failover mechanisms.
 """
 
-import time
 import asyncio
-from typing import Dict, List, Optional, Any
+import time
 from dataclasses import dataclass
-from ..core import ICrossChainBridge, CrossChainTransaction, BridgeConfig, ChainType, BridgeError
+from typing import Any, Dict, List, Optional
+
+from ..core import BridgeConfig, BridgeError, ChainType, CrossChainTransaction, ICrossChainBridge
 
 
 @dataclass

@@ -18,12 +18,12 @@ Security Notes:
 - Integrates with DRP's consensus mechanism for block validation
 """
 
+import hashlib
 import json
 import time
-import hashlib
 from dataclasses import dataclass
-from typing import Dict, List, Optional, Tuple, Union, Any
 from enum import Enum
+from typing import Any, Dict, List, Optional, Tuple, Union
 
 try:
     import oqs  # This is correct for python-oqs package

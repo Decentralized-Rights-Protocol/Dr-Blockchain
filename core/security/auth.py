@@ -1,8 +1,9 @@
 """Authentication utilities."""
 
 from typing import Optional
-from eth_account.messages import encode_defunct
+
 from eth_account import Account
+from eth_account.messages import encode_defunct
 
 
 def verify_wallet_signature(message: str, signature: str, wallet_address: str) -> bool:

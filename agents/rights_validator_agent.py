@@ -5,8 +5,8 @@ Ensures fair allocation of RIGHTS/DeRi tokens based on DRP Proof-of-Status rules
 
 from __future__ import annotations
 
-from typing import Any, Dict
 import logging
+from typing import Any, Dict
 
 logger = logging.getLogger(__name__)
 

@@ -1,7 +1,7 @@
 # === Module 12: Decentralized Voting & Consensus ===
 import hashlib
-import uuid
 import time
+import uuid
 
 # Global proposal and vote registry
 proposals = []

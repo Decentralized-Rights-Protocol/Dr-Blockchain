@@ -1,9 +1,9 @@
-import grpc
 import time
 import uuid
 
-from . import drp_pb2
-from . import drp_pb2_grpc
+import grpc
+
+from . import drp_pb2, drp_pb2_grpc
 
 
 def run():

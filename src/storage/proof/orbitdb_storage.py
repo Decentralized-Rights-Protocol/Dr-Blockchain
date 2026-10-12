@@ -3,16 +3,17 @@ DRP Proof Storage - OrbitDB/IPFS
 Stores IoT/app logs and proofs with hash-linking and DRP ledger references
 """
 
+import hashlib
 import json
 import logging
-import hashlib
-from typing import Optional, Dict, Any, List, Tuple
 from datetime import datetime
 from pathlib import Path
+from typing import Any, Dict, List, Optional, Tuple
 
 try:
-    from orbitdb import OrbitDB
     from ipfshttpclient import connect
+
+    from orbitdb import OrbitDB
 except ImportError:
     OrbitDB = None
     connect = None

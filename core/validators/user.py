@@ -1,7 +1,7 @@
 """User validation utilities."""
 
-from typing import Optional
 import re
+from typing import Optional
 
 
 def validate_user_id(user_id: str) -> bool:

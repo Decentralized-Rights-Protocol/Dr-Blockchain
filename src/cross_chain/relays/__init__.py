@@ -19,11 +19,11 @@ Features:
 - Security-first design
 """
 
-from .relay_manager import RelayManager
-from .oracle_service import OracleService
-from .merkle_verifier import MerkleProofVerifier
-from .header_verifier import HeaderVerifier
 from .consensus_oracle import ConsensusOracle
+from .header_verifier import HeaderVerifier
+from .merkle_verifier import MerkleProofVerifier
+from .oracle_service import OracleService
+from .relay_manager import RelayManager
 
 __version__ = "1.0.0"
 __all__ = [

@@ -2,10 +2,11 @@
 # Language: Python 3
 # Dependencies: ecdsa, hashlib, base58
 
-import os
 import hashlib
+import os
+
 import base58
-from ecdsa import SigningKey, SECP256k1
+from ecdsa import SECP256k1, SigningKey
 
 
 # --- 1.1 Generate Key Pair ---
@@ -43,8 +44,8 @@ def verify_signature(vk, message, signature):
 # Language: Python 3
 # Dependencies: hashlib, time, random
 
-import time
 import random
+import time
 
 
 # --- 8.1 The Halting Puzzle Generator ---

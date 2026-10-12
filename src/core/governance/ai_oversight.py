@@ -3,13 +3,13 @@ Human Oversight & Governance Hooks for AI Decisions
 Implements community-driven review and dispute resolution for AI Elder decisions
 """
 
-import json
 import hashlib
-from datetime import datetime, timezone
-from typing import Dict, Any, List, Optional, Tuple
-from dataclasses import dataclass, asdict
-from enum import Enum
+import json
 import logging
+from dataclasses import asdict, dataclass
+from datetime import datetime, timezone
+from enum import Enum
+from typing import Any, Dict, List, Optional, Tuple
 
 from ai.transparency.decision_logger import AIDecisionLog, DecisionOutcome
 from ai.transparency.model_governance import ModelCard, ModelGovernanceManager

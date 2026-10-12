@@ -4,19 +4,20 @@ CV Activity Detection Module for DRP Blockchain
 Implements Proof of Activity (PoAT) through human activity recognition
 """
 
-import cv2
-import numpy as np
+import argparse
+import hashlib
 import json
 import logging
-import hashlib
-import argparse
-from typing import Dict, List, Optional, Tuple
 from datetime import datetime
+from typing import Dict, List, Optional, Tuple
+
+import cv2
+import mediapipe as mp
+import numpy as np
 import tensorflow as tf
 from tensorflow.keras.applications import MobileNetV2
-from tensorflow.keras.applications.mobilenet_v2 import preprocess_input, decode_predictions
+from tensorflow.keras.applications.mobilenet_v2 import decode_predictions, preprocess_input
 from tensorflow.keras.preprocessing import image
-import mediapipe as mp
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)

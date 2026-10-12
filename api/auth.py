@@ -1,14 +1,14 @@
 """Authentication API routes."""
 
-from fastapi import APIRouter, HTTPException, Depends
-from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
-from typing import Optional
 import secrets
+from typing import Optional
 
 from core.schemas.auth import LoginRequest, LoginResponse, WalletLinkRequest, WalletLinkResponse
-from core.security.jwt import create_jwt_token, verify_jwt_token, decode_jwt_token
 from core.security.auth import authenticate_user, verify_wallet_signature
+from core.security.jwt import create_jwt_token, decode_jwt_token, verify_jwt_token
 from core.validators.user import validate_user_id, validate_wallet_address
+from fastapi import APIRouter, Depends, HTTPException
+from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 
 router = APIRouter()
 security = HTTPBearer()

@@ -25,20 +25,17 @@ Future-Proof Design:
 - Security-first approach with comprehensive attack protection
 """
 
+from .bridges import BitcoinBridge, BridgeManager, EthereumBridge, PolkadotBridge
 from .core import (
-    CrossChainManager,
-    CrossChainError,
-    ChainType,
-    TransactionStatus,
     BridgeConfig,
+    ChainType,
+    CrossChainError,
+    CrossChainManager,
     RelayConfig,
+    TransactionStatus,
 )
-
-from .crypto import MultiSchemeSigner, MultiSchemeVerifier, CryptoScheme, QuantumResistantUpgrade
-
-from .relays import RelayManager, OracleService, MerkleProofVerifier, HeaderVerifier
-
-from .bridges import BridgeManager, EthereumBridge, PolkadotBridge, BitcoinBridge
+from .crypto import CryptoScheme, MultiSchemeSigner, MultiSchemeVerifier, QuantumResistantUpgrade
+from .relays import HeaderVerifier, MerkleProofVerifier, OracleService, RelayManager
 
 __version__ = "1.0.0"
 __author__ = "DRP Development Team"

@@ -1,9 +1,9 @@
-import grpc
-from concurrent import futures
 import time
+from concurrent import futures
 
-from . import drp_pb2
-from . import drp_pb2_grpc
+import grpc
+
+from . import drp_pb2, drp_pb2_grpc
 
 # Simple in-memory storage
 BLOCKCHAIN = []

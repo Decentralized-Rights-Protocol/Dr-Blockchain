@@ -1,8 +1,9 @@
 """Activity classification and fraud detection."""
 
-from typing import Dict, Any, List, Tuple
 import re
 from datetime import datetime
+from typing import Any, Dict, List, Tuple
+
 from core.models.activity import ActivityType
 
 

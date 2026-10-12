@@ -53,7 +53,9 @@ class DecideInput(BaseModel):
     model_id: str
     model_version: str
     input_type: str = Field(..., description="image|gps|text|sensor")
-    input_commitment: str = Field(..., description="Hash/commitment of input. Do not send raw data.")
+    input_commitment: str = Field(
+        ..., description="Hash/commitment of input. Do not send raw data."
+    )
     features: Optional[Dict[str, float]] = Field(
         default=None, description="Optional numeric features for local explainability demo"
     )
@@ -99,9 +101,11 @@ def _load_elder_private_key() -> ed25519.Ed25519PrivateKey:
 
 
 ELDER_PRIV = _load_elder_private_key()
-ELDER_PUB_HEX = ELDER_PRIV.public_key().public_bytes(
-    serialization.Encoding.Raw, serialization.PublicFormat.Raw
-).hex()
+ELDER_PUB_HEX = (
+    ELDER_PRIV.public_key()
+    .public_bytes(serialization.Encoding.Raw, serialization.PublicFormat.Raw)
+    .hex()
+)
 
 
 def sign_record(record: Dict[str, Any]) -> str:

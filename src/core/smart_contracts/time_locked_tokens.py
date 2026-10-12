@@ -4,14 +4,14 @@ Time-Locked Tokens Smart Contract Template for DRP
 Implements token vesting and lockup mechanisms
 """
 
-import json
+import argparse
 import hashlib
+import json
 import logging
-from typing import Dict, List, Optional, Any, Union
-from dataclasses import dataclass, asdict
+from dataclasses import asdict, dataclass
 from datetime import datetime, timedelta
 from enum import Enum
-import argparse
+from typing import Any, Dict, List, Optional, Union
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)

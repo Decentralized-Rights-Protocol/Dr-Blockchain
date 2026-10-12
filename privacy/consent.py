@@ -8,13 +8,14 @@ import hashlib
 import json
 import logging
 import os
-from datetime import datetime, timezone, timedelta
-from typing import Dict, Any, Optional, List, Set
+from datetime import datetime, timedelta, timezone
+from typing import Any, Dict, List, Optional, Set
 from uuid import uuid4
+
+from cryptography.hazmat.backends import default_backend
 from cryptography.hazmat.primitives import hashes, serialization
 from cryptography.hazmat.primitives.asymmetric import ed25519
 from cryptography.hazmat.primitives.kdf.hkdf import HKDF
-from cryptography.hazmat.backends import default_backend
 
 logger = logging.getLogger(__name__)
 

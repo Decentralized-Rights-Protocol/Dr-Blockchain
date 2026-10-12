@@ -4,19 +4,19 @@ BLS Threshold Signatures for DRP Elder Quorum
 Implements m-of-n threshold signing without revealing private keys
 """
 
+import argparse
 import hashlib
 import json
 import logging
 import secrets
-from typing import Dict, List, Optional, Tuple, Any
 from dataclasses import dataclass
 from datetime import datetime
-import argparse
+from typing import Any, Dict, List, Optional, Tuple
 
 # BLS signature dependencies
 try:
     from py_ecc import bls
-    from py_ecc.optimized_bls12_381 import G1, G2, pairing, add, multiply, neg
+    from py_ecc.optimized_bls12_381 import G1, G2, add, multiply, neg, pairing
 
     BLS_AVAILABLE = True
 except ImportError:

@@ -7,11 +7,11 @@ Environment:
 """
 
 import os
+import secrets
 from typing import Optional
 
-from cryptography.hazmat.primitives.ciphers.aead import AESGCM
-import secrets
 import ipfshttpclient
+from cryptography.hazmat.primitives.ciphers.aead import AESGCM
 
 
 def _get_key() -> bytes:

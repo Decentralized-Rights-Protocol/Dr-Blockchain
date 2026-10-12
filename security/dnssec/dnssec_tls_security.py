@@ -4,24 +4,24 @@ DNSSEC & TLS Security for DRP
 Implements DNSSEC validation and TLS certificate management for domain and API security
 """
 
-import ssl
-import socket
+import argparse
 import hashlib
-import logging
-import subprocess
 import json
-from typing import Dict, List, Optional, Any, Tuple
-from dataclasses import dataclass, asdict
+import logging
+import socket
+import ssl
+import subprocess
+from dataclasses import asdict, dataclass
 from datetime import datetime, timedelta
 from enum import Enum
-import argparse
+from typing import Any, Dict, List, Optional, Tuple
 
 # DNSSEC dependencies
 try:
-    import dns.resolver
     import dns.dnssec
-    import dns.rdatatype
     import dns.rdataclass
+    import dns.rdatatype
+    import dns.resolver
 
     DNSSEC_AVAILABLE = True
 except ImportError:
@@ -31,9 +31,9 @@ except ImportError:
 # TLS dependencies
 try:
     from cryptography import x509
-    from cryptography.x509.oid import NameOID, ExtensionOID
     from cryptography.hazmat.primitives import hashes, serialization
-    from cryptography.hazmat.primitives.asymmetric import rsa, padding
+    from cryptography.hazmat.primitives.asymmetric import padding, rsa
+    from cryptography.x509.oid import ExtensionOID, NameOID
 
     TLS_AVAILABLE = True
 except ImportError:

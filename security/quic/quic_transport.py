@@ -4,16 +4,16 @@ QUIC Transport Layer for DRP P2P Network
 Implements optional QUIC transport for high-performance node-to-node communications
 """
 
+import argparse
 import asyncio
 import json
 import logging
 import ssl
 import time
-from typing import Dict, List, Optional, Any, Callable, Union
-from dataclasses import dataclass, asdict
+from dataclasses import asdict, dataclass
 from datetime import datetime
 from enum import Enum
-import argparse
+from typing import Any, Callable, Dict, List, Optional, Union
 
 # QUIC dependencies
 try:
@@ -298,11 +298,12 @@ class QUICTransportManager:
     def _generate_self_signed_certificate(self):
         """Generate self-signed certificate for testing"""
         try:
+            import datetime
+
             from cryptography import x509
-            from cryptography.x509.oid import NameOID
             from cryptography.hazmat.primitives import hashes, serialization
             from cryptography.hazmat.primitives.asymmetric import rsa
-            import datetime
+            from cryptography.x509.oid import NameOID
 
             # Generate private key
             private_key = rsa.generate_private_key(

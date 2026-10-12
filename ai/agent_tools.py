@@ -9,13 +9,13 @@ AI Agents NEVER have unrestricted authority to mint tokens or manipulate balance
 All operations are controlled by the Policy Engine.
 """
 
-from typing import Dict, List, Optional, Tuple, Union
-from dataclasses import dataclass
-from enum import Enum
 import hashlib
 import json
 import time
+from dataclasses import dataclass
 from datetime import datetime
+from enum import Enum
+from typing import Dict, List, Optional, Tuple, Union
 
 # ============================================================================
 # TYPE DEFINITIONS

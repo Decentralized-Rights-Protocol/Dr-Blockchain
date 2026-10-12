@@ -9,11 +9,11 @@ import json
 import logging
 import os
 from datetime import datetime, timezone
-from typing import Dict, Any, Optional, List
+from typing import Any, Dict, List, Optional
 
 try:
-    from web3 import Web3
     from eth_account import Account
+    from web3 import Web3
 
     WEB3_AVAILABLE = True
 except ImportError:

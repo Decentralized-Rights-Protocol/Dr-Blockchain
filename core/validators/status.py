@@ -1,6 +1,7 @@
 """Status validation utilities."""
 
 from typing import Optional
+
 from ..models.status import StatusScore
 
 

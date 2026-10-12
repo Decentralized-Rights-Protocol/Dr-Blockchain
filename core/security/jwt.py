@@ -1,8 +1,10 @@
 """JWT token utilities."""
 
-import jwt
 from datetime import datetime, timedelta
-from typing import Optional, Dict, Any
+from typing import Any, Dict, Optional
+
+import jwt
+
 from config import get_settings
 
 

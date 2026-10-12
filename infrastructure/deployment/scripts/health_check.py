@@ -6,12 +6,13 @@ Simple health check endpoint for Docker containers.
 This script provides basic health monitoring for DRP services.
 """
 
+import json
 import os
 import sys
 import time
-import json
+from typing import Any, Dict
+
 import requests
-from typing import Dict, Any
 
 
 def check_database_connection() -> bool:

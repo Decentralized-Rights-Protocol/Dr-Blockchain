@@ -1,6 +1,7 @@
 """Activity validation utilities."""
 
-from typing import Dict, Any, Optional, Tuple
+from typing import Any, Dict, Optional, Tuple
+
 from ..models.activity import ActivityType
 from ..schemas.activity import ActivitySubmitRequest
 

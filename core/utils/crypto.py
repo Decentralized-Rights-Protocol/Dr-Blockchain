@@ -2,7 +2,8 @@
 
 import hashlib
 import secrets
-from typing import Tuple, Optional
+from typing import Optional, Tuple
+
 from eth_keys import keys
 from eth_utils import to_checksum_address
 
@@ -73,11 +74,12 @@ def hash_data(data: str) -> str:
     return hashlib.sha256(data.encode()).hexdigest()
 
 
+import base64
+
 from cryptography.fernet import Fernet
+from cryptography.hazmat.backends import default_backend
 from cryptography.hazmat.primitives import hashes
 from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
-from cryptography.hazmat.backends import default_backend
-import base64
 
 
 def derive_key_from_password(password: str) -> bytes:

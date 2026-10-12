@@ -4,17 +4,17 @@ DRP Storage System Demo
 Demonstrates the multi-layer storage and explorer system
 """
 
-import sys
-import os
 import json
+import os
+import sys
 import time
 from datetime import datetime
 
 # Add src to path
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "src"))
 
-from storage.manager import get_storage_manager
 from storage.ledger.rocksdb_storage import DRPBlock
+from storage.manager import get_storage_manager
 from storage.proof.orbitdb_storage import IoTLogEntry, ProofSubmission
 
 

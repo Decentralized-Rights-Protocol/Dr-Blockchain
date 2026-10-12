@@ -12,9 +12,10 @@ from typing import Any, Dict, List, Optional
 
 from web3 import Web3
 
+from config import get_settings
+
 # from web3.middleware import ExtraDataToPOAMiddleware  # Example for v6 if needed
 
-from config import get_settings
 
 logger = logging.getLogger(__name__)
 

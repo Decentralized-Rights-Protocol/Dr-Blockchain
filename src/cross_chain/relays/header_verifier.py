@@ -5,7 +5,8 @@ This module provides blockchain header verification for cross-chain interoperabi
 """
 
 import hashlib
-from typing import Dict, Any
+from typing import Any, Dict
+
 from ..core import BlockchainHeader, ChainType
 
 

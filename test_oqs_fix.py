@@ -5,8 +5,8 @@ Test script to verify OQS (Open Quantum Safe) library fix
 This script tests the correct python-oqs package installation and usage
 """
 
-import sys
 import os
+import sys
 
 # Add src to path
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "src"))
@@ -98,8 +98,8 @@ def test_drp_pq_modules():
         print("1. Testing pq_keys module...")
         from src.crypto.post_quantum.pq_keys import (
             PostQuantumKeyManager,
-            generate_kyber_keypair,
             generate_dilithium_keypair,
+            generate_kyber_keypair,
         )
 
         print("   [OK] pq_keys module imported successfully")

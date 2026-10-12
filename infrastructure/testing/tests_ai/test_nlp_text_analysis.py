@@ -29,7 +29,9 @@ class TestTextAnalysisEngine(unittest.TestCase):
         self.test_text = (
             "This is a sample text for testing purposes. It contains multiple sentences to analyze."
         )
-        self.ai_generated_text = "As an AI, I cannot provide personal opinions or make decisions for you."
+        self.ai_generated_text = (
+            "As an AI, I cannot provide personal opinions or make decisions for you."
+        )
 
     def test_initialization(self):
         """Test engine initialization"""
@@ -144,7 +146,9 @@ class TestTextAnalysisEngine(unittest.TestCase):
                 ]
 
                 with patch("sklearn.metrics.pairwise.cosine_similarity") as mock_similarity:
-                    mock_similarity.return_value = [[0.1, 0.9]]  # High similarity with second reference
+                    mock_similarity.return_value = [
+                        [0.1, 0.9]
+                    ]  # High similarity with second reference
 
                     result = self.engine.detect_plagiarism(self.test_text, reference_texts)
 

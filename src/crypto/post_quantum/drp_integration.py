@@ -14,17 +14,17 @@ This integration ensures DRP remains secure against quantum attacks while
 maintaining compatibility with existing infrastructure.
 """
 
+import hashlib
 import json
 import time
-import hashlib
-from typing import Dict, List, Optional, Tuple, Any, Union
 from dataclasses import dataclass
 from pathlib import Path
+from typing import Any, Dict, List, Optional, Tuple, Union
 
 try:
-    from fastapi import FastAPI, HTTPException, Depends
-    from pydantic import BaseModel, Field
+    from fastapi import Depends, FastAPI, HTTPException
     from fastapi.responses import JSONResponse
+    from pydantic import BaseModel, Field
 
     FASTAPI_AVAILABLE = True
 except ImportError:
@@ -32,36 +32,36 @@ except ImportError:
 
 try:
     from .pq_keys import (
-        PostQuantumKeyManager,
         DilithiumKeyPair,
-        KyberKeyPair,
-        KeyRotationManager,
         KeyRevocationManager,
+        KeyRotationManager,
+        KyberKeyPair,
         PostQuantumCryptoError,
+        PostQuantumKeyManager,
     )
     from .pq_sign import (
+        DRPPostQuantumSigner,
+        PostQuantumSignature,
         PostQuantumSigner,
         PostQuantumVerifier,
-        PostQuantumSignature,
         QuorumSignature,
-        DRPPostQuantumSigner,
     )
 except ImportError:
     # Handle direct execution
     from pq_keys import (
-        PostQuantumKeyManager,
         DilithiumKeyPair,
-        KyberKeyPair,
-        KeyRotationManager,
         KeyRevocationManager,
+        KeyRotationManager,
+        KyberKeyPair,
         PostQuantumCryptoError,
+        PostQuantumKeyManager,
     )
     from pq_sign import (
+        DRPPostQuantumSigner,
+        PostQuantumSignature,
         PostQuantumSigner,
         PostQuantumVerifier,
-        PostQuantumSignature,
         QuorumSignature,
-        DRPPostQuantumSigner,
     )
 
 

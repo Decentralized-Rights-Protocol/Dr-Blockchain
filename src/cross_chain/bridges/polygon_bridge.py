@@ -4,10 +4,11 @@ Polygon Bridge Implementation
 This module provides Polygon bridge functionality for cross-chain interoperability.
 """
 
-import time
 import asyncio
-from typing import Dict, List, Optional, Any
-from ..core import ICrossChainBridge, CrossChainTransaction, BridgeConfig, BridgeError
+import time
+from typing import Any, Dict, List, Optional
+
+from ..core import BridgeConfig, BridgeError, CrossChainTransaction, ICrossChainBridge
 
 
 class PolygonBridge(ICrossChainBridge):

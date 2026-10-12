@@ -1,14 +1,14 @@
 # === App.py — Main Launcher for Proof of Activities System ===
 import time
 
-from src.crypto.hashing import generate_key_pair, get_wallet_address, sign_message, verify_signature
+from src.blockchain import Block, Blockchain
 from src.consensus.mining import halting_puzzle_miner
 from src.consensus.proof_of_service import validate_and_record
 
 # from consensus import blockchain
 # from ledger import blockchain
-from src.consensus.voting_protocol import create_proposal, vote_on_proposal, tally_votes
-from src.blockchain import Blockchain, Block
+from src.consensus.voting_protocol import create_proposal, tally_votes, vote_on_proposal
+from src.crypto.hashing import generate_key_pair, get_wallet_address, sign_message, verify_signature
 
 
 def run_proof_of_activities():

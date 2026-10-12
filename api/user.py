@@ -1,12 +1,13 @@
 """User API routes."""
 
-from fastapi import APIRouter, HTTPException, Depends
-from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from typing import Optional
 
-from core.schemas.status import StatusProfileRequest, StatusProfileResponse
 from core.models.user import User, UserProfile, Wallet
+from core.schemas.status import StatusProfileRequest, StatusProfileResponse
 from core.validators.user import validate_user_id
+from fastapi import APIRouter, Depends, HTTPException
+from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
+
 from api.auth import get_current_user
 
 router = APIRouter()

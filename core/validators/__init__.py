@@ -2,7 +2,7 @@
 
 from .activity import validate_activity_submission, validate_activity_type
 from .status import validate_status_score, validate_status_update
-from .transaction import validate_transaction, validate_address
+from .transaction import validate_address, validate_transaction
 from .user import validate_user_id, validate_wallet_address
 
 __all__ = [

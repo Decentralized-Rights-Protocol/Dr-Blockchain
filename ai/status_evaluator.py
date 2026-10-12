@@ -1,7 +1,8 @@
 """Status score evaluation for Proof of Status (PoST)."""
 
-from typing import Dict, Any, List
 from datetime import datetime, timedelta
+from typing import Any, Dict, List
+
 from core.models.status import StatusScore
 
 

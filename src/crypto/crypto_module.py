@@ -8,24 +8,26 @@ Provides:
 - Utilities: sha256, ripemd160, base58check
 """
 
-from dataclasses import dataclass
-from typing import Tuple, Optional
+import binascii
 import hashlib
 import os
-import binascii
+from dataclasses import dataclass
+from typing import Optional, Tuple
 
 # Ed25519 via PyNaCl
 try:
-    from nacl import signing, exceptions as nacl_exc
+    from nacl import exceptions as nacl_exc
+    from nacl import signing
 except ImportError:
     # Use mock implementation
-    from crypto.post_quantum.mock_nacl import signing, nacl_exc
+    from crypto.post_quantum.mock_nacl import nacl_exc, signing
 
     print("⚠️  Using mock PyNaCl implementation")
 
 # Optional secp256k1 via coincurve
 try:
-    from coincurve import PrivateKey as Secp256k1PrivateKey, PublicKey as Secp256k1PublicKey
+    from coincurve import PrivateKey as Secp256k1PrivateKey
+    from coincurve import PublicKey as Secp256k1PublicKey
 
     HAVE_SECP = True
 except Exception:

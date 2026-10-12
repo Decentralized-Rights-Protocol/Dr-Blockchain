@@ -7,12 +7,13 @@ ensuring secure multi-party computation without exposing private keys.
 
 import hashlib
 import json
+import logging
 import time
-from typing import List, Dict, Any, Optional, Tuple
-from dataclasses import dataclass, asdict
+from dataclasses import asdict, dataclass
+from typing import Any, Dict, List, Optional, Tuple
+
 from cryptography.hazmat.primitives import hashes, serialization
 from cryptography.hazmat.primitives.asymmetric import ed25519
-import logging
 
 logger = logging.getLogger(__name__)
 

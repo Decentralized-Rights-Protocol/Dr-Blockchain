@@ -8,7 +8,8 @@ for cross-chain interoperability.
 import hashlib
 import secrets
 import time
-from typing import Dict, Any, Tuple
+from typing import Any, Dict, Tuple
+
 from .multi_scheme import ISignatureScheme
 
 

@@ -2,8 +2,9 @@
 AI ElderCore API endpoints.
 """
 
+from typing import Any, Dict
+
 from fastapi import APIRouter, HTTPException
-from typing import Dict, Any
 from pydantic import BaseModel
 
 from ai.elder_core import AIElderCore

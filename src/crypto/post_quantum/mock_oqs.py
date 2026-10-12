@@ -5,9 +5,9 @@ This provides a mock implementation of the oqs library for demonstration
 purposes when the real liboqs is not available.
 """
 
-import secrets
 import hashlib
-from typing import Dict, Any
+import secrets
+from typing import Any, Dict
 
 
 class MockKeyEncapsulation:

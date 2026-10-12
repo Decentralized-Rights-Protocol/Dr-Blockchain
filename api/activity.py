@@ -1,20 +1,21 @@
 """Activity API routes."""
 
-from fastapi import APIRouter, HTTPException, Depends, BackgroundTasks
-from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
-from typing import List, Optional
-import subprocess
 import json
 import os
+import subprocess
+from typing import List, Optional
 
 from core.schemas.activity import (
+    ActivityFeedResponse,
     ActivitySubmitRequest,
     ActivitySubmitResponse,
-    ActivityFeedResponse,
     ActivityVerificationRequest,
 )
-from core.validators.activity import validate_activity_submission
 from core.utils.quantum import generate_quantum_hash
+from core.validators.activity import validate_activity_submission
+from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException
+from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
+
 from api.auth import get_current_user
 
 router = APIRouter()
@@ -48,6 +49,7 @@ def call_orbitdb_activity_store(method: str, data: dict) -> dict:
 def call_ai_verification(activity_data: dict) -> dict:
     """Call AI verification service."""
     import requests
+
     from config import get_settings
 
     settings = get_settings()
@@ -77,6 +79,7 @@ def call_ai_verification(activity_data: dict) -> dict:
 def call_rpc_submit_activity(activity_proof: dict) -> dict:
     """Submit activity proof to RPC server."""
     import requests
+
     from config import get_settings
 
     settings = get_settings()

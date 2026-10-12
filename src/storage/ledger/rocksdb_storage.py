@@ -5,8 +5,8 @@ Stores DRP blocks, transactions, PoST proofs, PoAT proofs, and Elder quorum sign
 
 import json
 import logging
-from typing import Optional, Dict, Any, List
 from pathlib import Path
+from typing import Any, Dict, List, Optional
 
 try:
     import rocksdb

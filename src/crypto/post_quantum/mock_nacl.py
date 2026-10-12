@@ -2,8 +2,8 @@
 Mock implementation of PyNaCl for compatibility
 """
 
-import secrets
 import hashlib
+import secrets
 
 
 class MockSigningKey:
@@ -97,7 +97,8 @@ nacl_exc = MockExceptions()
 
 # Replace nacl import
 try:
-    from nacl import signing as real_signing, exceptions as real_nacl_exc
+    from nacl import exceptions as real_nacl_exc
+    from nacl import signing as real_signing
 
     print("✅ Real PyNaCl available")
 except ImportError:

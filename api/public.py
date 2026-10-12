@@ -3,15 +3,16 @@ Public API endpoints for DRP backend.
 Exposes blockchain, explorer, and app portal routes.
 """
 
-from fastapi import APIRouter, HTTPException, UploadFile, File
+from typing import Any, Dict, List, Optional
+
+from fastapi import APIRouter, File, HTTPException, UploadFile
 from fastapi.responses import JSONResponse
-from typing import Dict, Any, List, Optional
 from pydantic import BaseModel, Field
 
-from blockchain.node import DRPBlockchainNode
 from ai.elder_core import AIElderCore
-from storage.orbitdb_manager import OrbitDBManager
+from blockchain.node import DRPBlockchainNode
 from storage.ipfs_manager import IPFSManager
+from storage.orbitdb_manager import OrbitDBManager
 
 router = APIRouter()
 

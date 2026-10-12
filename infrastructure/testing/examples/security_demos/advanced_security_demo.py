@@ -6,8 +6,8 @@ Demonstrates all the new security and token features
 
 import asyncio
 import json
-import sys
 import os
+import sys
 from datetime import datetime, timedelta
 
 # Add the security and tokens directories to the path
@@ -15,16 +15,17 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "..", "security
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "..", "tokens"))
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "..", "smart_contracts"))
 
-from security.mpc.bls_threshold_signatures import BLSThresholdSignatureScheme, ElderQuorumManager
-from security.hmac.p2p_message_protection import P2PNetworkSecurity, MessageType
-from security.quic.quic_transport import QUICTransportManager, StreamType, QUICMessage
-from security.dnssec.dnssec_tls_security import DRPSecurityAuditor
 from smart_contracts.time_locked_tokens import TimeLockedTokenContract
 from tokens.geography_locked_tokens import (
     GeographyLockedTokenManager,
     GPSAttestationService,
     Location,
 )
+
+from security.dnssec.dnssec_tls_security import DRPSecurityAuditor
+from security.hmac.p2p_message_protection import MessageType, P2PNetworkSecurity
+from security.mpc.bls_threshold_signatures import BLSThresholdSignatureScheme, ElderQuorumManager
+from security.quic.quic_transport import QUICMessage, QUICTransportManager, StreamType
 
 
 async def demo_bls_threshold_signatures():

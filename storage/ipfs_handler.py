@@ -7,9 +7,10 @@ import asyncio
 import json
 import logging
 import os
-from typing import Dict, Any, Optional, List
-import aiohttp
+from typing import Any, Dict, List, Optional
+
 import aiofiles
+import aiohttp
 
 logger = logging.getLogger(__name__)
 

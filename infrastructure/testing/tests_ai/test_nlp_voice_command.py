@@ -81,7 +81,9 @@ class TestVoiceCommandEngine(unittest.TestCase):
             with patch("speech_recognition.AudioFile") as mock_audio_file:
                 with patch.object(self.engine.recognizer, "record") as mock_record:
                     with patch.object(self.engine.recognizer, "recognize_google") as mock_recognize:
-                        with patch.object(self.engine.recognizer, "recognize_sphinx") as mock_sphinx:
+                        with patch.object(
+                            self.engine.recognizer, "recognize_sphinx"
+                        ) as mock_sphinx:
                             mock_record.return_value = Mock()
                             mock_recognize.side_effect = Exception("Google recognition failed")
                             mock_sphinx.side_effect = Exception("Sphinx recognition failed")

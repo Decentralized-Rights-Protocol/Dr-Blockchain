@@ -3,14 +3,14 @@ AI Model Governance & Metadata System
 Manages model cards, audit scores, and governance metadata for AI Elders
 """
 
-import json
 import hashlib
-from datetime import datetime, timezone
-from typing import Dict, Any, List, Optional
-from dataclasses import dataclass, asdict
-from enum import Enum
-import os
+import json
 import logging
+import os
+from dataclasses import asdict, dataclass
+from datetime import datetime, timezone
+from enum import Enum
+from typing import Any, Dict, List, Optional
 
 
 class AuditStatus(Enum):

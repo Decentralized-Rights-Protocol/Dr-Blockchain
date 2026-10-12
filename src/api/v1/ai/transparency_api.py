@@ -3,15 +3,16 @@ AI Transparency API - Public endpoints for querying AI Elder decisions
 Provides privacy-preserving access to AI decision logs
 """
 
-from fastapi import APIRouter, HTTPException, Query, Depends
-from fastapi.responses import JSONResponse
-from typing import List, Optional, Dict, Any
-from datetime import datetime, timezone
-import json
 import hashlib
+import json
+from datetime import datetime, timezone
 from enum import Enum
+from typing import Any, Dict, List, Optional
 
-from ai.transparency.decision_logger import AITransparencyLogger, DecisionType, DecisionOutcome
+from fastapi import APIRouter, Depends, HTTPException, Query
+from fastapi.responses import JSONResponse
+
+from ai.transparency.decision_logger import AITransparencyLogger, DecisionOutcome, DecisionType
 from ai.transparency.model_governance import ModelCard, ModelGovernanceManager
 
 router = APIRouter(prefix="/api/v1/ai", tags=["AI Transparency"])
@@ -88,6 +89,7 @@ def get_transparency_logger() -> AITransparencyLogger:
     # In production, this would be injected from app context
     # For now, create a mock instance
     import os
+
     from cryptography.hazmat.primitives import serialization
     from cryptography.hazmat.primitives.asymmetric import ed25519
 

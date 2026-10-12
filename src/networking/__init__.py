@@ -9,7 +9,7 @@ Networking utilities for the DRP blockchain:
 """
 
 from .client_gRPC import *
-from .server_gRPC import *
 from .ipfs import *
+from .server_gRPC import *
 
 __all__ = ["client_gRPC", "server_gRPC", "ipfs"]

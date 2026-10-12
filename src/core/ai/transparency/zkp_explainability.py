@@ -3,17 +3,17 @@ Zero-Knowledge Proof Integration for AI Explainability
 Research implementation for privacy-preserving decision verification
 """
 
-import json
 import hashlib
-from typing import Dict, Any, List, Optional, Tuple
+import json
+import logging
 from dataclasses import dataclass
 from enum import Enum
-import logging
+from typing import Any, Dict, List, Optional, Tuple
 
 # ZKP libraries (research/experimental)
 try:
-    import zk_proofs  # Hypothetical ZKP library
     import circuit_compiler  # Hypothetical circuit compiler
+    import zk_proofs  # Hypothetical ZKP library
 
     ZKP_AVAILABLE = True
 except ImportError:
@@ -345,8 +345,8 @@ def integrate_zkp_with_decision_logger():
     """
     from src.core.ai.transparency.decision_logger import (
         AITransparencyLogger,
-        DecisionType,
         DecisionOutcome,
+        DecisionType,
     )
 
     # Initialize ZKP manager

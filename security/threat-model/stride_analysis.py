@@ -5,13 +5,13 @@ This module implements STRIDE threat modeling methodology to identify and
 analyze security threats in the DRP blockchain protocol and AI governance system.
 """
 
-import json
-import time
-import logging
-from typing import Dict, List, Optional, Any, Tuple
-from dataclasses import dataclass, asdict
-from enum import Enum
 import hashlib
+import json
+import logging
+import time
+from dataclasses import asdict, dataclass
+from enum import Enum
+from typing import Any, Dict, List, Optional, Tuple
 
 logger = logging.getLogger(__name__)
 

@@ -10,23 +10,23 @@ import logging
 import os
 import time
 from datetime import datetime, timezone
-from typing import Dict, Any, Optional, List
+from typing import Any, Dict, List, Optional
 from uuid import uuid4
 
-from fastapi import FastAPI, HTTPException, Depends, BackgroundTasks
+import uvicorn
+from fastapi import BackgroundTasks, Depends, FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
-import uvicorn
 
 # Import our custom modules
 try:
-    from storage.ipfs_handler import IPFSHandler
+    from audit.logger import AuditLogger
     from db.indexer import ScyllaIndexer
     from ledger.anchor import BlockchainAnchor
     from ledger.elders import ElderVerification
-    from security.encryption import EncryptionManager
     from privacy.consent import ConsentManager
-    from audit.logger import AuditLogger
+    from security.encryption import EncryptionManager
+    from storage.ipfs_handler import IPFSHandler
 except ImportError as e:
     print(f"Warning: Some modules not available: {e}")
 

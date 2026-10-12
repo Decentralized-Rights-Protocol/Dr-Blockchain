@@ -9,9 +9,9 @@ Consensus mechanisms for the DRP blockchain:
 """
 
 from .consensus import *
-from .voting_protocol import *
-from .proof_of_service import *
 from .idolized_miner import *
 from .mining import *
+from .proof_of_service import *
+from .voting_protocol import *
 
 __all__ = ["consensus", "voting_protocol", "proof_of_service", "idolized_miner", "mining"]

@@ -1,12 +1,12 @@
 """Block builder for creating new blocks."""
 
-from typing import List, Optional, Dict, Any
-from datetime import datetime
-import json
 import hashlib
+import json
+from datetime import datetime
 from pathlib import Path
-from core.models.transaction import Transaction, Block
-from core.models.transaction import TransactionType
+from typing import Any, Dict, List, Optional
+
+from core.models.transaction import Block, Transaction, TransactionType
 
 
 class BlockBuilder:

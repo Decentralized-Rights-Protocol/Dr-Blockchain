@@ -5,11 +5,12 @@ This module provides centralized relay management for cross-chain interoperabili
 coordinating multiple oracle services and consensus mechanisms.
 """
 
-import time
 import asyncio
-from typing import Dict, List, Optional, Any, Set
+import time
 from dataclasses import dataclass
-from ..core import IRelayService, MerkleProof, BlockchainHeader, ChainType, RelayError
+from typing import Any, Dict, List, Optional, Set
+
+from ..core import BlockchainHeader, ChainType, IRelayService, MerkleProof, RelayError
 
 
 @dataclass

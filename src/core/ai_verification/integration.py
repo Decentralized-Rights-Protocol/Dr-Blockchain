@@ -4,23 +4,24 @@ AI-Blockchain Integration Module for DRP
 Bridges AI verification modules with DRP blockchain ledger
 """
 
+import argparse
+import asyncio
+import hashlib
 import json
 import logging
-import hashlib
-import requests
-import grpc
-import argparse
-from typing import Dict, List, Optional, Any
+from dataclasses import asdict, dataclass
 from datetime import datetime
-import asyncio
+from typing import Any, Dict, List, Optional
+
 import aiohttp
-from dataclasses import dataclass, asdict
+import grpc
+import requests
+from cv_activity_detection import ActivityDetectionEngine
 
 # Import AI modules
 from cv_face_verification import FaceVerificationEngine
-from cv_activity_detection import ActivityDetectionEngine
-from nlp_voice_command import VoiceCommandEngine
 from nlp_text_analysis import TextAnalysisEngine
+from nlp_voice_command import VoiceCommandEngine
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)

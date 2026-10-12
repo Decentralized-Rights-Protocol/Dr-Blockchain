@@ -3,20 +3,20 @@ AI Transparency & Accountability System - Decision Logger
 Implements explainable AI decision logging for DRP Elder nodes
 """
 
-import json
 import hashlib
-import time
-from datetime import datetime, timezone
-from typing import Dict, Any, Optional, List
-from dataclasses import dataclass, asdict
-from enum import Enum
+import json
 import logging
+import time
+from dataclasses import asdict, dataclass
+from datetime import datetime, timezone
+from enum import Enum
+from typing import Any, Dict, List, Optional
 
 # AI/ML libraries for explainability
 try:
-    import shap
     import lime
     import numpy as np
+    import shap
 
     EXPLAINABILITY_AVAILABLE = True
 except ImportError:
@@ -31,6 +31,7 @@ from cryptography.hazmat.primitives.kdf.hkdf import HKDF
 # IPFS/OrbitDB integration
 try:
     import ipfshttpclient
+
     from orbitdb import OrbitDB
 
     DECENTRALIZED_STORAGE_AVAILABLE = True

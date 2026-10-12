@@ -1,12 +1,13 @@
 """Rewards API routes."""
 
-from fastapi import APIRouter, HTTPException, Depends
-from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
-from typing import List, Optional
 import os
+from typing import List, Optional
 
+from core.models.rewards import Reward, RewardSummary, RewardType
 from core.schemas.rewards import RewardClaimRequest, RewardClaimResponse, RewardSummaryResponse
-from core.models.rewards import Reward, RewardType, RewardSummary
+from fastapi import APIRouter, Depends, HTTPException
+from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
+
 from api.auth import get_current_user
 
 router = APIRouter()

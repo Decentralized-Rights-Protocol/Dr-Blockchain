@@ -7,13 +7,13 @@ import asyncio
 import logging
 import os
 from datetime import datetime, timezone
-from typing import Dict, Any, Optional, List
+from typing import Any, Dict, List, Optional
 
 try:
-    from cassandra.cluster import Cluster
     from cassandra.auth import PlainTextAuthProvider
+    from cassandra.cluster import Cluster
     from cassandra.policies import DCAwareRoundRobinPolicy
-    from cassandra.query import SimpleStatement, ConsistencyLevel
+    from cassandra.query import ConsistencyLevel, SimpleStatement
 
     CASSANDRA_AVAILABLE = True
 except ImportError:

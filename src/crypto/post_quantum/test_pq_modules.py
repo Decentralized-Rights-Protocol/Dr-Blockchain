@@ -52,11 +52,11 @@ except ImportError:
 
     pytest = MockPytest()
 import json
-import time
-import tempfile
 import shutil
+import tempfile
+import time
 from pathlib import Path
-from typing import Dict, Any
+from typing import Any, Dict
 
 try:
     import oqs  # This is correct for python-oqs package
@@ -76,54 +76,50 @@ except ImportError:
 
 # Import modules under test
 try:
+    from .drp_integration import DRPElder, DRPPostQuantumElderQuorum
     from .pq_keys import (
-        PostQuantumKeyManager,
-        KyberKeyPair,
         DilithiumKeyPair,
-        KeyRotationManager,
         KeyRevocationManager,
-        generate_kyber_keypair,
-        generate_dilithium_keypair,
+        KeyRotationManager,
+        KyberKeyPair,
         PostQuantumCryptoError,
+        PostQuantumKeyManager,
+        generate_dilithium_keypair,
+        generate_kyber_keypair,
     )
-
     from .pq_sign import (
+        PostQuantumSignature,
         PostQuantumSigner,
         PostQuantumVerifier,
-        PostQuantumSignature,
         QuorumSignature,
+        create_drp_block_signature,
         sign_with_dilithium,
         verify_dilithium_signature,
-        create_drp_block_signature,
         verify_drp_block_signature,
     )
-
-    from .drp_integration import DRPPostQuantumElderQuorum, DRPElder
 except ImportError:
     # Handle direct execution
+    from drp_integration import DRPElder, DRPPostQuantumElderQuorum
     from pq_keys import (
-        PostQuantumKeyManager,
-        KyberKeyPair,
         DilithiumKeyPair,
-        KeyRotationManager,
         KeyRevocationManager,
-        generate_kyber_keypair,
-        generate_dilithium_keypair,
+        KeyRotationManager,
+        KyberKeyPair,
         PostQuantumCryptoError,
+        PostQuantumKeyManager,
+        generate_dilithium_keypair,
+        generate_kyber_keypair,
     )
-
     from pq_sign import (
+        PostQuantumSignature,
         PostQuantumSigner,
         PostQuantumVerifier,
-        PostQuantumSignature,
         QuorumSignature,
+        create_drp_block_signature,
         sign_with_dilithium,
         verify_dilithium_signature,
-        create_drp_block_signature,
         verify_drp_block_signature,
     )
-
-    from drp_integration import DRPPostQuantumElderQuorum, DRPElder
 
 if FASTAPI_AVAILABLE:
     from .drp_integration import DRPPostQuantumAPI

@@ -1,8 +1,8 @@
 """Environment variable loader with safe defaults."""
 
 import os
-from typing import Optional
 from pathlib import Path
+from typing import Optional
 
 
 def load_env() -> dict:

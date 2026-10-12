@@ -4,17 +4,18 @@ CV Face Verification Module for DRP Blockchain
 Implements Proof of Status (PoST) through biometric face verification
 """
 
-import cv2
-import face_recognition
+import argparse
+import base64
 import hashlib
 import json
 import logging
-import numpy as np
 import os
-import argparse
-from typing import Dict, List, Optional, Tuple
 from datetime import datetime
-import base64
+from typing import Dict, List, Optional, Tuple
+
+import cv2
+import face_recognition
+import numpy as np
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)

@@ -3,8 +3,8 @@
 # Dependencies: hashlib, time, random
 
 import hashlib
-import time
 import random
+import time
 
 MAX_ITERATIONS = 2**18  # Increased for complexity
 TARGET_DIFFICULTY = "0000"  # Adjust difficulty

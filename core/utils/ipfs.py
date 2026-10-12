@@ -1,11 +1,12 @@
 """IPFS utilities for pinning and retrieving files."""
 
-import requests
 import json
-from typing import Optional, Dict, Any
-from pathlib import Path
 import sys
+from pathlib import Path
 from pathlib import Path as PathLib
+from typing import Any, Dict, Optional
+
+import requests
 
 # Add project root to path
 project_root = PathLib(__file__).parent.parent.parent

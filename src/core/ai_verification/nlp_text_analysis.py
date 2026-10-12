@@ -4,18 +4,19 @@ NLP Text Analysis Module for DRP Blockchain
 Implements text authenticity verification and plagiarism detection
 """
 
+import argparse
+import hashlib
 import json
 import logging
-import hashlib
-import argparse
 import re
-from typing import Dict, List, Optional, Tuple
 from datetime import datetime
-from transformers import pipeline, AutoTokenizer, AutoModelForSequenceClassification
+from typing import Dict, List, Optional, Tuple
+
+import numpy as np
 import torch
 from sentence_transformers import SentenceTransformer
 from sklearn.metrics.pairwise import cosine_similarity
-import numpy as np
+from transformers import AutoModelForSequenceClassification, AutoTokenizer, pipeline
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)

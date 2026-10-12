@@ -4,10 +4,11 @@ Oracle Service Implementation
 This module provides oracle services for blockchain state verification.
 """
 
-import time
 import asyncio
-from typing import Dict, List, Optional, Any
-from ..core import IRelayService, MerkleProof, BlockchainHeader, ChainType
+import time
+from typing import Any, Dict, List, Optional
+
+from ..core import BlockchainHeader, ChainType, IRelayService, MerkleProof
 
 
 class OracleService(IRelayService):

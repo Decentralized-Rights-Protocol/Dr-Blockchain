@@ -5,12 +5,13 @@ This module provides Polkadot bridge functionality for cross-chain interoperabil
 including Substrate-based chains, parachains, and quantum-resistant upgrades.
 """
 
-import time
 import asyncio
 import hashlib
-from typing import Dict, List, Optional, Any, Tuple
+import time
 from dataclasses import dataclass
-from ..core import ICrossChainBridge, CrossChainTransaction, BridgeConfig, BridgeError
+from typing import Any, Dict, List, Optional, Tuple
+
+from ..core import BridgeConfig, BridgeError, CrossChainTransaction, ICrossChainBridge
 
 
 @dataclass
