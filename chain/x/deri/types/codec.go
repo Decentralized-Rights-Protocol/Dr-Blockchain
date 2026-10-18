@@ -3,19 +3,24 @@ package types
 import (
 	"github.com/cosmos/cosmos-sdk/codec"
 	cdctypes "github.com/cosmos/cosmos-sdk/codec/types"
+	sdk "github.com/cosmos/cosmos-sdk/types"
+	"github.com/cosmos/cosmos-sdk/types/msgservice"
 )
 
-// RegisterInterfaces registers the interfaces for the deri module
+// RegisterInterfaces registers the interfaces for the deri module.
 func RegisterInterfaces(registry cdctypes.InterfaceRegistry) {
-	// Message implementations are registered here only after the message types
-	// are generated from the module's protobuf definitions. Hand-written structs
-	// must not be registered as Cosmos SDK transaction messages.
+	registry.RegisterImplementations(
+		(*sdk.Msg)(nil),
+		&MsgTransfer{},
+		&MsgMint{},
+		&MsgBurn{},
+	)
+	msgservice.RegisterMsgServiceDesc(registry, &_Msg_serviceDesc)
 }
 
-// RegisterLegacyAminoCodec registers the legacy amino codec
+// RegisterLegacyAminoCodec registers the legacy amino codec.
 func RegisterLegacyAminoCodec(cdc *codec.LegacyAmino) {
 	cdc.RegisterConcrete(&MsgTransfer{}, "drp/deri/MsgTransfer", nil)
 	cdc.RegisterConcrete(&MsgMint{}, "drp/deri/MsgMint", nil)
 	cdc.RegisterConcrete(&MsgBurn{}, "drp/deri/MsgBurn", nil)
 }
-
