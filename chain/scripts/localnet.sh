@@ -2,7 +2,8 @@
 set -euo pipefail
 
 # DRP local single-validator network bootstrap.
-# This is intentionally deterministic and safe-by-default (no key material committed).
+# This script never deletes an existing node home unless RESET_HOME=1 is set.
+# Do not use this script with a production validator home.
 
 CHAIN_ID="${CHAIN_ID:-drp-testnet-1}"
 MONIKER="${MONIKER:-drp-validator-1}"
@@ -12,13 +13,27 @@ HOME_DIR="${HOME_DIR:-$PWD/.drpd}"
 BIN="${BIN:-$PWD/build/drpd}"
 
 if [[ ! -x "$BIN" ]]; then
-  echo "drpd binary not found at $BIN"
-  echo "Build first: make build"
+  echo "drpd binary not found at $BIN" >&2
+  echo "Build first: make build" >&2
   exit 1
 fi
 
-echo "==> Resetting home: $HOME_DIR"
-rm -rf "$HOME_DIR"
+if [[ -z "$HOME_DIR" || "$HOME_DIR" == "/" || "$HOME_DIR" == "$HOME" ]]; then
+  echo "Refusing unsafe HOME_DIR: '$HOME_DIR'" >&2
+  exit 1
+fi
+
+if [[ -e "$HOME_DIR" ]]; then
+  if [[ "${RESET_HOME:-0}" != "1" ]]; then
+    echo "Node home already exists: $HOME_DIR" >&2
+    echo "To preserve existing state, choose a new HOME_DIR, e.g. HOME_DIR=./.drpd-fresh make localnet." >&2
+    echo "To explicitly reset this LOCAL DEVELOPMENT home, rerun with RESET_HOME=1." >&2
+    exit 1
+  fi
+  echo "WARNING: RESET_HOME=1 will permanently delete this local development directory:" >&2
+  echo "  $HOME_DIR" >&2
+  rm -rf "$HOME_DIR"
+fi
 
 echo "==> Initializing chain (chain-id=$CHAIN_ID, moniker=$MONIKER)"
 "$BIN" init "$MONIKER" --chain-id "$CHAIN_ID" --home "$HOME_DIR" >/dev/null
@@ -80,4 +95,3 @@ echo "==> Starting node"
 echo "    HOME=$HOME_DIR"
 echo "    CometBFT RPC: http://127.0.0.1:26657"
 "$BIN" start --home "$HOME_DIR" --minimum-gas-prices "0.0$DENOM"
-
