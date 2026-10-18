@@ -12,17 +12,9 @@ import (
 // Msg types for the deri module
 const (
 	TypeMsgTransfer = "transfer"
-	TypeMsgMint    = "mint"
-	TypeMsgBurn    = "burn"
+	TypeMsgMint     = "mint"
+	TypeMsgBurn     = "burn"
 )
-
-// MsgTransfer defines a message to transfer $DeRi tokens
-// Implements Msg interface
-type MsgTransfer struct {
-	From   string `json:"from" yaml:"from"`
-	To     string `json:"to" yaml:"to"`
-	Amount string `json:"amount" yaml:"amount"` // in uderi
-}
 
 // NewMsgTransfer creates a new MsgTransfer
 func NewMsgTransfer(from, to, amount string) *MsgTransfer {
@@ -78,16 +70,6 @@ func (msg *MsgTransfer) GetSigners() []sdk.AccAddress {
 	return []sdk.AccAddress{from}
 }
 
-// MsgMint defines a message to mint $DeRi tokens
-// Only callable by authorized modules (not directly by users)
-// Implements Msg interface
-type MsgMint struct {
-	To      string `json:"to" yaml:"to"`
-	Amount  string `json:"amount" yaml:"amount"` // in uderi
-	Reason  string `json:"reason" yaml:"reason"` // e.g., "reward", "initial_distribution"
-	Signer  string `json:"signer" yaml:"signer"` // module account that authorized this
-}
-
 // NewMsgMint creates a new MsgMint
 func NewMsgMint(to, amount, reason, signer string) *MsgMint {
 	return &MsgMint{
@@ -126,8 +108,8 @@ func (msg *MsgMint) ValidateBasic() error {
 	if msg.Reason == "" {
 		return sdkerrors.Wrap(sdkerrors.ErrInvalidRequest, "reason cannot be empty")
 	}
-	if msg.Signer == "" {
-		return sdkerrors.Wrap(sdkerrors.ErrInvalidRequest, "signer cannot be empty")
+	if _, err := sdk.AccAddressFromBech32(msg.Signer); err != nil {
+		return sdkerrors.Wrap(sdkerrors.ErrInvalidAddress, "invalid signer address")
 	}
 	return nil
 }
@@ -144,14 +126,6 @@ func (msg *MsgMint) GetSigners() []sdk.AccAddress {
 		panic(err)
 	}
 	return []sdk.AccAddress{signer}
-}
-
-// MsgBurn defines a message to burn $DeRi tokens
-// Implements Msg interface
-type MsgBurn struct {
-	From   string `json:"from" yaml:"from"`
-	Amount string `json:"amount" yaml:"amount"` // in uderi
-	Reason string `json:"reason" yaml:"reason"`
 }
 
 // NewMsgBurn creates a new MsgBurn
@@ -208,8 +182,7 @@ func (msg *MsgBurn) GetSigners() []sdk.AccAddress {
 	return []sdk.AccAddress{from}
 }
 
-// ModuleCdc is retained only for legacy JSON signing helpers while this module
-// is migrated to generated protobuf transaction types.
+// ModuleCdc supports legacy Amino JSON signing alongside generated protobuf messages.
 var ModuleCdc = codec.NewLegacyAmino()
 
 func init() {

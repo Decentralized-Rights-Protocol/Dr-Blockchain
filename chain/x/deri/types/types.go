@@ -15,20 +15,11 @@ const (
 	DeRiDenom = "uderi"
 
 	// Emission limits
-	MaxPerBlock    = int64(1000000)    // 1M uderi per block
-	MaxPerEpoch    = int64(100000000)  // 100M uderi per epoch
+	MaxPerBlock    = int64(1000000)   // 1M uderi per block
+	MaxPerEpoch    = int64(100000000) // 100M uderi per epoch
 	MaxPerActivity = int64(10000)     // 10K uderi per activity
 	MaxPerIdentity = int64(1000000)   // 1M uderi per identity
 )
-
-// Params defines the parameters for the deri module
-type Params struct {
-	MaxPerBlock    int64  `json:"max_per_block" yaml:"max_per_block"`
-	MaxPerEpoch    int64  `json:"max_per_epoch" yaml:"max_per_epoch"`
-	MaxPerActivity int64  `json:"max_per_activity" yaml:"max_per_activity"`
-	MaxPerIdentity int64  `json:"max_per_identity" yaml:"max_per_identity"`
-	Denom          string `json:"denom" yaml:"denom"`
-}
 
 // NewParams creates a new Params instance with default values
 func NewParams() Params {
@@ -60,20 +51,49 @@ func (p Params) Validate() error {
 	if p.MaxPerIdentity <= 0 {
 		return fmt.Errorf("max_per_identity must be positive: %d", p.MaxPerIdentity)
 	}
-	if p.Denom == "" {
-		return fmt.Errorf("denom cannot be empty")
+	return validateDenom(p.Denom)
+}
+
+// ParamSetPairs supplies independently validated fields to the SDK params keeper.
+func (p *Params) ParamSetPairs() paramtypes.ParamSetPairs {
+	return paramtypes.ParamSetPairs{
+		paramtypes.NewParamSetPair([]byte("MaxPerBlock"), &p.MaxPerBlock, validateMaxPerBlock),
+		paramtypes.NewParamSetPair([]byte("MaxPerEpoch"), &p.MaxPerEpoch, validateMaxPerEpoch),
+		paramtypes.NewParamSetPair([]byte("MaxPerActivity"), &p.MaxPerActivity, validateMaxPerActivity),
+		paramtypes.NewParamSetPair([]byte("MaxPerIdentity"), &p.MaxPerIdentity, validateMaxPerIdentity),
+		paramtypes.NewParamSetPair([]byte("Denom"), &p.Denom, validateDenom),
+	}
+}
+
+func validatePositiveLimit(v interface{}) error {
+	n, ok := v.(int64)
+	if !ok || n <= 0 {
+		return fmt.Errorf("limit must be a positive int64: %v", v)
 	}
 	return nil
 }
 
+func validateMaxPerBlock(v interface{}) error    { return validatePositiveLimit(v) }
+func validateMaxPerEpoch(v interface{}) error    { return validatePositiveLimit(v) }
+func validateMaxPerActivity(v interface{}) error { return validatePositiveLimit(v) }
+func validateMaxPerIdentity(v interface{}) error { return validatePositiveLimit(v) }
+
+func validateDenom(v interface{}) error {
+	denom, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("denom must be a string: %T", v)
+	}
+	return sdk.ValidateDenom(denom)
+}
+
 // RewardCalculation defines the structure for reward calculations
 type RewardCalculation struct {
-	BaseReward         int64  `json:"base_reward" yaml:"base_reward"`
-	ActivityScore      int64  `json:"activity_score" yaml:"activity_score"`
-	VerificationConf   int64  `json:"verification_confidence" yaml:"verification_confidence"`
-	ReputationMult     int64  `json:"reputation_multiplier" yaml:"reputation_multiplier"`
-	NetworkFactor      int64  `json:"network_factor" yaml:"network_factor"`
-	FinalReward        int64  `json:"final_reward" yaml:"final_reward"`
+	BaseReward       int64 `json:"base_reward" yaml:"base_reward"`
+	ActivityScore    int64 `json:"activity_score" yaml:"activity_score"`
+	VerificationConf int64 `json:"verification_confidence" yaml:"verification_confidence"`
+	ReputationMult   int64 `json:"reputation_multiplier" yaml:"reputation_multiplier"`
+	NetworkFactor    int64 `json:"network_factor" yaml:"network_factor"`
+	FinalReward      int64 `json:"final_reward" yaml:"final_reward"`
 }
 
 // CalculateReward computes the reward using integer arithmetic
@@ -144,24 +164,6 @@ func (coins DeRiCoins) TotalAmount() int64 {
 		total += coin.Amount.Int64()
 	}
 	return total
-}
-
-// MintRecord defines a record of a mint operation for auditing
-type MintRecord struct {
-	Height    int64  `json:"height" yaml:"height"`
-	To        string `json:"to" yaml:"to"`
-	Amount    string `json:"amount" yaml:"amount"`
-	Reason    string `json:"reason" yaml:"reason"`
-	Timestamp int64  `json:"timestamp" yaml:"timestamp"`
-}
-
-// BurnRecord defines a record of a burn operation for auditing
-type BurnRecord struct {
-	Height    int64  `json:"height" yaml:"height"`
-	From      string `json:"from" yaml:"from"`
-	Amount    string `json:"amount" yaml:"amount"`
-	Reason    string `json:"reason" yaml:"reason"`
-	Timestamp int64  `json:"timestamp" yaml:"timestamp"`
 }
 
 // ParamKeyTable returns the parameter key table for the deri module

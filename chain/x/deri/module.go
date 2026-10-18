@@ -68,7 +68,9 @@ func (AppModuleBasic) ValidateGenesis(cdc codec.JSONCodec, config client.TxEncod
 // RegisterGRPCGatewayRoutes registers the gRPC Gateway routes
 func (AppModuleBasic) RegisterGRPCGatewayRoutes(clientCtx client.Context, mux *runtime.ServeMux) {
 	// Register query routes
-	types.RegisterQueryHandlerClient(context.Background(), mux, types.NewQueryClient(clientCtx))
+	if err := types.RegisterQueryHandlerClient(context.Background(), mux, types.NewQueryClient(clientCtx)); err != nil {
+		panic(err)
+	}
 }
 
 // GetTxCmd returns the root tx command for the module
@@ -81,46 +83,38 @@ func (AppModuleBasic) GetQueryCmd() *cobra.Command {
 	return cli.GetQueryCmd()
 }
 
-// InterfaceRegistry returns the module interface registry
-func (AppModuleBasic) InterfaceRegistry() cdctypes.InterfaceRegistry {
-	return types.InterfaceRegistry()
-}
-
 // AppModule defines the full application module
 // used by the app builder
 
 type AppModule struct {
 	AppModuleBasic
 
-	keeper        keeper.Keeper
-	accountKeeper types.AccountKeeper
-	bankKeeper    types.BankKeeper
+	keeper keeper.Keeper
 }
 
 // NewAppModule creates a new AppModule instance
-func NewAppModule(cdc codec.Codec, keeper keeper.Keeper, accountKeeper types.AccountKeeper, bankKeeper types.BankKeeper) AppModule {
+func NewAppModule(cdc codec.Codec, keeper keeper.Keeper) AppModule {
 	return AppModule{
 		AppModuleBasic: AppModuleBasic{cdc: cdc},
 		keeper:         keeper,
-		accountKeeper:  accountKeeper,
-		bankKeeper:     bankKeeper,
 	}
 }
+
+// ConsensusVersion returns the store consensus version.
+func (AppModule) ConsensusVersion() uint64 { return ConsensusVersion }
 
 // RegisterServices registers the module services
 func (am AppModule) RegisterServices(cfg module.Configurator) {
 	// Register Msg service
 	types.RegisterMsgServer(cfg.MsgServer(), keeper.NewMsgServerImpl(am.keeper))
-	
+
 	// Register Query service
 	types.RegisterQueryServer(cfg.QueryServer(), keeper.NewQueryServerImpl(am.keeper))
 
-	// Register module
-	cfg.RegisterService(types._Msg_serviceDesc)
 }
 
 // RegisterInvariants registers the module invariants
-func (am AppModule) RegisterInvariants(ir types.InvariantRegistry) {
+func (am AppModule) RegisterInvariants(ir sdk.InvariantRegistry) {
 	// Register invariants
 	// ir.RegisterRoute(types.ModuleName, "total-supply", keeper.TotalSupplyInvariant(am.keeper))
 }
