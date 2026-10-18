@@ -3,6 +3,7 @@ package cmd
 
 import (
 	"errors"
+	cmtcfg "github.com/cometbft/cometbft/config"
 	"io"
 	"os"
 
@@ -80,7 +81,7 @@ Bond denom: udrp
 				return err
 			}
 			customAppTemplate, customAppConfig := initAppConfig()
-			return server.InterceptConfigsPreRunHandler(cmd, customAppTemplate, customAppConfig, nil)
+			return server.InterceptConfigsPreRunHandler(cmd, customAppTemplate, customAppConfig, cmtcfg.DefaultConfig())
 		},
 	}
 
