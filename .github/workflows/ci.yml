@@ -170,6 +170,11 @@ jobs:
             chain/x/**/*.pb.gw.go
             chain/go.sum
 
+      - name: Verify generated sources and go.sum are committed
+        run: |
+          git add --intent-to-add x go.sum
+          git diff --exit-code -- x go.sum
+
       - name: Check Go formatting
         run: |
           unformatted="$(gofmt -l app cmd x)"
