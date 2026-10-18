@@ -17,18 +17,18 @@ type queryServer struct {
 	keeper Keeper
 }
 
-var _ types.QueryServer = queryServer{}
+var _ types.QueryServer = (*queryServer)(nil)
 
-func NewQueryServer(k Keeper) types.QueryServer { return queryServer{keeper: k} }
+func NewQueryServer(k Keeper) types.QueryServer { return &queryServer{keeper: k} }
 
 func (s queryServer) Commitment(ctx context.Context, req *types.QueryCommitmentRequest) (*types.QueryCommitmentResponse, error) {
 	if req == nil {
 		return nil, status.Error(codes.InvalidArgument, "request must not be nil")
 	}
-	if req.CommitmentID == "" {
+	if req.CommitmentId == "" {
 		return nil, status.Error(codes.InvalidArgument, "commitment_id must not be empty")
 	}
-	record, found := s.keeper.GetCommitment(sdk.UnwrapSDKContext(ctx), req.CommitmentID)
+	record, found := s.keeper.GetCommitment(sdk.UnwrapSDKContext(ctx), req.CommitmentId)
 	if !found {
 		return nil, status.Error(codes.NotFound, "evidence record not found")
 	}

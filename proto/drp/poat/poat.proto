@@ -43,6 +43,6 @@ service Query {
 message QueryParamsRequest {}
 message QueryParamsResponse { bytes params_json = 1; }
 message QueryActivityProofRequest {
-  string proof_id = 1 [(gogoproto.customname) = "ProofID"];
+  string proof_id = 1;
 }
 message QueryActivityProofResponse { bytes record_json = 1; }

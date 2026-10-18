@@ -17,18 +17,18 @@ type queryServer struct {
 	keeper Keeper
 }
 
-var _ types.QueryServer = queryServer{}
+var _ types.QueryServer = (*queryServer)(nil)
 
-func NewQueryServer(k Keeper) types.QueryServer { return queryServer{keeper: k} }
+func NewQueryServer(k Keeper) types.QueryServer { return &queryServer{keeper: k} }
 
 func (s queryServer) StatusRecord(ctx context.Context, req *types.QueryStatusRecordRequest) (*types.QueryStatusRecordResponse, error) {
 	if req == nil {
 		return nil, status.Error(codes.InvalidArgument, "request must not be nil")
 	}
-	if req.RecordID == "" {
+	if req.RecordId == "" {
 		return nil, status.Error(codes.InvalidArgument, "record_id must not be empty")
 	}
-	record, found := s.keeper.GetStatusRecord(sdk.UnwrapSDKContext(ctx), req.RecordID)
+	record, found := s.keeper.GetStatusRecord(sdk.UnwrapSDKContext(ctx), req.RecordId)
 	if !found {
 		return nil, status.Error(codes.NotFound, "post record not found")
 	}

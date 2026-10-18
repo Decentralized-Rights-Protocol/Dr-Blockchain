@@ -17,15 +17,15 @@ type queryServer struct {
 	keeper Keeper
 }
 
-var _ types.QueryServer = queryServer{}
+var _ types.QueryServer = (*queryServer)(nil)
 
-func NewQueryServer(k Keeper) types.QueryServer { return queryServer{keeper: k} }
+func NewQueryServer(k Keeper) types.QueryServer { return &queryServer{keeper: k} }
 
 func (s queryServer) Proposal(ctx context.Context, req *types.QueryProposalRequest) (*types.QueryProposalResponse, error) {
 	if req == nil {
 		return nil, status.Error(codes.InvalidArgument, "request must not be nil")
 	}
-	record, found := s.keeper.GetProposal(sdk.UnwrapSDKContext(ctx), req.ProposalID)
+	record, found := s.keeper.GetProposal(sdk.UnwrapSDKContext(ctx), req.ProposalId)
 	if !found {
 		return nil, status.Error(codes.NotFound, "rights record not found")
 	}

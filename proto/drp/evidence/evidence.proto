@@ -44,6 +44,6 @@ service Query {
 message QueryParamsRequest {}
 message QueryParamsResponse { bytes params_json = 1; }
 message QueryCommitmentRequest {
-  string commitment_id = 1 [(gogoproto.customname) = "CommitmentID"];
+  string commitment_id = 1;
 }
 message QueryCommitmentResponse { bytes record_json = 1; }

@@ -37,6 +37,6 @@ service Query {
 message QueryParamsRequest {}
 message QueryParamsResponse { bytes params_json = 1; }
 message QueryProposalRequest {
-  uint64 proposal_id = 1 [(gogoproto.customname) = "ProposalID"];
+  uint64 proposal_id = 1;
 }
 message QueryProposalResponse { bytes record_json = 1; }

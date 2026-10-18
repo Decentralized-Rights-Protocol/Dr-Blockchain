@@ -17,18 +17,18 @@ type queryServer struct {
 	keeper Keeper
 }
 
-var _ types.QueryServer = queryServer{}
+var _ types.QueryServer = (*queryServer)(nil)
 
-func NewQueryServer(k Keeper) types.QueryServer { return queryServer{keeper: k} }
+func NewQueryServer(k Keeper) types.QueryServer { return &queryServer{keeper: k} }
 
 func (s queryServer) ActivityProof(ctx context.Context, req *types.QueryActivityProofRequest) (*types.QueryActivityProofResponse, error) {
 	if req == nil {
 		return nil, status.Error(codes.InvalidArgument, "request must not be nil")
 	}
-	if req.ProofID == "" {
+	if req.ProofId == "" {
 		return nil, status.Error(codes.InvalidArgument, "proof_id must not be empty")
 	}
-	record, found := s.keeper.GetActivityProof(sdk.UnwrapSDKContext(ctx), req.ProofID)
+	record, found := s.keeper.GetActivityProof(sdk.UnwrapSDKContext(ctx), req.ProofId)
 	if !found {
 		return nil, status.Error(codes.NotFound, "poat record not found")
 	}

@@ -17,9 +17,9 @@ type queryServer struct {
 	keeper Keeper
 }
 
-var _ types.QueryServer = queryServer{}
+var _ types.QueryServer = (*queryServer)(nil)
 
-func NewQueryServer(k Keeper) types.QueryServer { return queryServer{keeper: k} }
+func NewQueryServer(k Keeper) types.QueryServer { return &queryServer{keeper: k} }
 
 func (s queryServer) TrustState(ctx context.Context, req *types.QueryTrustStateRequest) (*types.QueryTrustStateResponse, error) {
 	if req == nil {
