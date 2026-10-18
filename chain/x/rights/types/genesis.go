@@ -17,7 +17,7 @@ type Params struct {
 
 func DefaultParams() Params {
 	return Params{
-		VotingPeriodSeconds: 172800, // 48 hours default
+		VotingPeriodSeconds: 172800,   // 48 hours default
 		MinDeposit:          10000000, // 10 DRP
 	}
 }

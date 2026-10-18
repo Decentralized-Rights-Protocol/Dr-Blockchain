@@ -5,11 +5,12 @@
 package evidence
 
 import (
+	"context"
 	"encoding/json"
 
-	"github.com/spf13/cobra"
 	abci "github.com/cometbft/cometbft/abci/types"
 	gwruntime "github.com/grpc-ecosystem/grpc-gateway/runtime"
+	"github.com/spf13/cobra"
 
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/codec"
@@ -48,9 +49,13 @@ func (AppModuleBasic) ValidateGenesis(_ codec.JSONCodec, _ client.TxEncodingConf
 	}
 	return gs.Validate()
 }
-func (AppModuleBasic) RegisterGRPCGatewayRoutes(_ client.Context, _ *gwruntime.ServeMux) {}
-func (AppModuleBasic) GetTxCmd() *cobra.Command                                           { return nil }
-func (AppModuleBasic) GetQueryCmd() *cobra.Command                                        { return nil }
+func (AppModuleBasic) RegisterGRPCGatewayRoutes(ctx client.Context, mux *gwruntime.ServeMux) {
+	if err := types.RegisterQueryHandlerClient(context.Background(), mux, types.NewQueryClient(ctx)); err != nil {
+		panic(err)
+	}
+}
+func (AppModuleBasic) GetTxCmd() *cobra.Command    { return nil }
+func (AppModuleBasic) GetQueryCmd() *cobra.Command { return nil }
 
 type AppModule struct {
 	AppModuleBasic
@@ -59,10 +64,17 @@ type AppModule struct {
 }
 
 func NewAppModule(cdc codec.Codec, k keeper.Keeper) AppModule { return AppModule{cdc: cdc, keeper: k} }
-func (AppModule) Name() string                               { return types.ModuleName }
-func (AppModule) RegisterInvariants(_ sdk.InvariantRegistry) {}
-func (AppModule) RegisterServices(_ module.Configurator)     {}
-func (AppModule) ConsensusVersion() uint64                   { return 1 }
+func (AppModule) Name() string                                { return types.ModuleName }
+func (AppModule) RegisterInvariants(_ sdk.InvariantRegistry)  {}
+
+// RegisterServices exposes real protobuf routes while mutations remain disabled.
+// Authorization, verification and state-transition handlers must be specified
+// before enabling this module in the application.
+func (am AppModule) RegisterServices(cfg module.Configurator) {
+	types.RegisterMsgServer(cfg.MsgServer(), &types.UnimplementedMsgServer{})
+	types.RegisterQueryServer(cfg.QueryServer(), keeper.NewQueryServer(am.keeper))
+}
+func (AppModule) ConsensusVersion() uint64                       { return 1 }
 func (AppModule) GenerateGenesisState(_ *module.SimulationState) {}
 func (AppModule) ProposalContents(_ module.SimulationState) []simtypes.WeightedProposalContent {
 	return nil

@@ -2,173 +2,68 @@ package keeper
 
 import (
 	"fmt"
-
 	sdk "github.com/cosmos/cosmos-sdk/types"
-
 	"github.com/decentralized-rights-protocol/drp/chain/x/deri/types"
 )
 
-// GenesisState defines the genesis state for the deri module
-type GenesisState struct {
-	Params      types.Params         `json:"params" yaml:"params"`
-	Balances    []BalanceGenesis     `json:"balances" yaml:"balances"`
-	TotalSupply string               `json:"total_supply" yaml:"total_supply"`
-	MintHistory []types.MintRecord   `json:"mint_history" yaml:"mint_history"`
-	BurnHistory []types.BurnRecord   `json:"burn_history" yaml:"burn_history"`
-}
-
-// BalanceGenesis defines a balance entry in genesis
-type BalanceGenesis struct {
-	Address string `json:"address" yaml:"address"`
-	Amount  string `json:"amount" yaml:"amount"`
-}
-
-// NewGenesisState creates a new GenesisState instance
-func NewGenesisState(params types.Params, balances []BalanceGenesis, totalSupply string) *GenesisState {
-	return &GenesisState{
-		Params:      params,
-		Balances:    balances,
-		TotalSupply: totalSupply,
-		MintHistory: []types.MintRecord{},
-		BurnHistory: []types.BurnRecord{},
+func (k Keeper) InitGenesis(ctx sdk.Context, state *types.GenesisState) {
+	if state == nil {
+		panic("nil deri genesis")
 	}
-}
-
-// DefaultGenesisState returns the default genesis state
-func DefaultGenesisState() *GenesisState {
-	return NewGenesisState(
-		types.DefaultParams(),
-		[]BalanceGenesis{},
-		"0",
-	)
-}
-
-// Validate performs basic validation on genesis data
-func (gs GenesisState) Validate() error {
-	if err := gs.Params.Validate(); err != nil {
-		return fmt.Errorf("invalid params: %w", err)
+	if err := state.Validate(); err != nil {
+		panic(err)
 	}
-
-	for _, balance := range gs.Balances {
-		if balance.Address == "" {
-			return fmt.Errorf("balance address cannot be empty")
-		}
-		if balance.Amount == "" {
-			return fmt.Errorf("balance amount cannot be empty for address %s", balance.Address)
-		}
-		if _, ok := sdk.NewIntFromString(balance.Amount); !ok {
-			return fmt.Errorf("invalid balance amount: %s", balance.Amount)
-		}
+	if err := k.SetParams(ctx, state.Params); err != nil {
+		panic(err)
 	}
-
-	if gs.TotalSupply == "" {
-		return fmt.Errorf("total supply cannot be empty")
+	supply, _ := sdk.NewIntFromString(state.TotalSupply)
+	if err := k.SetTotalSupply(ctx, supply); err != nil {
+		panic(err)
 	}
-	if _, ok := sdk.NewIntFromString(gs.TotalSupply); !ok {
-		return fmt.Errorf("invalid total supply: %s", gs.TotalSupply)
-	}
-
-	return nil
-}
-
-// InitGenesis initializes the module from genesis state
-func (k Keeper) InitGenesis(ctx sdk.Context, genState *GenesisState) {
-	// Set params
-	if err := k.SetParams(ctx, genState.Params); err != nil {
-		panic(fmt.Errorf("failed to set params: %w", err))
-	}
-
-	// Set total supply
-	totalSupply, ok := sdk.NewIntFromString(genState.TotalSupply)
-	if !ok {
-		panic(fmt.Errorf("invalid total supply in genesis: %s", genState.TotalSupply))
-	}
-	if err := k.SetTotalSupply(ctx, totalSupply); err != nil {
-		panic(fmt.Errorf("failed to set total supply: %w", err))
-	}
-
-	// Set balances
-	for _, balance := range genState.Balances {
-		address, err := sdk.AccAddressFromBech32(balance.Address)
-		if err != nil {
-			panic(fmt.Errorf("invalid address in genesis: %s: %w", balance.Address, err))
-		}
-
-		amount, ok := sdk.NewIntFromString(balance.Amount)
-		if !ok {
-			panic(fmt.Errorf("invalid amount in genesis for %s: %s", balance.Address, balance.Amount))
-		}
-
+	for _, balance := range state.Balances {
+		address, _ := sdk.AccAddressFromBech32(balance.Address)
+		amount, _ := sdk.NewIntFromString(balance.Amount)
 		if err := k.SetBalance(ctx, address, amount); err != nil {
-			panic(fmt.Errorf("failed to set balance for %s: %w", balance.Address, err))
+			panic(err)
 		}
 	}
-
-	// Restore mint history
-	for _, record := range genState.MintHistory {
+	for _, record := range state.MintHistory {
 		k.setMintRecord(ctx, record.Height, record)
 	}
-
-	// Restore burn history
-	for _, record := range genState.BurnHistory {
+	for _, record := range state.BurnHistory {
 		k.setBurnRecord(ctx, record.Height, record)
 	}
 }
 
-// ExportGenesis exports the module state to genesis format
-func (k Keeper) ExportGenesis(ctx sdk.Context) *GenesisState {
+func (k Keeper) ExportGenesis(ctx sdk.Context) *types.GenesisState {
 	params, err := k.GetParams(ctx)
 	if err != nil {
-		panic(fmt.Errorf("failed to get params: %w", err))
+		panic(err)
 	}
-
-	totalSupply := k.GetTotalSupply(ctx)
-
-	// Get all balances
-	var balances []BalanceGenesis
+	state := types.NewGenesisState(params, []types.BalanceGenesis{}, k.GetTotalSupply(ctx).String())
 	k.IterateBalances(ctx, func(address sdk.AccAddress, amount sdk.Int) bool {
-		balances = append(balances, BalanceGenesis{
-			Address: address.String(),
-			Amount:  amount.String(),
-		})
+		state.Balances = append(state.Balances, types.BalanceGenesis{Address: address.String(), Amount: amount.String()})
 		return false
 	})
-
-	// Get mint history
-	var mintHistory []types.MintRecord
 	k.IterateMintHistory(ctx, func(record types.MintRecord) bool {
-		mintHistory = append(mintHistory, record)
+		state.MintHistory = append(state.MintHistory, record)
 		return false
 	})
-
-	// Get burn history
-	var burnHistory []types.BurnRecord
 	k.IterateBurnHistory(ctx, func(record types.BurnRecord) bool {
-		burnHistory = append(burnHistory, record)
+		state.BurnHistory = append(state.BurnHistory, record)
 		return false
 	})
-
-	return &GenesisState{
-		Params:      params,
-		Balances:    balances,
-		TotalSupply: totalSupply.String(),
-		MintHistory: mintHistory,
-		BurnHistory: burnHistory,
-	}
+	return state
 }
 
-// IterateBalances iterates over all balances
 func (k Keeper) IterateBalances(ctx sdk.Context, handler func(sdk.AccAddress, sdk.Int) bool) {
-	store := ctx.KVStore(k.storeKey)
-	iter := sdk.KVStorePrefixIterator(store, types.KeyPrefixBalance)
+	iter := sdk.KVStorePrefixIterator(ctx.KVStore(k.storeKey), types.KeyPrefixBalance)
 	defer iter.Close()
-
 	for ; iter.Valid(); iter.Next() {
-		address := sdk.AccAddress(iter.Key()[1:])
+		address := sdk.AccAddress(iter.Key()[len(types.KeyPrefixBalance):])
 		var amount sdk.Int
 		if err := amount.Unmarshal(iter.Value()); err != nil {
-			k.Logger(ctx).Error("failed to unmarshal balance", "key", iter.Key(), "error", err)
-			continue
+			panic(fmt.Errorf("invalid stored balance: %w", err))
 		}
 		if handler(address, amount) {
 			break
@@ -176,17 +71,13 @@ func (k Keeper) IterateBalances(ctx sdk.Context, handler func(sdk.AccAddress, sd
 	}
 }
 
-// IterateMintHistory iterates over all mint history records
 func (k Keeper) IterateMintHistory(ctx sdk.Context, handler func(types.MintRecord) bool) {
-	store := ctx.KVStore(k.storeKey)
-	iter := sdk.KVStorePrefixIterator(store, types.KeyPrefixMintHistory)
+	iter := sdk.KVStorePrefixIterator(ctx.KVStore(k.storeKey), types.KeyPrefixMintHistory)
 	defer iter.Close()
-
 	for ; iter.Valid(); iter.Next() {
 		var record types.MintRecord
 		if err := k.cdc.Unmarshal(iter.Value(), &record); err != nil {
-			k.Logger(ctx).Error("failed to unmarshal mint record", "key", iter.Key(), "error", err)
-			continue
+			panic(fmt.Errorf("invalid stored mint record: %w", err))
 		}
 		if handler(record) {
 			break
@@ -194,17 +85,13 @@ func (k Keeper) IterateMintHistory(ctx sdk.Context, handler func(types.MintRecor
 	}
 }
 
-// IterateBurnHistory iterates over all burn history records
 func (k Keeper) IterateBurnHistory(ctx sdk.Context, handler func(types.BurnRecord) bool) {
-	store := ctx.KVStore(k.storeKey)
-	iter := sdk.KVStorePrefixIterator(store, types.KeyPrefixBurnHistory)
+	iter := sdk.KVStorePrefixIterator(ctx.KVStore(k.storeKey), types.KeyPrefixBurnHistory)
 	defer iter.Close()
-
 	for ; iter.Valid(); iter.Next() {
 		var record types.BurnRecord
 		if err := k.cdc.Unmarshal(iter.Value(), &record); err != nil {
-			k.Logger(ctx).Error("failed to unmarshal burn record", "key", iter.Key(), "error", err)
-			continue
+			panic(fmt.Errorf("invalid stored burn record: %w", err))
 		}
 		if handler(record) {
 			break

@@ -4,6 +4,7 @@ import (
 	"context"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 
 	"github.com/decentralized-rights-protocol/drp/chain/x/deri/types"
 )
@@ -24,23 +25,29 @@ var _ types.MsgServer = msgServer{}
 
 // Transfer implements the Msg/Transfer RPC method
 func (s msgServer) Transfer(goCtx context.Context, msg *types.MsgTransfer) (*types.MsgTransferResponse, error) {
+	if msg == nil {
+		return nil, sdkerrors.ErrInvalidRequest.Wrap("nil message")
+	}
+	if err := msg.ValidateBasic(); err != nil {
+		return nil, err
+	}
 	ctx := sdk.UnwrapSDKContext(goCtx)
 
 	// Parse amount
 	amount, ok := sdk.NewIntFromString(msg.Amount)
 	if !ok {
-		return nil, sdk.ErrInvalidRequest.Wrapf("invalid amount: %s", msg.Amount)
+		return nil, sdkerrors.ErrInvalidRequest.Wrapf("invalid amount: %s", msg.Amount)
 	}
 
 	// Get addresses
 	from, err := sdk.AccAddressFromBech32(msg.From)
 	if err != nil {
-		return nil, sdk.ErrInvalidAddress.Wrapf("invalid from address: %s", msg.From)
+		return nil, sdkerrors.ErrInvalidAddress.Wrapf("invalid from address: %s", msg.From)
 	}
 
 	to, err := sdk.AccAddressFromBech32(msg.To)
 	if err != nil {
-		return nil, sdk.ErrInvalidAddress.Wrapf("invalid to address: %s", msg.To)
+		return nil, sdkerrors.ErrInvalidAddress.Wrapf("invalid to address: %s", msg.To)
 	}
 
 	// Perform transfer
@@ -57,30 +64,34 @@ func (s msgServer) Transfer(goCtx context.Context, msg *types.MsgTransfer) (*typ
 // Mint implements the Msg/Mint RPC method
 // This is restricted to authorized module accounts only
 func (s msgServer) Mint(goCtx context.Context, msg *types.MsgMint) (*types.MsgMintResponse, error) {
+	if msg == nil {
+		return nil, sdkerrors.ErrInvalidRequest.Wrap("nil message")
+	}
+	if err := msg.ValidateBasic(); err != nil {
+		return nil, err
+	}
 	ctx := sdk.UnwrapSDKContext(goCtx)
 
 	// Parse amount
 	amount, ok := sdk.NewIntFromString(msg.Amount)
 	if !ok {
-		return nil, sdk.ErrInvalidRequest.Wrapf("invalid amount: %s", msg.Amount)
+		return nil, sdkerrors.ErrInvalidRequest.Wrapf("invalid amount: %s", msg.Amount)
 	}
 
 	// Get addresses
 	to, err := sdk.AccAddressFromBech32(msg.To)
 	if err != nil {
-		return nil, sdk.ErrInvalidAddress.Wrapf("invalid to address: %s", msg.To)
+		return nil, sdkerrors.ErrInvalidAddress.Wrapf("invalid to address: %s", msg.To)
 	}
 
 	signer, err := sdk.AccAddressFromBech32(msg.Signer)
 	if err != nil {
-		return nil, sdk.ErrInvalidAddress.Wrapf("invalid signer address: %s", msg.Signer)
+		return nil, sdkerrors.ErrInvalidAddress.Wrapf("invalid signer address: %s", msg.Signer)
 	}
 
-	// Verify the signer is authorized (e.g., reward module, governance)
-	// In production, this would be controlled by the Policy Engine
-	// For now, we'll allow minting from specific module accounts
+	// Fail closed until the authority policy and its execution path are defined.
 	if !s.Keeper.IsAuthorizedMinter(ctx, signer) {
-		return nil, sdk.ErrUnauthorized.Wrapf("signer %s is not authorized to mint", msg.Signer)
+		return nil, sdkerrors.ErrUnauthorized.Wrapf("signer %s is not authorized to mint", msg.Signer)
 	}
 
 	// Perform mint
@@ -97,18 +108,24 @@ func (s msgServer) Mint(goCtx context.Context, msg *types.MsgMint) (*types.MsgMi
 
 // Burn implements the Msg/Burn RPC method
 func (s msgServer) Burn(goCtx context.Context, msg *types.MsgBurn) (*types.MsgBurnResponse, error) {
+	if msg == nil {
+		return nil, sdkerrors.ErrInvalidRequest.Wrap("nil message")
+	}
+	if err := msg.ValidateBasic(); err != nil {
+		return nil, err
+	}
 	ctx := sdk.UnwrapSDKContext(goCtx)
 
 	// Parse amount
 	amount, ok := sdk.NewIntFromString(msg.Amount)
 	if !ok {
-		return nil, sdk.ErrInvalidRequest.Wrapf("invalid amount: %s", msg.Amount)
+		return nil, sdkerrors.ErrInvalidRequest.Wrapf("invalid amount: %s", msg.Amount)
 	}
 
 	// Get address
 	from, err := sdk.AccAddressFromBech32(msg.From)
 	if err != nil {
-		return nil, sdk.ErrInvalidAddress.Wrapf("invalid from address: %s", msg.From)
+		return nil, sdkerrors.ErrInvalidAddress.Wrapf("invalid from address: %s", msg.From)
 	}
 
 	// Perform burn
@@ -117,8 +134,8 @@ func (s msgServer) Burn(goCtx context.Context, msg *types.MsgBurn) (*types.MsgBu
 	}
 
 	return &types.MsgBurnResponse{
-		Success:     true,
-		Error:       "",
+		Success:      true,
+		Error:        "",
 		BurnedAmount: msg.Amount,
 	}, nil
 }

@@ -93,7 +93,6 @@ logs/
 
 # Go / Cosmos Chain
 chain/bin/
-chain/go.sum
 chain/.env.chain
 *.go.sum.bak
 

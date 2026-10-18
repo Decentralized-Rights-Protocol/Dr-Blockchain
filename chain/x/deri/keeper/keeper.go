@@ -3,55 +3,33 @@ package keeper
 import (
 	"fmt"
 
+	"github.com/cometbft/cometbft/libs/log"
 	"github.com/cosmos/cosmos-sdk/codec"
+	storetypes "github.com/cosmos/cosmos-sdk/store/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	paramtypes "github.com/cosmos/cosmos-sdk/x/params/types"
 
 	"github.com/decentralized-rights-protocol/drp/chain/x/deri/types"
 )
 
 // Keeper defines the keeper for the deri module
 type Keeper struct {
-	cdc           codec.BinaryCodec
-	storeKey     sdk.StoreKey
-	memStoreKey  sdk.StoreKey
-	paramSpace   paramtypes.Subspace
-	authKeeper   types.AuthKeeper
-	bankKeeper   types.BankKeeper
-	distrKeeper  types.DistrKeeper
-	stakingKeeper types.StakingKeeper
+	cdc      codec.BinaryCodec
+	storeKey storetypes.StoreKey
 }
 
 // NewKeeper creates a new Keeper instance
-func NewKeeper(
-	cdc codec.BinaryCodec,
-	storeKey sdk.StoreKey,
-	memStoreKey sdk.StoreKey,
-	paramSpace paramtypes.Subspace,
-	authKeeper types.AuthKeeper,
-	bankKeeper types.BankKeeper,
-	distrKeeper types.DistrKeeper,
-	stakingKeeper types.StakingKeeper,
-) *Keeper {
-	// Ensure the paramSpace has the correct key table
-	if !paramSpace.HasKeyTable() {
-		paramSpace = paramSpace.WithKeyTable(types.ParamKeyTable())
-	}
+func NewKeeper(cdc codec.BinaryCodec, storeKey storetypes.StoreKey) *Keeper {
+	return &Keeper{cdc: cdc, storeKey: storeKey}
+}
 
-	return &Keeper{
-		cdc:           cdc,
-		storeKey:     storeKey,
-		memStoreKey:  memStoreKey,
-		paramSpace:   paramSpace,
-		authKeeper:   authKeeper,
-		bankKeeper:   bankKeeper,
-		distrKeeper:  distrKeeper,
-		stakingKeeper: stakingKeeper,
-	}
+// IsAuthorizedMinter fails closed until an explicit, reviewed authority policy
+// and execution path exist. A signer naming a module account is not authority.
+func (k Keeper) IsAuthorizedMinter(_ sdk.Context, _ sdk.AccAddress) bool {
+	return false
 }
 
 // Logger returns a module-specific logger
-func (k Keeper) Logger(ctx sdk.Context) sdk.Logger {
+func (k Keeper) Logger(ctx sdk.Context) log.Logger {
 	return ctx.Logger().With("module", fmt.Sprintf("x/%s", types.ModuleName))
 }
 
@@ -71,6 +49,9 @@ func (k Keeper) GetParams(ctx sdk.Context) (params types.Params, err error) {
 
 // SetParams sets the parameters in the store
 func (k Keeper) SetParams(ctx sdk.Context, params types.Params) error {
+	if err := params.Validate(); err != nil {
+		return err
+	}
 	store := ctx.KVStore(k.storeKey)
 	bz, err := k.cdc.Marshal(&params)
 	if err != nil {
@@ -98,6 +79,9 @@ func (k Keeper) GetBalance(ctx sdk.Context, address sdk.AccAddress) sdk.Int {
 
 // SetBalance sets the $DeRi balance of an account
 func (k Keeper) SetBalance(ctx sdk.Context, address sdk.AccAddress, amount sdk.Int) error {
+	if amount.IsNil() || amount.IsNegative() {
+		return fmt.Errorf("balance must be nonnegative")
+	}
 	store := ctx.KVStore(k.storeKey)
 	bz, err := amount.Marshal()
 	if err != nil {
@@ -109,6 +93,9 @@ func (k Keeper) SetBalance(ctx sdk.Context, address sdk.AccAddress, amount sdk.I
 
 // AddBalance adds to the $DeRi balance of an account
 func (k Keeper) AddBalance(ctx sdk.Context, address sdk.AccAddress, amount sdk.Int) error {
+	if amount.IsNil() || amount.IsNegative() {
+		return fmt.Errorf("amount must be nonnegative")
+	}
 	balance := k.GetBalance(ctx, address)
 	newBalance := balance.Add(amount)
 	return k.SetBalance(ctx, address, newBalance)
@@ -116,6 +103,9 @@ func (k Keeper) AddBalance(ctx sdk.Context, address sdk.AccAddress, amount sdk.I
 
 // SubtractBalance subtracts from the $DeRi balance of an account
 func (k Keeper) SubtractBalance(ctx sdk.Context, address sdk.AccAddress, amount sdk.Int) error {
+	if amount.IsNil() || amount.IsNegative() {
+		return fmt.Errorf("amount must be nonnegative")
+	}
 	balance := k.GetBalance(ctx, address)
 	if balance.LT(amount) {
 		return fmt.Errorf("insufficient balance: %s < %s", balance, amount)
@@ -142,6 +132,9 @@ func (k Keeper) GetTotalSupply(ctx sdk.Context) sdk.Int {
 
 // SetTotalSupply sets the total supply of $DeRi
 func (k Keeper) SetTotalSupply(ctx sdk.Context, amount sdk.Int) error {
+	if amount.IsNil() || amount.IsNegative() {
+		return fmt.Errorf("supply must be nonnegative")
+	}
 	store := ctx.KVStore(k.storeKey)
 	bz, err := amount.Marshal()
 	if err != nil {
@@ -154,6 +147,9 @@ func (k Keeper) SetTotalSupply(ctx sdk.Context, amount sdk.Int) error {
 // Mint mints new $DeRi tokens to an account
 // This is a controlled operation that respects emission limits
 func (k Keeper) Mint(ctx sdk.Context, to sdk.AccAddress, amount sdk.Int, reason string) error {
+	if amount.IsNil() || !amount.IsPositive() {
+		return fmt.Errorf("mint amount must be positive")
+	}
 	params, err := k.GetParams(ctx)
 	if err != nil {
 		return err
@@ -179,10 +175,10 @@ func (k Keeper) Mint(ctx sdk.Context, to sdk.AccAddress, amount sdk.Int, reason 
 	// Record mint history
 	height := ctx.BlockHeight()
 	mintRecord := types.MintRecord{
-		Height:   height,
-		To:       to.String(),
-		Amount:   amount.String(),
-		Reason:   reason,
+		Height:    height,
+		To:        to.String(),
+		Amount:    amount.String(),
+		Reason:    reason,
 		Timestamp: ctx.BlockTime().Unix(),
 	}
 	k.setMintRecord(ctx, height, mintRecord)
@@ -193,6 +189,12 @@ func (k Keeper) Mint(ctx sdk.Context, to sdk.AccAddress, amount sdk.Int, reason 
 
 // Burn burns $DeRi tokens from an account
 func (k Keeper) Burn(ctx sdk.Context, from sdk.AccAddress, amount sdk.Int, reason string) error {
+	if amount.IsNil() || !amount.IsPositive() {
+		return fmt.Errorf("burn amount must be positive")
+	}
+	if k.GetTotalSupply(ctx).LT(amount) {
+		return fmt.Errorf("burn exceeds total supply")
+	}
 	// Subtract from account balance
 	if err := k.SubtractBalance(ctx, from, amount); err != nil {
 		return err
@@ -208,10 +210,10 @@ func (k Keeper) Burn(ctx sdk.Context, from sdk.AccAddress, amount sdk.Int, reaso
 	// Record burn history
 	height := ctx.BlockHeight()
 	burnRecord := types.BurnRecord{
-		Height:   height,
-		From:     from.String(),
-		Amount:   amount.String(),
-		Reason:   reason,
+		Height:    height,
+		From:      from.String(),
+		Amount:    amount.String(),
+		Reason:    reason,
 		Timestamp: ctx.BlockTime().Unix(),
 	}
 	k.setBurnRecord(ctx, height, burnRecord)
@@ -222,6 +224,9 @@ func (k Keeper) Burn(ctx sdk.Context, from sdk.AccAddress, amount sdk.Int, reaso
 
 // Transfer transfers $DeRi tokens from one account to another
 func (k Keeper) Transfer(ctx sdk.Context, from, to sdk.AccAddress, amount sdk.Int) error {
+	if amount.IsNil() || !amount.IsPositive() {
+		return fmt.Errorf("transfer amount must be positive")
+	}
 	// Subtract from sender
 	if err := k.SubtractBalance(ctx, from, amount); err != nil {
 		return err
@@ -265,7 +270,7 @@ func (k Keeper) CalculateReward(
 ) (int64, error) {
 	// Use the deterministic calculation from types
 	reward := types.CalculateReward(baseReward, activityScore, verificationConf, reputationMult, networkFactor)
-	
+
 	// Validate the reward
 	if err := types.ValidateReward(reward); err != nil {
 		return 0, err

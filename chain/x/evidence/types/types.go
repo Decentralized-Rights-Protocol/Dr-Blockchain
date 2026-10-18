@@ -27,11 +27,11 @@ const (
 //   - The full evidence bundle is pinned to the IPFS node configured via
 //     DRP_IPFS_API_URL env var (see chain/.env.chain.example).
 //   - The submission flow:
-//       1. Client pins evidence to IPFS → gets CID.
-//       2. Client computes SHA-256(evidence bytes) = ContentHash.
-//       3. Client computes SHA-256(metadata_json) = MetadataHash.
-//       4. Client calls MsgAnchorEvidence with (CID, ContentHash, MetadataHash).
-//       5. Chain stores commitment; IPFS data remains off-chain.
+//     1. Client pins evidence to IPFS → gets CID.
+//     2. Client computes SHA-256(evidence bytes) = ContentHash.
+//     3. Client computes SHA-256(metadata_json) = MetadataHash.
+//     4. Client calls MsgAnchorEvidence with (CID, ContentHash, MetadataHash).
+//     5. Chain stores commitment; IPFS data remains off-chain.
 type EvidenceCommitment struct {
 	// ID is a deterministic identifier: sha256(submitter + cid + block_height).
 	ID string `json:"id"`

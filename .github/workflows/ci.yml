@@ -141,11 +141,59 @@ jobs:
       - name: Download Go modules
         run: go mod download all
 
+      - name: Record pinned dependency versions and verify modules
+        run: |
+          go version
+          go list -m github.com/cosmos/cosmos-sdk github.com/cometbft/cometbft
+          go mod verify
+
+      - name: Install pinned protobuf generators
+        run: |
+          curl --fail --location --retry 2 \
+            https://github.com/protocolbuffers/protobuf/releases/download/v25.3/protoc-25.3-linux-x86_64.zip \
+            --output "$RUNNER_TEMP/protoc.zip"
+          unzip -q "$RUNNER_TEMP/protoc.zip" -d "$RUNNER_TEMP/protoc"
+          echo "$RUNNER_TEMP/protoc/bin" >> "$GITHUB_PATH"
+          echo "PROTOC_INCLUDE=$RUNNER_TEMP/protoc/include" >> "$GITHUB_ENV"
+          go install github.com/cosmos/gogoproto/protoc-gen-gocosmos@v1.7.2
+          go install github.com/grpc-ecosystem/grpc-gateway/protoc-gen-grpc-gateway@v1.16.0
+
+      - name: Generate Cosmos protobuf messages and services
+        run: make proto-gen
+
+      - name: Upload generated sources and dependency checksums
+        uses: actions/upload-artifact@v4
+        with:
+          name: chain-generated
+          path: |
+            chain/x/**/*.pb.go
+            chain/x/**/*.pb.gw.go
+            chain/go.sum
+
+      - name: Verify generated sources and go.sum are committed
+        run: |
+          git add --intent-to-add x go.sum
+          git diff --exit-code -- x go.sum
+
+      - name: Check Go formatting
+        run: |
+          unformatted="$(gofmt -l app cmd x)"
+          if [ -n "$unformatted" ]; then
+            printf '%s\n' "$unformatted"
+            exit 1
+          fi
+
       - name: Run chain tests
         run: go test ./... -count=1
 
       - name: Build drpd binary
-        run: go build -o build/drpd ./cmd/drpd
+        run: |
+          go build ./cmd/drpd
+          mkdir -p build
+          mv drpd build/drpd
+
+      - name: Validate localnet startup, RPC, and restart
+        run: python3 scripts/ci_localnet.py
 
   build-and-test:
     name: Build & Integration Tests

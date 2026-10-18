@@ -3,30 +3,32 @@ package cmd
 
 import (
 	"errors"
+	cmtcfg "github.com/cometbft/cometbft/config"
 	"io"
 	"os"
 
 	dbm "github.com/cometbft/cometbft-db"
 	cmtlog "github.com/cometbft/cometbft/libs/log"
 	"github.com/spf13/cobra"
-	"github.com/spf13/viper"
 
 	"github.com/cosmos/cosmos-sdk/baseapp"
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/config"
 	"github.com/cosmos/cosmos-sdk/client/debug"
-	"github.com/cosmos/cosmos-sdk/client/flags"
 	"github.com/cosmos/cosmos-sdk/client/keys"
 	"github.com/cosmos/cosmos-sdk/client/pruning"
 	"github.com/cosmos/cosmos-sdk/client/rpc"
 	"github.com/cosmos/cosmos-sdk/client/snapshot"
 	"github.com/cosmos/cosmos-sdk/server"
+	serverconfig "github.com/cosmos/cosmos-sdk/server/config"
 	servertypes "github.com/cosmos/cosmos-sdk/server/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
 	"github.com/cosmos/cosmos-sdk/version"
+	authcmd "github.com/cosmos/cosmos-sdk/x/auth/client/cli"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
+	"github.com/cosmos/cosmos-sdk/x/crisis"
 	genutilcli "github.com/cosmos/cosmos-sdk/x/genutil/client/cli"
 	genutiltypes "github.com/cosmos/cosmos-sdk/x/genutil/types"
 
@@ -40,7 +42,7 @@ const DefaultNodeHome = app.DefaultNodeHome
 // NewRootCmd creates the root command for drpd, registering all sub-commands.
 func NewRootCmd() (*cobra.Command, app.EncodingConfig) {
 	encodingConfig := app.MakeEncodingConfig()
-	app.ModuleBasics.RegisterInterfaces(encodingConfig.InterfaceRegistry)
+	sdk.DefaultBondDenom = app.BondDenom
 
 	initClientCtx := client.Context{}.
 		WithCodec(encodingConfig.Marshaler).
@@ -67,12 +69,19 @@ Chain ID  : drp-testnet-1
 Bond denom: udrp
 `,
 		PersistentPreRunE: func(cmd *cobra.Command, _ []string) error {
-			// Set up client context, load config, and intercept server config.
-			if err := client.SetCmdClientContextHandler(initClientCtx, cmd); err != nil {
+			clientCtx, err := client.ReadPersistentCommandFlags(initClientCtx, cmd.Flags())
+			if err != nil {
+				return err
+			}
+			clientCtx, err = config.ReadFromClientConfig(clientCtx)
+			if err != nil {
+				return err
+			}
+			if err := client.SetCmdClientContextHandler(clientCtx, cmd); err != nil {
 				return err
 			}
 			customAppTemplate, customAppConfig := initAppConfig()
-			return server.InterceptConfigsPreRunHandler(cmd, customAppTemplate, customAppConfig, nil)
+			return server.InterceptConfigsPreRunHandler(cmd, customAppTemplate, customAppConfig, cmtcfg.DefaultConfig())
 		},
 	}
 
@@ -95,6 +104,8 @@ func initRootCmd(rootCmd *cobra.Command, encodingConfig app.EncodingConfig) {
 		// Node status & config.
 		rpc.StatusCommand(),
 		config.Cmd(),
+		queryCommand(),
+		txCommand(),
 		// Developer utilities.
 		debug.Cmd(),
 		version.NewVersionCommand(),
@@ -110,7 +121,21 @@ func initRootCmd(rootCmd *cobra.Command, encodingConfig app.EncodingConfig) {
 	// Note: --home flag is set up by CometBFT; no need to redefine here.
 }
 
-func addModuleInitFlags(_ *cobra.Command) {}
+func addModuleInitFlags(cmd *cobra.Command) { crisis.AddModuleInitFlags(cmd) }
+
+func queryCommand() *cobra.Command {
+	cmd := &cobra.Command{Use: "query", Aliases: []string{"q"}, Short: "Query chain state", RunE: client.ValidateCmd}
+	cmd.AddCommand(rpc.QueryEventForTxCmd(), authcmd.GetAccountCmd(), rpc.ValidatorCommand(), rpc.BlockCommand(), authcmd.QueryTxsByEventsCmd(), authcmd.QueryTxCmd())
+	app.ModuleBasics.AddQueryCommands(cmd)
+	return cmd
+}
+
+func txCommand() *cobra.Command {
+	cmd := &cobra.Command{Use: "tx", Short: "Transaction subcommands", RunE: client.ValidateCmd}
+	cmd.AddCommand(authcmd.GetSignCommand(), authcmd.GetSignBatchCommand(), authcmd.GetMultiSignCommand(), authcmd.GetMultiSignBatchCmd(), authcmd.GetValidateSignaturesCommand(), authcmd.GetBroadcastCommand(), authcmd.GetEncodeCommand(), authcmd.GetDecodeCommand(), authcmd.GetAuxToFeeCommand())
+	app.ModuleBasics.AddTxCommands(cmd)
+	return cmd
+}
 
 // newApp constructs a DRPApp from the server start command context.
 func newApp(
@@ -160,15 +185,17 @@ func appExport(
 }
 
 // baseAppOptionsFromAppOpts maps AppOptions to baseapp functional options.
-// Currently passes trace-store information; extend as needed.
-func baseAppOptionsFromAppOpts(_ servertypes.AppOptions) []func(*baseapp.BaseApp) {
-	return nil
+// Use the SDK mapping for gas prices, pruning, snapshots, halt options and caches.
+func baseAppOptionsFromAppOpts(appOpts servertypes.AppOptions) []func(*baseapp.BaseApp) {
+	return server.DefaultBaseappOptions(appOpts)
 }
 
 // initAppConfig returns a custom app.toml template and the default config struct.
-// Returning empty string lets the SDK use its own defaults.
+// A zero udrp minimum permits localnet startup; operators may override it.
 func initAppConfig() (string, interface{}) {
-	return "", nil
+	cfg := serverconfig.DefaultConfig()
+	cfg.MinGasPrices = "0" + app.BondDenom
+	return serverconfig.DefaultConfigTemplate, cfg
 }
 
 // ── Module manager accessor ───────────────────────────────────────────────────

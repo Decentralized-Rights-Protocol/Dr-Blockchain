@@ -4,6 +4,7 @@ import (
 	"context"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 
 	"github.com/decentralized-rights-protocol/drp/chain/x/deri/types"
 )
@@ -24,11 +25,14 @@ var _ types.QueryServer = queryServer{}
 
 // Balance implements the Query/Balance RPC method
 func (s queryServer) Balance(goCtx context.Context, req *types.QueryBalanceRequest) (*types.QueryBalanceResponse, error) {
+	if req == nil {
+		return nil, sdkerrors.ErrInvalidRequest.Wrap("nil request")
+	}
 	ctx := sdk.UnwrapSDKContext(goCtx)
 
 	address, err := sdk.AccAddressFromBech32(req.Address)
 	if err != nil {
-		return nil, sdk.ErrInvalidAddress.Wrapf("invalid address: %s", req.Address)
+		return nil, sdkerrors.ErrInvalidAddress.Wrapf("invalid address: %s", req.Address)
 	}
 
 	balance := s.Keeper.GetBalance(ctx, address)
@@ -40,6 +44,9 @@ func (s queryServer) Balance(goCtx context.Context, req *types.QueryBalanceReque
 
 // TotalSupply implements the Query/TotalSupply RPC method
 func (s queryServer) TotalSupply(goCtx context.Context, req *types.QueryTotalSupplyRequest) (*types.QueryTotalSupplyResponse, error) {
+	if req == nil {
+		return nil, sdkerrors.ErrInvalidRequest.Wrap("nil request")
+	}
 	ctx := sdk.UnwrapSDKContext(goCtx)
 
 	totalSupply := s.Keeper.GetTotalSupply(ctx)
@@ -51,6 +58,9 @@ func (s queryServer) TotalSupply(goCtx context.Context, req *types.QueryTotalSup
 
 // Params implements the Query/Params RPC method
 func (s queryServer) Params(goCtx context.Context, req *types.QueryParamsRequest) (*types.QueryParamsResponse, error) {
+	if req == nil {
+		return nil, sdkerrors.ErrInvalidRequest.Wrap("nil request")
+	}
 	ctx := sdk.UnwrapSDKContext(goCtx)
 
 	params, err := s.Keeper.GetParams(ctx)

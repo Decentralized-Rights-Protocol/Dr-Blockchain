@@ -11,7 +11,7 @@ type Params struct {
 	AllowedIssuers []string `json:"allowed_issuers"`
 }
 
-func DefaultParams() Params  { return Params{AllowedIssuers: []string{}} }
+func DefaultParams() Params { return Params{AllowedIssuers: []string{}} }
 func DefaultGenesis() *GenesisState {
 	return &GenesisState{Params: DefaultParams(), Records: []StatusRecord{}}
 }

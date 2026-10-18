@@ -1,11 +1,8 @@
 // Package types — PoAT message types.
-// These are scaffold structs. Protobuf types will replace them once
-// proto/tx.proto files are generated.
+// Transaction wire types are generated from proto/drp/poat/poat.proto.
 package types
 
 import (
-	"fmt"
-
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 )
@@ -20,17 +17,6 @@ var _ sdk.Msg = &MsgRevokeActivityProof{}
 
 // MsgSubmitActivityProof anchors an activity proof commitment on-chain.
 // No raw activity data is included — only the IPFS CID and a metadata hash.
-type MsgSubmitActivityProof struct {
-	Submitter     string `json:"submitter"`
-	CommitmentCID string `json:"commitment_cid"`
-	ProofType     string `json:"proof_type"`
-	MetadataHash  string `json:"metadata_hash"`
-}
-
-// Proto interface stubs (will be replaced by proto-generated code).
-func (*MsgSubmitActivityProof) ProtoMessage()  {}
-func (m *MsgSubmitActivityProof) Reset()       { *m = MsgSubmitActivityProof{} }
-func (m *MsgSubmitActivityProof) String() string { return fmt.Sprintf("%+v", *m) }
 
 func NewMsgSubmitActivityProof(submitter, cid, proofType, metaHash string) *MsgSubmitActivityProof {
 	return &MsgSubmitActivityProof{
@@ -61,15 +47,6 @@ func (msg *MsgSubmitActivityProof) ValidateBasic() error {
 }
 
 // MsgRevokeActivityProof allows an authorised party to revoke a proof.
-type MsgRevokeActivityProof struct {
-	Authority string `json:"authority"`
-	ProofID   string `json:"proof_id"`
-	Reason    string `json:"reason"`
-}
-
-func (*MsgRevokeActivityProof) ProtoMessage()  {}
-func (m *MsgRevokeActivityProof) Reset()       { *m = MsgRevokeActivityProof{} }
-func (m *MsgRevokeActivityProof) String() string { return fmt.Sprintf("%+v", *m) }
 
 func NewMsgRevokeActivityProof(authority, proofID, reason string) *MsgRevokeActivityProof {
 	return &MsgRevokeActivityProof{Authority: authority, ProofID: proofID, Reason: reason}

@@ -9,12 +9,30 @@ package app
 
 import (
 	"encoding/json"
+	"fmt"
 	"io"
+
+	"github.com/cosmos/cosmos-sdk/client"
+	"github.com/cosmos/cosmos-sdk/client/flags"
+	nodeservice "github.com/cosmos/cosmos-sdk/client/grpc/node"
+	"github.com/cosmos/cosmos-sdk/client/grpc/tmservice"
+	"github.com/cosmos/cosmos-sdk/server"
+	"github.com/cosmos/cosmos-sdk/server/api"
+	"github.com/cosmos/cosmos-sdk/server/config"
+	"github.com/cosmos/cosmos-sdk/x/auth/ante"
+	"github.com/cosmos/cosmos-sdk/x/auth/posthandler"
+	authtx "github.com/cosmos/cosmos-sdk/x/auth/tx"
+	"github.com/cosmos/cosmos-sdk/x/consensus"
+	consensuskeeper "github.com/cosmos/cosmos-sdk/x/consensus/keeper"
+	consensustypes "github.com/cosmos/cosmos-sdk/x/consensus/types"
+	govv1beta1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1beta1"
+	paramproposal "github.com/cosmos/cosmos-sdk/x/params/types/proposal"
+	"github.com/spf13/cast"
 
 	dbm "github.com/cometbft/cometbft-db"
 	abci "github.com/cometbft/cometbft/abci/types"
-	cmtproto "github.com/cometbft/cometbft/proto/tendermint/types"
 	cmtlog "github.com/cometbft/cometbft/libs/log"
+	cmtproto "github.com/cometbft/cometbft/proto/tendermint/types"
 
 	"github.com/cosmos/cosmos-sdk/baseapp"
 	"github.com/cosmos/cosmos-sdk/codec"
@@ -27,8 +45,8 @@ import (
 	authkeeper "github.com/cosmos/cosmos-sdk/x/auth/keeper"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	vestingmodule "github.com/cosmos/cosmos-sdk/x/auth/vesting"
-	authzkeeper "github.com/cosmos/cosmos-sdk/x/authz/keeper"
 	authztypes "github.com/cosmos/cosmos-sdk/x/authz"
+	authzkeeper "github.com/cosmos/cosmos-sdk/x/authz/keeper"
 	authzmodule "github.com/cosmos/cosmos-sdk/x/authz/module"
 	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
@@ -36,8 +54,8 @@ import (
 	crisistypes "github.com/cosmos/cosmos-sdk/x/crisis/types"
 	distrkeeper "github.com/cosmos/cosmos-sdk/x/distribution/keeper"
 	distrtypes "github.com/cosmos/cosmos-sdk/x/distribution/types"
-	feegrantkeeper "github.com/cosmos/cosmos-sdk/x/feegrant/keeper"
 	feegranttypes "github.com/cosmos/cosmos-sdk/x/feegrant"
+	feegrantkeeper "github.com/cosmos/cosmos-sdk/x/feegrant/keeper"
 	feegrantmodule "github.com/cosmos/cosmos-sdk/x/feegrant/module"
 	genutiltypes "github.com/cosmos/cosmos-sdk/x/genutil/types"
 	govkeeper "github.com/cosmos/cosmos-sdk/x/gov/keeper"
@@ -112,18 +130,19 @@ type DRPApp struct {
 	tkeys map[string]*storetypes.TransientStoreKey
 
 	// ── Cosmos SDK standard keepers ────────────────────────────────────────
-	AccountKeeper  authkeeper.AccountKeeper
-	BankKeeper     bankkeeper.BaseKeeper
-	StakingKeeper  *stakingkeeper.Keeper
-	MintKeeper     mintkeeper.Keeper
-	DistrKeeper    distrkeeper.Keeper
-	SlashingKeeper slashingkeeper.Keeper
-	GovKeeper      *govkeeper.Keeper
-	CrisisKeeper   crisiskeeper.Keeper
-	UpgradeKeeper  *upgradekeeper.Keeper
-	ParamsKeeper   paramskeeper.Keeper
-	AuthzKeeper    authzkeeper.Keeper
-	FeeGrantKeeper feegrantkeeper.Keeper
+	AccountKeeper         authkeeper.AccountKeeper
+	BankKeeper            bankkeeper.BaseKeeper
+	StakingKeeper         *stakingkeeper.Keeper
+	MintKeeper            mintkeeper.Keeper
+	DistrKeeper           distrkeeper.Keeper
+	SlashingKeeper        slashingkeeper.Keeper
+	GovKeeper             *govkeeper.Keeper
+	CrisisKeeper          crisiskeeper.Keeper
+	UpgradeKeeper         *upgradekeeper.Keeper
+	ParamsKeeper          paramskeeper.Keeper
+	AuthzKeeper           authzkeeper.Keeper
+	FeeGrantKeeper        feegrantkeeper.Keeper
+	ConsensusParamsKeeper consensuskeeper.Keeper
 
 	// ── DRP protocol keepers ───────────────────────────────────────────────
 	// (none)
@@ -142,7 +161,20 @@ func NewDRPApp(
 	baseAppOptions ...func(*baseapp.BaseApp),
 ) *DRPApp {
 	encodingConfig := MakeEncodingConfig()
-	ModuleBasics.RegisterInterfaces(encodingConfig.InterfaceRegistry)
+	homePath := DefaultNodeHome
+	invCheckPeriod := uint(0)
+	skipGenesisInvariants := false
+	skipUpgradeHeights := map[int64]bool{}
+	if appOpts != nil {
+		if home := cast.ToString(appOpts.Get(flags.FlagHome)); home != "" {
+			homePath = home
+		}
+		invCheckPeriod = cast.ToUint(appOpts.Get(server.FlagInvCheckPeriod))
+		skipGenesisInvariants = cast.ToBool(appOpts.Get(crisis.FlagSkipGenesisInvariants))
+		for _, height := range cast.ToIntSlice(appOpts.Get(server.FlagUnsafeSkipUpgrades)) {
+			skipUpgradeHeights[int64(height)] = true
+		}
+	}
 
 	bApp := baseapp.NewBaseApp(
 		Name, logger, db,
@@ -152,13 +184,15 @@ func NewDRPApp(
 	bApp.SetCommitMultiStoreTracer(traceStore)
 	bApp.SetVersion(version.Version)
 	bApp.SetInterfaceRegistry(encodingConfig.InterfaceRegistry)
+	bApp.SetTxEncoder(encodingConfig.TxConfig.TxEncoder())
 
 	// ── Store keys ──────────────────────────────────────────────────────────
 	keys := sdk.NewKVStoreKeys(
 		authtypes.StoreKey, banktypes.StoreKey, stakingtypes.StoreKey,
 		minttypes.StoreKey, distrtypes.StoreKey, slashingtypes.StoreKey,
 		govtypes.StoreKey, paramstypes.StoreKey, crisistypes.StoreKey,
-		upgradetypes.StoreKey, feegranttypes.StoreKey, authztypes.ModuleName,
+		upgradetypes.StoreKey, feegranttypes.StoreKey, authzkeeper.StoreKey,
+		consensustypes.StoreKey,
 	)
 	tkeys := sdk.NewTransientStoreKeys(paramstypes.TStoreKey)
 
@@ -176,9 +210,9 @@ func NewDRPApp(
 		encodingConfig.Marshaler, encodingConfig.Amino,
 		keys[paramstypes.StoreKey], tkeys[paramstypes.TStoreKey],
 	)
-	// Consensus params are managed by the consensus module in SDK v0.47+.
-
 	govModAddr := authtypes.NewModuleAddress(govtypes.ModuleName).String()
+	app.ConsensusParamsKeeper = consensuskeeper.NewKeeper(app.cdc, keys[consensustypes.StoreKey], govModAddr)
+	bApp.SetParamStore(&app.ConsensusParamsKeeper)
 
 	// ── Auth keeper ─────────────────────────────────────────────────────────
 	app.AccountKeeper = authkeeper.NewAccountKeeper(
@@ -222,18 +256,18 @@ func NewDRPApp(
 	// ── Crisis keeper ───────────────────────────────────────────────────────
 	app.CrisisKeeper = *crisiskeeper.NewKeeper(
 		encodingConfig.Marshaler, keys[crisistypes.StoreKey],
-		0, app.BankKeeper, authtypes.FeeCollectorName, govModAddr,
+		invCheckPeriod, app.BankKeeper, authtypes.FeeCollectorName, govModAddr,
 	)
 
 	// ── Upgrade keeper ──────────────────────────────────────────────────────
 	app.UpgradeKeeper = upgradekeeper.NewKeeper(
-		map[int64]bool{}, keys[upgradetypes.StoreKey],
-		encodingConfig.Marshaler, DefaultNodeHome, app.BaseApp, govModAddr,
+		skipUpgradeHeights, keys[upgradetypes.StoreKey],
+		encodingConfig.Marshaler, homePath, app.BaseApp, govModAddr,
 	)
 
 	// ── Authz & FeeGrant keepers ────────────────────────────────────────────
 	app.AuthzKeeper = authzkeeper.NewKeeper(
-		keys[authztypes.ModuleName], encodingConfig.Marshaler,
+		keys[authzkeeper.StoreKey], encodingConfig.Marshaler,
 		app.MsgServiceRouter(), app.AccountKeeper,
 	)
 	app.FeeGrantKeeper = feegrantkeeper.NewKeeper(
@@ -247,6 +281,13 @@ func NewDRPApp(
 		app.AccountKeeper, app.BankKeeper, app.StakingKeeper,
 		app.MsgServiceRouter(), govtypes.DefaultConfig(), govModAddr,
 	)
+
+	// Match the legacy proposal handlers advertised by ModuleBasics.
+	govRouter := govv1beta1.NewRouter()
+	govRouter.AddRoute(govtypes.RouterKey, govv1beta1.ProposalHandler).
+		AddRoute(paramproposal.RouterKey, params.NewParamChangeProposalHandler(app.ParamsKeeper)).
+		AddRoute(upgradetypes.RouterKey, upgrade.NewSoftwareUpgradeProposalHandler(app.UpgradeKeeper))
+	app.GovKeeper.SetLegacyRouter(govRouter)
 
 	// Register staking hooks (distr + slashing must hook into staking).
 	app.StakingKeeper.SetHooks(
@@ -264,7 +305,7 @@ func NewDRPApp(
 		auth.NewAppModule(encodingConfig.Marshaler, app.AccountKeeper, nil, app.GetSubspace(authtypes.ModuleName)),
 		vestingmodule.NewAppModule(app.AccountKeeper, app.BankKeeper),
 		bank.NewAppModule(encodingConfig.Marshaler, app.BankKeeper, app.AccountKeeper, app.GetSubspace(banktypes.ModuleName)),
-		crisis.NewAppModule(&app.CrisisKeeper, false, app.GetSubspace(crisistypes.ModuleName)),
+		crisis.NewAppModule(&app.CrisisKeeper, skipGenesisInvariants, app.GetSubspace(crisistypes.ModuleName)),
 		feegrantmodule.NewAppModule(encodingConfig.Marshaler, app.AccountKeeper, app.BankKeeper, app.FeeGrantKeeper, app.interfaceRegistry),
 		authzmodule.NewAppModule(encodingConfig.Marshaler, app.AuthzKeeper, app.AccountKeeper, app.BankKeeper, app.interfaceRegistry),
 		gov.NewAppModule(encodingConfig.Marshaler, app.GovKeeper, app.AccountKeeper, app.BankKeeper, app.GetSubspace(govtypes.ModuleName)),
@@ -274,6 +315,7 @@ func NewDRPApp(
 		staking.NewAppModule(encodingConfig.Marshaler, app.StakingKeeper, app.AccountKeeper, app.BankKeeper, app.GetSubspace(stakingtypes.ModuleName)),
 		upgrade.NewAppModule(app.UpgradeKeeper),
 		params.NewAppModule(app.ParamsKeeper),
+		consensus.NewAppModule(app.cdc, app.ConsensusParamsKeeper),
 	)
 
 	app.mm.SetOrderBeginBlockers(
@@ -281,7 +323,7 @@ func NewDRPApp(
 		slashingtypes.ModuleName, stakingtypes.ModuleName, authtypes.ModuleName,
 		banktypes.ModuleName, govtypes.ModuleName, crisistypes.ModuleName,
 		genutiltypes.ModuleName, authztypes.ModuleName, feegranttypes.ModuleName,
-		paramstypes.ModuleName, "vesting",
+		paramstypes.ModuleName, "vesting", consensustypes.ModuleName,
 	)
 
 	app.mm.SetOrderEndBlockers(
@@ -289,7 +331,7 @@ func NewDRPApp(
 		upgradetypes.ModuleName, minttypes.ModuleName, distrtypes.ModuleName,
 		slashingtypes.ModuleName, authtypes.ModuleName, banktypes.ModuleName,
 		authztypes.ModuleName, feegranttypes.ModuleName, paramstypes.ModuleName,
-		genutiltypes.ModuleName, "vesting",
+		genutiltypes.ModuleName, "vesting", consensustypes.ModuleName,
 	)
 
 	app.mm.SetOrderInitGenesis(
@@ -297,9 +339,10 @@ func NewDRPApp(
 		stakingtypes.ModuleName, slashingtypes.ModuleName, govtypes.ModuleName,
 		minttypes.ModuleName, crisistypes.ModuleName, genutiltypes.ModuleName,
 		authztypes.ModuleName, feegranttypes.ModuleName, upgradetypes.ModuleName,
-		paramstypes.ModuleName, "vesting",
+		paramstypes.ModuleName, "vesting", consensustypes.ModuleName,
 	)
 
+	app.mm.SetOrderExportGenesis(app.mm.OrderInitGenesis...)
 	app.mm.RegisterInvariants(&app.CrisisKeeper)
 	app.configurator = module.NewConfigurator(app.cdc, app.MsgServiceRouter(), app.GRPCQueryRouter())
 	app.mm.RegisterServices(app.configurator)
@@ -307,6 +350,22 @@ func NewDRPApp(
 	app.SetInitChainer(app.InitChainer)
 	app.SetBeginBlocker(app.BeginBlocker)
 	app.SetEndBlocker(app.EndBlocker)
+	anteHandler, err := ante.NewAnteHandler(ante.HandlerOptions{
+		AccountKeeper:   app.AccountKeeper,
+		BankKeeper:      app.BankKeeper,
+		FeegrantKeeper:  app.FeeGrantKeeper,
+		SignModeHandler: encodingConfig.TxConfig.SignModeHandler(),
+		SigGasConsumer:  ante.DefaultSigVerificationGasConsumer,
+	})
+	if err != nil {
+		panic(err)
+	}
+	app.SetAnteHandler(anteHandler)
+	postHandler, err := posthandler.NewPostHandler(posthandler.HandlerOptions{})
+	if err != nil {
+		panic(err)
+	}
+	app.SetPostHandler(postHandler)
 
 	app.MountKVStores(keys)
 	app.MountTransientStores(tkeys)
@@ -354,13 +413,11 @@ func (app *DRPApp) ExportAppStateAndValidators(
 	jailAllowedAddrs []string,
 	modulesToExport []string,
 ) (servertypes.ExportedApp, error) {
-	ctx := app.NewContext(true, cmtproto.Header{Height: app.LastBlockHeight()})
-
-	height := app.LastBlockHeight() + 1
-	if forZeroHeight {
-		height = 0
-		app.prepForZeroHeightGenesis(ctx, jailAllowedAddrs)
+	if forZeroHeight || len(jailAllowedAddrs) != 0 {
+		return servertypes.ExportedApp{}, fmt.Errorf("zero-height export and jail-allowed-address rewriting are not implemented")
 	}
+	ctx := app.NewContext(true, cmtproto.Header{Height: app.LastBlockHeight()})
+	height := app.LastBlockHeight() + 1
 
 	genState := app.mm.ExportGenesisForModules(ctx, app.cdc, modulesToExport)
 	appState, err := json.MarshalIndent(genState, "", "  ")
@@ -381,14 +438,29 @@ func (app *DRPApp) ExportAppStateAndValidators(
 	}, nil
 }
 
-func (app *DRPApp) prepForZeroHeightGenesis(ctx sdk.Context, _ []string) {
-	app.SlashingKeeper.IterateValidatorSigningInfos(ctx,
-		func(addr sdk.ConsAddress, info slashingtypes.ValidatorSigningInfo) bool {
-			info.StartHeight = 0
-			app.SlashingKeeper.SetValidatorSigningInfo(ctx, addr, info)
-			return false
-		},
-	)
+var _ servertypes.Application = (*DRPApp)(nil)
+
+func (app *DRPApp) RegisterAPIRoutes(apiSvr *api.Server, apiConfig config.APIConfig) {
+	clientCtx := apiSvr.ClientCtx
+	authtx.RegisterGRPCGatewayRoutes(clientCtx, apiSvr.GRPCGatewayRouter)
+	tmservice.RegisterGRPCGatewayRoutes(clientCtx, apiSvr.GRPCGatewayRouter)
+	nodeservice.RegisterGRPCGatewayRoutes(clientCtx, apiSvr.GRPCGatewayRouter)
+	ModuleBasics.RegisterGRPCGatewayRoutes(clientCtx, apiSvr.GRPCGatewayRouter)
+	if err := server.RegisterSwaggerAPI(clientCtx, apiSvr.Router, apiConfig.Swagger); err != nil {
+		panic(err)
+	}
+}
+
+func (app *DRPApp) RegisterTxService(clientCtx client.Context) {
+	authtx.RegisterTxService(app.GRPCQueryRouter(), clientCtx, app.Simulate, app.interfaceRegistry)
+}
+
+func (app *DRPApp) RegisterTendermintService(clientCtx client.Context) {
+	tmservice.RegisterTendermintService(clientCtx, app.GRPCQueryRouter(), app.interfaceRegistry, app.Query)
+}
+
+func (app *DRPApp) RegisterNodeService(clientCtx client.Context) {
+	nodeservice.RegisterNodeService(clientCtx, app.GRPCQueryRouter())
 }
 
 // ── Params keeper setup ────────────────────────────────────────────────────────
@@ -407,6 +479,5 @@ func initParamsKeeper(
 	pk.Subspace(slashingtypes.ModuleName)
 	pk.Subspace(govtypes.ModuleName)
 	pk.Subspace(crisistypes.ModuleName)
-	pk.Subspace(baseapp.Paramspace)
 	return pk
 }

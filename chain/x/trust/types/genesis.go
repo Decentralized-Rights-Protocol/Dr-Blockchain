@@ -12,7 +12,7 @@ type Params struct {
 	MaxActivityRefs uint64 `json:"max_activity_refs"`
 }
 
-func DefaultParams() Params  { return Params{MaxActivityRefs: 1000} }
+func DefaultParams() Params { return Params{MaxActivityRefs: 1000} }
 func DefaultGenesis() *GenesisState {
 	return &GenesisState{Params: DefaultParams(), TrustStates: []TrustState{}}
 }

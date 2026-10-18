@@ -10,14 +10,6 @@ const TypeMsgSubmitRightsProposal = "submit_rights_proposal"
 var _ sdk.Msg = &MsgSubmitRightsProposal{}
 
 // MsgSubmitRightsProposal submits a DRP rights-focused governance proposal.
-type MsgSubmitRightsProposal struct {
-	Proposer        string         `json:"proposer"`
-	Title           string         `json:"title"`
-	Description     string         `json:"description"`
-	RightsCategory  RightsCategory `json:"rights_category"`
-	EvidenceCID     string         `json:"evidence_cid,omitempty"`
-	ImpactStatement string         `json:"impact_statement,omitempty"`
-}
 
 func (msg *MsgSubmitRightsProposal) Route() string { return RouterKey }
 func (msg *MsgSubmitRightsProposal) Type() string  { return TypeMsgSubmitRightsProposal }

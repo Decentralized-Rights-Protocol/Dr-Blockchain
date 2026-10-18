@@ -1,0 +1,48 @@
+syntax = "proto3";
+package drp.post;
+
+option go_package = "github.com/decentralized-rights-protocol/drp/chain/x/post/types";
+
+import "gogoproto/gogo.proto";
+import "cosmos/msg/v1/msg.proto";
+import "google/api/annotations.proto";
+
+// Transactions are wire types only; mutation handlers remain disabled pending
+// authorization rules and protocol state transitions.
+service Msg {
+  option (cosmos.msg.v1.service) = true;
+  rpc IssueTrustStatus(MsgIssueTrustStatus) returns (MsgIssueTrustStatusResponse);
+  rpc RevokeTrustStatus(MsgRevokeTrustStatus) returns (MsgRevokeTrustStatusResponse);
+}
+
+message MsgIssueTrustStatus {
+  string issuer = 1 [(gogoproto.customname) = "Issuer", (gogoproto.jsontag) = "issuer"];
+  string subject = 2 [(gogoproto.customname) = "Subject", (gogoproto.jsontag) = "subject"];
+  string status_level = 3 [(gogoproto.customname) = "StatusLevel", (gogoproto.jsontag) = "status_level", (gogoproto.casttype) = "StatusLevel"];
+  string basis_cid = 4 [(gogoproto.customname) = "BasisCID", (gogoproto.jsontag) = "basis_cid"];
+}
+message MsgIssueTrustStatusResponse {}
+
+message MsgRevokeTrustStatus {
+  string authority = 1 [(gogoproto.customname) = "Authority", (gogoproto.jsontag) = "authority"];
+  string record_id = 2 [(gogoproto.customname) = "RecordID", (gogoproto.jsontag) = "record_id"];
+  string reason = 3 [(gogoproto.customname) = "Reason", (gogoproto.jsontag) = "reason"];
+}
+message MsgRevokeTrustStatusResponse {}
+
+// Opaque JSON scaffolding: records retain the existing keeper JSON format.
+// Params is intentionally unimplemented: genesis parameters are not persisted.
+service Query {
+  rpc Params(QueryParamsRequest) returns (QueryParamsResponse) {
+    option (google.api.http).get = "/drp/post/params";
+  }
+  rpc StatusRecord(QueryStatusRecordRequest) returns (QueryStatusRecordResponse) {
+    option (google.api.http).get = "/drp/post/{record_id}";
+  }
+}
+message QueryParamsRequest {}
+message QueryParamsResponse { bytes params_json = 1; }
+message QueryStatusRecordRequest {
+  string record_id = 1;
+}
+message QueryStatusRecordResponse { bytes record_json = 1; }

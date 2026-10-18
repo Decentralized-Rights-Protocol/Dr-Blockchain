@@ -1,7 +1,10 @@
-.PHONY: build clean test localnet lint
+.PHONY: build clean test localnet lint proto-gen
 
 GO ?= go
 BIN ?= drpd
+
+proto-gen:
+	bash scripts/protocgen.sh
 
 build:
 	$(GO) build -o build/$(BIN) ./cmd/$(BIN)

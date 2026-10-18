@@ -10,12 +10,10 @@ import (
 	cdctypes "github.com/cosmos/cosmos-sdk/codec/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
-	"github.com/gorilla/mux"
 	"github.com/grpc-ecosystem/grpc-gateway/runtime"
 	"github.com/spf13/cobra"
 
 	"github.com/decentralized-rights-protocol/drp/chain/x/deri/client/cli"
-	"github.com/decentralized-rights-protocol/drp/chain/x/deri/client/rest"
 	"github.com/decentralized-rights-protocol/drp/chain/x/deri/keeper"
 	"github.com/decentralized-rights-protocol/drp/chain/x/deri/types"
 )
@@ -67,15 +65,12 @@ func (AppModuleBasic) ValidateGenesis(cdc codec.JSONCodec, config client.TxEncod
 	return genState.Validate()
 }
 
-// RegisterRESTRoutes registers the REST routes
-func (AppModuleBasic) RegisterRESTRoutes(clientCtx client.Context, rtr *mux.Router) {
-	rest.RegisterRoutes(clientCtx, rtr)
-}
-
 // RegisterGRPCGatewayRoutes registers the gRPC Gateway routes
 func (AppModuleBasic) RegisterGRPCGatewayRoutes(clientCtx client.Context, mux *runtime.ServeMux) {
 	// Register query routes
-	types.RegisterQueryHandlerClient(context.Background(), mux, types.NewQueryClient(clientCtx))
+	if err := types.RegisterQueryHandlerClient(context.Background(), mux, types.NewQueryClient(clientCtx)); err != nil {
+		panic(err)
+	}
 }
 
 // GetTxCmd returns the root tx command for the module
@@ -88,54 +83,46 @@ func (AppModuleBasic) GetQueryCmd() *cobra.Command {
 	return cli.GetQueryCmd()
 }
 
-// InterfaceRegistry returns the module interface registry
-func (AppModuleBasic) InterfaceRegistry() cdctypes.InterfaceRegistry {
-	return types.InterfaceRegistry()
-}
-
 // AppModule defines the full application module
 // used by the app builder
 
 type AppModule struct {
 	AppModuleBasic
 
-	keeper        keeper.Keeper
-	accountKeeper types.AccountKeeper
-	bankKeeper    types.BankKeeper
+	keeper keeper.Keeper
 }
 
 // NewAppModule creates a new AppModule instance
-func NewAppModule(cdc codec.Codec, keeper keeper.Keeper, accountKeeper types.AccountKeeper, bankKeeper types.BankKeeper) AppModule {
+func NewAppModule(cdc codec.Codec, keeper keeper.Keeper) AppModule {
 	return AppModule{
 		AppModuleBasic: AppModuleBasic{cdc: cdc},
 		keeper:         keeper,
-		accountKeeper:  accountKeeper,
-		bankKeeper:     bankKeeper,
 	}
 }
+
+// ConsensusVersion returns the store consensus version.
+func (AppModule) ConsensusVersion() uint64 { return ConsensusVersion }
 
 // RegisterServices registers the module services
 func (am AppModule) RegisterServices(cfg module.Configurator) {
 	// Register Msg service
 	types.RegisterMsgServer(cfg.MsgServer(), keeper.NewMsgServerImpl(am.keeper))
-	
+
 	// Register Query service
 	types.RegisterQueryServer(cfg.QueryServer(), keeper.NewQueryServerImpl(am.keeper))
 
-	// Register module
-	cfg.RegisterService(types._Msg_serviceDesc)
 }
 
 // RegisterInvariants registers the module invariants
-func (am AppModule) RegisterInvariants(ir types.InvariantRegistry) {
+func (am AppModule) RegisterInvariants(ir sdk.InvariantRegistry) {
 	// Register invariants
 	// ir.RegisterRoute(types.ModuleName, "total-supply", keeper.TotalSupplyInvariant(am.keeper))
 }
 
 // InitGenesis performs module initialization from genesis
-func (am AppModule) InitGenesis(ctx sdk.Context, cdc codec.JSONCodec, genState json.RawMessage) []abci.ValidatorUpdate {
+func (am AppModule) InitGenesis(ctx sdk.Context, cdc codec.JSONCodec, data json.RawMessage) []abci.ValidatorUpdate {
 	var genState types.GenesisState
-	cdc.MustUnmarshalJSON(genState, genState)
+	cdc.MustUnmarshalJSON(data, &genState)
 	am.keeper.InitGenesis(ctx, &genState)
 	return []abci.ValidatorUpdate{}
 }

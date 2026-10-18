@@ -11,12 +11,6 @@ var _ sdk.Msg = &MsgUpdateTrustState{}
 
 // MsgUpdateTrustState allows an authorised party to update a participant's trust state.
 // Initially only governance or a designated oracle can invoke this.
-type MsgUpdateTrustState struct {
-	Authority   string   `json:"authority"`
-	Address     string   `json:"address"`
-	ScoreDelta  int64    `json:"score_delta"`   // positive = increase, negative = decrease
-	ActivityRef string   `json:"activity_ref"`  // PoAT proof ID that justifies this update
-}
 
 func (msg *MsgUpdateTrustState) Route() string { return RouterKey }
 func (msg *MsgUpdateTrustState) Type() string  { return TypeMsgUpdateTrustState }
