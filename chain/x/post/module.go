@@ -7,10 +7,12 @@ import (
 	"github.com/spf13/cobra"
 	abci "github.com/cometbft/cometbft/abci/types"
 
+	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/codec"
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
+	"github.com/grpc-ecosystem/grpc-gateway/runtime"
 	simtypes "github.com/cosmos/cosmos-sdk/types/simulation"
 
 	"github.com/decentralized-rights-protocol/drp/chain/x/post/keeper"
@@ -42,7 +44,7 @@ func (AppModuleBasic) ValidateGenesis(_ codec.JSONCodec, _ interface{}, bz json.
 	}
 	return gs.Validate()
 }
-func (AppModuleBasic) RegisterGRPCGatewayRoutes(_ interface{}, _ interface{}) {}
+func (AppModuleBasic) RegisterGRPCGatewayRoutes(_ client.Context, _ *runtime.ServeMux) {}
 func (AppModuleBasic) GetTxCmd() *cobra.Command                               { return nil }
 func (AppModuleBasic) GetQueryCmd() *cobra.Command                            { return nil }
 
@@ -58,9 +60,6 @@ func NewAppModule(cdc codec.Codec, k keeper.Keeper) AppModule {
 
 func (AppModule) Name() string                                    { return types.ModuleName }
 func (AppModule) RegisterInvariants(_ sdk.InvariantRegistry)      {}
-func (AppModule) Route() sdk.Route                                { return sdk.Route{} }
-func (AppModule) QuerierRoute() string                            { return types.QuerierRoute }
-func (AppModule) LegacyQuerierHandler(_ interface{}) sdk.Querier  { return nil }
 func (AppModule) RegisterServices(_ module.Configurator)          {}
 func (AppModule) ConsensusVersion() uint64                        { return 1 }
 func (AppModule) GenerateGenesisState(_ *module.SimulationState)  {}
