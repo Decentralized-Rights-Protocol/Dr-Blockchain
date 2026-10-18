@@ -1,5 +1,5 @@
 // Package types — PoAT message types.
-// Transaction wire types are generated from proto/poat/poat.proto.
+// Transaction wire types are generated from proto/drp/poat/poat.proto.
 package types
 
 import (

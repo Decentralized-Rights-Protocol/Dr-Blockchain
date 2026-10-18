@@ -13,16 +13,11 @@ SDK_DIR="$(go list -m -f '{{.Dir}}' github.com/cosmos/cosmos-sdk)"
 GOGO_DIR="$(go list -m -f '{{.Dir}}' github.com/cosmos/gogoproto)"
 GATEWAY_DIR="$(go list -m -f '{{.Dir}}' github.com/grpc-ecosystem/grpc-gateway)"
 OUT="$(mktemp -d)"
-STAGE="$(mktemp -d)"
-trap 'rm -rf "$OUT" "$STAGE"' EXIT
-
-# Proto packages are drp.<module>, so gogoproto requires files under drp/<module>/.
-mkdir -p "$STAGE/drp"
-cp -R ../proto/. "$STAGE/drp/"
+trap 'rm -rf "$OUT"' EXIT
 
 for module in deri poat post rights trust evidence; do
   protoc \
-    -I "$STAGE" -I "$SDK_DIR/proto" -I "$GOGO_DIR" \
+    -I ../proto -I "$SDK_DIR/proto" -I "$GOGO_DIR" \
     -I "$GATEWAY_DIR/third_party/googleapis" \
     -I "${PROTOC_INCLUDE:-/usr/local/include}" \
     --gocosmos_out="plugins=grpc,paths=source_relative:$OUT" \
