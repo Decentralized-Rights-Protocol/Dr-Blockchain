@@ -13,7 +13,7 @@ env:
 jobs:
   security-check:
     name: Security Check
-    runs-on: ubuntu-latest
+    runs-on: blacksmith-4vcpu-ubuntu-2404
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -41,7 +41,7 @@ jobs:
 
   lint-and-format:
     name: Lint & Format Check
-    runs-on: ubuntu-latest
+    runs-on: blacksmith-4vcpu-ubuntu-2404
     needs: security-check
     steps:
       - name: Checkout code
@@ -85,7 +85,7 @@ jobs:
 
   test-backend:
     name: Backend Tests
-    runs-on: ubuntu-latest
+    runs-on: blacksmith-4vcpu-ubuntu-2404
     needs: security-check
     steps:
       - name: Checkout code
@@ -122,7 +122,7 @@ jobs:
 
   chain-build-test:
     name: DRP Chain Build & Tests
-    runs-on: ubuntu-latest
+    runs-on: blacksmith-4vcpu-ubuntu-2404
     needs: security-check
     defaults:
       run:
@@ -197,7 +197,7 @@ jobs:
 
   build-and-test:
     name: Build & Integration Tests
-    runs-on: ubuntu-latest
+    runs-on: blacksmith-4vcpu-ubuntu-2404
     needs: [lint-and-format, test-backend, chain-build-test]
     steps:
       - name: Checkout code
@@ -238,7 +238,7 @@ jobs:
 
   security-scan:
     name: Security Scan
-    runs-on: ubuntu-latest
+    runs-on: blacksmith-4vcpu-ubuntu-2404
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
