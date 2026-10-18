@@ -2,94 +2,103 @@ syntax = "proto3";
 
 package drp.deri;
 
-option go_package = "github.com/Decentralized-Rights-Protocol/Dr-Blockchain/chain/x/deri/types";
+import "cosmos/msg/v1/msg.proto";
+import "gogoproto/gogo.proto";
+import "google/api/annotations.proto";
 
-// Msg defines the Msg service for the deri module
+option go_package = "github.com/decentralized-rights-protocol/drp/chain/x/deri/types";
+
 service Msg {
-  rpc Transfer(rpcMsgTransfer) returns (MsgTransferResponse);
-  rpc Mint(rpcMsgMint) returns (MsgMintResponse);
-  rpc Burn(rpcMsgBurn) returns (MsgBurnResponse);
+  option (cosmos.msg.v1.service) = true;
+  rpc Transfer(MsgTransfer) returns (MsgTransferResponse);
+  rpc Mint(MsgMint) returns (MsgMintResponse);
+  rpc Burn(MsgBurn) returns (MsgBurnResponse);
 }
 
-// Query defines the Query service for the deri module
 service Query {
-  rpc Balance(QueryBalanceRequest) returns (QueryBalanceResponse);
-  rpc TotalSupply(QueryTotalSupplyRequest) returns (QueryTotalSupplyResponse);
-  rpc Params(QueryParamsRequest) returns (QueryParamsResponse);
+  rpc Balance(QueryBalanceRequest) returns (QueryBalanceResponse) {
+    option (google.api.http).get = "/drp/deri/balances/{address}";
+  }
+  rpc TotalSupply(QueryTotalSupplyRequest) returns (QueryTotalSupplyResponse) {
+    option (google.api.http).get = "/drp/deri/total_supply";
+  }
+  rpc Params(QueryParamsRequest) returns (QueryParamsResponse) {
+    option (google.api.http).get = "/drp/deri/params";
+  }
 }
 
-// MsgTransfer defines a transfer message for $DeRi tokens
-message rpcMsgTransfer {
+message MsgTransfer {
+  option (cosmos.msg.v1.signer) = "from";
   string from = 1;
   string to = 2;
-  string amount = 3; // in uderi (1 deri = 1,000,000 uderi)
+  string amount = 3;
 }
-
-// MsgTransferResponse defines the response for MsgTransfer
 message MsgTransferResponse {
   bool success = 1;
   string error = 2;
 }
-
-// MsgMint defines a mint message for $DeRi tokens
-message rpcMsgMint {
+message MsgMint {
+  option (cosmos.msg.v1.signer) = "signer";
   string to = 1;
-  string amount = 2; // in uderi
-  string reason = 3; // e.g., "reward", "initial_distribution"
+  string amount = 2;
+  string reason = 3;
+  string signer = 4;
 }
-
-// MsgMintResponse defines the response for MsgMint
 message MsgMintResponse {
   bool success = 1;
   string error = 2;
   string minted_amount = 3;
 }
-
-// MsgBurn defines a burn message for $DeRi tokens
-message rpcMsgBurn {
+message MsgBurn {
+  option (cosmos.msg.v1.signer) = "from";
   string from = 1;
-  string amount = 2; // in uderi
+  string amount = 2;
   string reason = 3;
 }
-
-// MsgBurnResponse defines the response for MsgBurn
 message MsgBurnResponse {
   bool success = 1;
   string error = 2;
   string burned_amount = 3;
 }
 
-// QueryBalanceRequest defines the request for balance query
-message QueryBalanceRequest {
-  string address = 1;
-}
-
-// QueryBalanceResponse defines the response for balance query
-message QueryBalanceResponse {
-  string balance = 1; // in uderi
-}
-
-// QueryTotalSupplyRequest defines the request for total supply query
+message QueryBalanceRequest { string address = 1; }
+message QueryBalanceResponse { string balance = 1; }
 message QueryTotalSupplyRequest {}
-
-// QueryTotalSupplyResponse defines the response for total supply query
-message QueryTotalSupplyResponse {
-  string total_supply = 1; // in uderi
-}
-
-// QueryParamsRequest defines the request for params query
+message QueryTotalSupplyResponse { string total_supply = 1; }
 message QueryParamsRequest {}
-
-// QueryParamsResponse defines the response for params query
 message QueryParamsResponse {
-  Params params = 1;
+  Params params = 1 [(gogoproto.nullable) = false];
 }
 
-// Params defines the parameters for the deri module
 message Params {
-  string max_per_block = 1; // e.g., "1000000" uderi
-  string max_per_epoch = 2; // e.g., "100000000" uderi
-  string max_per_activity = 3; // e.g., "10000" uderi
-  string max_per_identity = 4; // e.g., "1000000" uderi
-  string denom = 5; // e.g., "uderi"
+  int64 max_per_block = 1;
+  int64 max_per_epoch = 2;
+  int64 max_per_activity = 3;
+  int64 max_per_identity = 4;
+  string denom = 5;
+}
+message MintRecord {
+  int64 height = 1;
+  string to = 2;
+  string amount = 3;
+  string reason = 4;
+  int64 timestamp = 5;
+}
+message BurnRecord {
+  int64 height = 1;
+  string from = 2;
+  string amount = 3;
+  string reason = 4;
+  int64 timestamp = 5;
+}
+message BalanceGenesis {
+  string address = 1;
+  string amount = 2;
+}
+message GenesisState {
+  Params params = 1 [(gogoproto.nullable) = false];
+  repeated BalanceGenesis balances = 2 [(gogoproto.nullable) = false];
+  string total_supply = 3;
+  repeated MintRecord mint_history = 4 [(gogoproto.nullable) = false];
+  repeated BurnRecord burn_history = 5 [(gogoproto.nullable) = false];
 }
