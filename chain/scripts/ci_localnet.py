@@ -4,6 +4,7 @@
 Uses a fresh temporary home and test keyring. Node output is kept in that temporary
 directory and is not printed because initialization output can include a test mnemonic.
 """
+
 import json
 import os
 import shutil
@@ -69,7 +70,9 @@ def main():
         with open(init_log, "wb") as log:
             # Run every setup step except the final foreground start.
             setup = open(script, encoding="utf-8").read().rsplit('echo "==> Starting node"', 1)[0]
-            subprocess.run(["bash", "-c", setup], env=env, check=True, stdout=log, stderr=subprocess.STDOUT)
+            subprocess.run(
+                ["bash", "-c", setup], env=env, check=True, stdout=log, stderr=subprocess.STDOUT
+            )
         subprocess.run([BIN, "validate-genesis", "--home", home], check=True)
 
         process = start(env, node_log)
@@ -86,7 +89,10 @@ def main():
         for path in (node_log,):
             if os.path.exists(path):
                 lines = open(path, encoding="utf-8", errors="replace").read().splitlines()
-                print("\n".join(line for line in lines[-80:] if "mnemonic" not in line.lower()), file=sys.stderr)
+                print(
+                    "\n".join(line for line in lines[-80:] if "mnemonic" not in line.lower()),
+                    file=sys.stderr,
+                )
         return 1
     finally:
         if process and process.poll() is None:
