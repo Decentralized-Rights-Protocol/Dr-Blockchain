@@ -6,24 +6,24 @@ import "time"
 type RightsCategory string
 
 const (
-	RightsCategoryEducation   RightsCategory = "education"
-	RightsCategoryHealthcare  RightsCategory = "healthcare"
+	RightsCategoryEducation    RightsCategory = "education"
+	RightsCategoryHealthcare   RightsCategory = "healthcare"
 	RightsCategoryHumanitarian RightsCategory = "humanitarian"
-	RightsCategoryPrivacy     RightsCategory = "privacy"
-	RightsCategoryDignity     RightsCategory = "dignity"
-	RightsCategoryOther       RightsCategory = "other"
+	RightsCategoryPrivacy      RightsCategory = "privacy"
+	RightsCategoryDignity      RightsCategory = "dignity"
+	RightsCategoryOther        RightsCategory = "other"
 )
 
 // RightsProposalStatus mirrors the standard governance proposal lifecycle.
 type RightsProposalStatus int32
 
 const (
-	RightsProposalStatusNil       RightsProposalStatus = 0
-	RightsProposalStatusDeposit   RightsProposalStatus = 1
-	RightsProposalStatusVoting    RightsProposalStatus = 2
-	RightsProposalStatusPassed    RightsProposalStatus = 3
-	RightsProposalStatusRejected  RightsProposalStatus = 4
-	RightsProposalStatusFailed    RightsProposalStatus = 5
+	RightsProposalStatusNil      RightsProposalStatus = 0
+	RightsProposalStatusDeposit  RightsProposalStatus = 1
+	RightsProposalStatusVoting   RightsProposalStatus = 2
+	RightsProposalStatusPassed   RightsProposalStatus = 3
+	RightsProposalStatusRejected RightsProposalStatus = 4
+	RightsProposalStatusFailed   RightsProposalStatus = 5
 )
 
 // RightsProposal is a DRP-specific governance proposal with rights context.

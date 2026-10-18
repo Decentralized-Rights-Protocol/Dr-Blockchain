@@ -7,11 +7,11 @@ import "time"
 type StatusLevel string
 
 const (
-	StatusLevelUnknown   StatusLevel = "unknown"
-	StatusLevelObserver  StatusLevel = "observer"
+	StatusLevelUnknown     StatusLevel = "unknown"
+	StatusLevelObserver    StatusLevel = "observer"
 	StatusLevelContributor StatusLevel = "contributor"
-	StatusLevelVerified  StatusLevel = "verified"
-	StatusLevelTrusted   StatusLevel = "trusted"
+	StatusLevelVerified    StatusLevel = "verified"
+	StatusLevelTrusted     StatusLevel = "trusted"
 )
 
 // StatusRecord is the on-chain representation of a participant's trust status.

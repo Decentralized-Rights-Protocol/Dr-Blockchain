@@ -4,6 +4,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/codec"
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	"github.com/cosmos/cosmos-sdk/types/msgservice"
 )
 
 var (
@@ -22,13 +23,6 @@ func RegisterLegacyAminoCodec(cdc *codec.LegacyAmino) {
 }
 
 func RegisterInterfaces(registry codectypes.InterfaceRegistry) {
-	// NOTE: Placeholder (non-proto-generated) Msgs; disable interface-registry wiring
-	// until proper protobuf types exist to avoid typeURL collisions at runtime.
-	//
-	// registry.RegisterImplementations((*sdk.Msg)(nil),
-	//   &MsgAnchorEvidence{},
-	//   &MsgRevokeEvidence{},
-	// )
-	_ = registry
-	_ = sdk.Msg(nil)
+	registry.RegisterImplementations((*sdk.Msg)(nil), &MsgAnchorEvidence{}, &MsgRevokeEvidence{})
+	msgservice.RegisterMsgServiceDesc(registry, &_Msg_serviceDesc)
 }

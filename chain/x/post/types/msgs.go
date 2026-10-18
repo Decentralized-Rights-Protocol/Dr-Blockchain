@@ -13,12 +13,6 @@ const (
 var _ sdk.Msg = &MsgIssueTrustStatus{}
 
 // MsgIssueTrustStatus issues a non-transferable trust status record.
-type MsgIssueTrustStatus struct {
-	Issuer      string      `json:"issuer"`
-	Subject     string      `json:"subject"`
-	StatusLevel StatusLevel `json:"status_level"`
-	BasisCID    string      `json:"basis_cid"`
-}
 
 func (msg *MsgIssueTrustStatus) Route() string { return RouterKey }
 func (msg *MsgIssueTrustStatus) Type() string  { return TypeMsgIssueTrustStatus }
@@ -40,11 +34,6 @@ func (msg *MsgIssueTrustStatus) ValidateBasic() error {
 }
 
 // MsgRevokeTrustStatus revokes an existing status record.
-type MsgRevokeTrustStatus struct {
-	Authority string `json:"authority"`
-	RecordID  string `json:"record_id"`
-	Reason    string `json:"reason"`
-}
 
 var _ sdk.Msg = &MsgRevokeTrustStatus{}
 

@@ -1,10 +1,10 @@
 // Package keeper implements the DRP evidence module state management.
 //
 // Key design decisions:
-//   1. Only EvidenceCommitment structs (CID + hashes + status) are stored.
-//   2. No reference to IPFS node is held here; off-chain services use
-//      the DRP_IPFS_API_URL env var to interact with IPFS.
-//   3. The keeper exposes a clear "anchor / confirm / revoke" lifecycle.
+//  1. Only EvidenceCommitment structs (CID + hashes + status) are stored.
+//  2. No reference to IPFS node is held here; off-chain services use
+//     the DRP_IPFS_API_URL env var to interact with IPFS.
+//  3. The keeper exposes a clear "anchor / confirm / revoke" lifecycle.
 package keeper
 
 import (
