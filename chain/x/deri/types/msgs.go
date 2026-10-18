@@ -3,6 +3,8 @@ package types
 import (
 	"fmt"
 
+	"github.com/cosmos/cosmos-sdk/codec"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 )
@@ -206,15 +208,9 @@ func (msg *MsgBurn) GetSigners() []sdk.AccAddress {
 	return []sdk.AccAddress{from}
 }
 
-// RegisterLegacyAminoCodec registers the legacy amino codec
-func RegisterLegacyAminoCodec(cdc *sdk.LegacyAmino) {
-	cdc.RegisterConcrete(&MsgTransfer{}, "drp/deri/MsgTransfer", nil)
-	cdc.RegisterConcrete(&MsgMint{}, "drp/deri/MsgMint", nil)
-	cdc.RegisterConcrete(&MsgBurn{}, "drp/deri/MsgBurn", nil)
-}
-
-// ModuleCdc defines the codec for the deri module
-var ModuleCdc = sdk.NewLegacyAmino()
+// ModuleCdc is retained only for legacy JSON signing helpers while this module
+// is migrated to generated protobuf transaction types.
+var ModuleCdc = codec.NewLegacyAmino()
 
 func init() {
 	RegisterLegacyAminoCodec(ModuleCdc)
