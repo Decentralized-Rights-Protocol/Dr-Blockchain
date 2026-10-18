@@ -108,16 +108,23 @@ Example:
 				if verr != nil {
 					return fmt.Errorf("failed to parse vesting amount: %w", verr)
 				}
-				if vestingEnd != 0 {
-					newAccount = authvesting.NewContinuousVestingAccountRaw(
-						authvesting.NewBaseVestingAccount(baseAccount, vCoins, vestingEnd),
-						vestingStart,
-					)
+				if vCoins.IsZero() || !coins.IsAllGTE(vCoins) {
+					return fmt.Errorf("vesting amount must be positive and no greater than the account balance")
+				}
+				if vestingEnd <= 0 || vestingStart < 0 || vestingStart >= vestingEnd {
+					return fmt.Errorf("vesting requires 0 <= start time < end time")
+				}
+				baseVesting := authvesting.NewBaseVestingAccount(baseAccount, vCoins, vestingEnd)
+				if vestingStart == 0 {
+					newAccount = authvesting.NewDelayedVestingAccountRaw(baseVesting)
 				} else {
-					newAccount = baseAccount
+					newAccount = authvesting.NewContinuousVestingAccountRaw(baseVesting, vestingStart)
 				}
 			}
 
+			if err := newAccount.Validate(); err != nil {
+				return fmt.Errorf("invalid genesis account: %w", err)
+			}
 			accts = append(accts, newAccount)
 			authGenState.Accounts, err = authtypes.PackAccounts(accts)
 			if err != nil {
@@ -153,6 +160,7 @@ Example:
 	}
 
 	cmd.Flags().String(flags.FlagHome, defaultNodeHome, "The application home directory")
+	flags.AddKeyringFlags(cmd.Flags())
 	cmd.Flags().String("vesting-amount", "", "Amount of coins for vesting accounts")
 	cmd.Flags().Int64("vesting-start-time", 0, "Unix timestamp of vesting start time")
 	cmd.Flags().Int64("vesting-end-time", 0, "Unix timestamp of vesting end time")

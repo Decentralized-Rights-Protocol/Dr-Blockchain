@@ -5,9 +5,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/codec"
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
-	sdk "github.com/cosmos/cosmos-sdk/types"
-	cryptocodec "github.com/cosmos/cosmos-sdk/crypto/codec"
-	txtypes "github.com/cosmos/cosmos-sdk/types/tx"
+	"github.com/cosmos/cosmos-sdk/std"
 	"github.com/cosmos/cosmos-sdk/x/auth/tx"
 )
 
@@ -28,14 +26,11 @@ func MakeEncodingConfig() EncodingConfig {
 	amino := codec.NewLegacyAmino()
 	interfaceRegistry := codectypes.NewInterfaceRegistry()
 
-	// Register crypto (PubKey/PrivKey) types for both Amino and Protobuf Any packing.
-	// This is required for keyring operations (`drpd keys ...`) to work correctly.
-	cryptocodec.RegisterCrypto(amino)
-	cryptocodec.RegisterInterfaces(interfaceRegistry)
-	txtypes.RegisterInterfaces(interfaceRegistry)
-
-	// Register standard SDK Amino types (includes legacy Msg, accounts, etc).
-	sdk.RegisterLegacyAminoCodec(amino)
+	// Keep application, CLI, genesis and legacy Amino signing codecs identical.
+	std.RegisterLegacyAminoCodec(amino)
+	std.RegisterInterfaces(interfaceRegistry)
+	ModuleBasics.RegisterLegacyAminoCodec(amino)
+	ModuleBasics.RegisterInterfaces(interfaceRegistry)
 
 	marshaler := codec.NewProtoCodec(interfaceRegistry)
 	txCfg := tx.NewTxConfig(marshaler, tx.DefaultSignModes)
