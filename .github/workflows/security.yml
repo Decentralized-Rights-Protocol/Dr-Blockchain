@@ -11,7 +11,7 @@ on:
 jobs:
   secret-scan:
     name: Secret Scanning
-    runs-on: ubuntu-latest
+    runs-on: blacksmith-4vcpu-ubuntu-2404
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -97,7 +97,7 @@ jobs:
 
   dependency-scan:
     name: Dependency Vulnerability Scan
-    runs-on: ubuntu-latest
+    runs-on: blacksmith-4vcpu-ubuntu-2404
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -148,7 +148,7 @@ jobs:
 
   code-quality:
     name: Code Quality & Security
-    runs-on: ubuntu-latest
+    runs-on: blacksmith-4vcpu-ubuntu-2404
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -207,7 +207,7 @@ jobs:
 
   security-test:
     name: Security Tests
-    runs-on: ubuntu-latest
+    runs-on: blacksmith-4vcpu-ubuntu-2404
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -253,7 +253,7 @@ jobs:
 
   notify-security:
     name: Security Notification
-    runs-on: ubuntu-latest
+    runs-on: blacksmith-4vcpu-ubuntu-2404
     if: failure()
     needs: [secret-scan, dependency-scan, code-quality, security-test]
     steps:
