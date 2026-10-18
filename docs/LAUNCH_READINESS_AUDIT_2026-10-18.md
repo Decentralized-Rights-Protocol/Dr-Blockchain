@@ -10,6 +10,27 @@ This is a source-level audit of the current `Dr-Blockchain` default branch, focu
 
 ## Findings
 
+### P0 — Cosmos SDK compatibility blocks compilation before functional tests
+
+The CI run for launch-readiness PR #17 (run ID `39137007736`) failed in `go test ./... -count=1` before the node binary build step. This is a compile failure, not a test assertion failure.
+
+Evidence from the job log:
+- `chain/go.mod` pins `github.com/cosmos/cosmos-sdk v0.47.14` and CometBFT `v0.37.5`. Do not assume a newer SDK was selected until the resolved module graph is inspected.
+- `x/deri/client/rest/rest.go` imports the unavailable `github.com/cosmos/cosmos-sdk/types/rest` package.
+- `x/deri/types/msgs.go` duplicates `RegisterLegacyAminoCodec`; `types.go` duplicates store/router key declarations already in `keys.go`.
+- Hand-written DRP messages in DeRi, PoST, Rights and Trust do not implement the protobuf methods required by the SDK message interfaces.
+- PoAT module code has incompatible gateway method signatures and references legacy `sdk.Route`/`sdk.Querier` APIs that are not available in the resolved API surface.
+
+**Decision:** keep the currently declared SDK/CometBFT versions pinned during the first repair. Do not “fix” this by blindly adding an SDK dependency or changing versions; that can hide one error while expanding the migration surface.
+
+Repair sequence:
+1. Capture the resolved dependency graph in CI (`go list -m github.com/cosmos/cosmos-sdk github.com/cometbft/cometbft`) and keep it as build evidence.
+2. Remove duplicate declarations and either delete/migrate the obsolete hand-written DeRi REST layer to the supported client/gateway pattern, or isolate it only if it is truly unused.
+3. Define the custom transaction messages in protobuf schemas and generate the SDK-compatible Go types; do not hand-add fake `ProtoMessage` methods to structs that need real protobuf encoding.
+4. Update each custom module's AppModule/AppModuleBasic and service registration to the pinned SDK's exact interfaces.
+5. Re-enable and register one module at a time, with package tests after each migration; finish with `go test ./...` and `go build ./cmd/drpd`.
+6. Only then proceed to the first end-to-end PoAT transaction. A green CI that skips broken packages is not an acceptable final fix.
+
 ### P0 — PoAT/PoST modules are not wired into the app
 
 Evidence:
@@ -20,7 +41,7 @@ Evidence:
 
 Impact: a running CometBFT/Cosmos node is not proof that PoAT or PoST transactions can be accepted, committed, queried, and persisted in application state.
 
-Next action: finish the minimum supported Cosmos SDK message/service implementation for PoAT, wire the keeper/store/module into the app and genesis, and add an end-to-end transaction test before implementing PoST.
+Next action: after restoring a clean SDK-compatible build, finish the minimum supported Cosmos SDK message/service implementation for PoAT, wire the keeper/store/module into the app and genesis, and add an end-to-end transaction test before implementing PoST.
 
 ### P0 — The current localnet script can delete existing node state
 
@@ -55,7 +76,7 @@ The explorer/indexer and app/API must read transaction hashes, heights, and stat
 
 ## Recommended next milestones (one task at a time)
 
-1. **Build/test baseline:** run `cd chain && go test ./... -count=1 && go build -o build/drpd ./cmd/drpd` on CI and a clean local checkout; capture failures rather than suppressing them.
+1. **Restore the compile baseline:** resolve the custom-module SDK compatibility issues above; do not suppress broken packages from CI.
 2. **Safe localnet:** verify the updated script on a disposable home, confirm the existing-home guard, then query status and observe at least two blocks.
 3. **Minimal PoAT transaction:** wire PoAT into the app, use supported SDK message/service registration, and test submit → block → query → restart. Do not enable a scaffold that lacks real message routing.
 4. **Deterministic PoST:** implement only after PoAT's transaction pattern and state tests are stable.
@@ -68,6 +89,7 @@ The explorer/indexer and app/API must read transaction hashes, heights, and stat
 
 ## Acceptance criteria for the first real PoAT transaction
 
+- [ ] All packages compile against the pinned SDK; `go test ./... -count=1` passes.
 - [ ] Fresh local node initializes and produces blocks.
 - [ ] A valid wallet-signed PoAT transaction is accepted and committed.
 - [ ] Invalid address, malformed CID/hash, duplicate proof, unauthorized revocation, and malformed signatures are rejected.
