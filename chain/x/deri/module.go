@@ -10,12 +10,10 @@ import (
 	cdctypes "github.com/cosmos/cosmos-sdk/codec/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
-	"github.com/gorilla/mux"
 	"github.com/grpc-ecosystem/grpc-gateway/runtime"
 	"github.com/spf13/cobra"
 
 	"github.com/decentralized-rights-protocol/drp/chain/x/deri/client/cli"
-	"github.com/decentralized-rights-protocol/drp/chain/x/deri/client/rest"
 	"github.com/decentralized-rights-protocol/drp/chain/x/deri/keeper"
 	"github.com/decentralized-rights-protocol/drp/chain/x/deri/types"
 )
@@ -65,11 +63,6 @@ func (AppModuleBasic) ValidateGenesis(cdc codec.JSONCodec, config client.TxEncod
 		return err
 	}
 	return genState.Validate()
-}
-
-// RegisterRESTRoutes registers the REST routes
-func (AppModuleBasic) RegisterRESTRoutes(clientCtx client.Context, rtr *mux.Router) {
-	rest.RegisterRoutes(clientCtx, rtr)
 }
 
 // RegisterGRPCGatewayRoutes registers the gRPC Gateway routes
@@ -133,9 +126,9 @@ func (am AppModule) RegisterInvariants(ir types.InvariantRegistry) {
 }
 
 // InitGenesis performs module initialization from genesis
-func (am AppModule) InitGenesis(ctx sdk.Context, cdc codec.JSONCodec, genState json.RawMessage) []abci.ValidatorUpdate {
+func (am AppModule) InitGenesis(ctx sdk.Context, cdc codec.JSONCodec, data json.RawMessage) []abci.ValidatorUpdate {
 	var genState types.GenesisState
-	cdc.MustUnmarshalJSON(genState, genState)
+	cdc.MustUnmarshalJSON(data, &genState)
 	am.keeper.InitGenesis(ctx, &genState)
 	return []abci.ValidatorUpdate{}
 }
