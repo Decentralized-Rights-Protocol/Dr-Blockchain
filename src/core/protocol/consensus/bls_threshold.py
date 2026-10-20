@@ -7,6 +7,7 @@ distributed key generation. Each message is signed and verified independently.
 The default generated keys are for local development only; production nodes must
 load independently provisioned keys and must not share validator private keys.
 """
+
 from __future__ import annotations
 
 import hashlib
@@ -244,9 +245,9 @@ class BLSConsensus:
             }
             for elder_id in participant_ids
         ]
-        bundle_bytes = json.dumps(
-            signature_bundle, sort_keys=True, separators=(",", ":")
-        ).encode("utf-8")
+        bundle_bytes = json.dumps(signature_bundle, sort_keys=True, separators=(",", ":")).encode(
+            "utf-8"
+        )
         proof = {
             "domain": "DRP-QUORUM-CERTIFICATE-v1",
             "block_hash": block_hash,
@@ -266,9 +267,7 @@ class BLSConsensus:
             verification_proof=proof_bytes,
         )
 
-    def verify_threshold_signature(
-        self, block_hash: str, certificate: ThresholdSignature
-    ) -> bool:
+    def verify_threshold_signature(self, block_hash: str, certificate: ThresholdSignature) -> bool:
         """Verify a quorum certificate independently against this validator registry."""
         if not certificate.threshold_met:
             return False
