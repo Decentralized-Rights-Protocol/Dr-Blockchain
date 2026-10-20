@@ -17,7 +17,11 @@ def test_quorum_requires_unique_valid_positive_votes():
     assert certificate is not None
     assert certificate.threshold_met is True
     assert certificate.participants == ["elder_1", "elder_2", "elder_3"]
+    assert consensus.verify_threshold_signature(proposal.block_hash, certificate)
     assert consensus.get_consensus_status()["bls_aggregation"] is False
+
+    certificate.verification_proof = b"{}"
+    assert not consensus.verify_threshold_signature(proposal.block_hash, certificate)
 
 
 def test_duplicate_or_conflicting_round_vote_is_rejected():
