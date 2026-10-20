@@ -46,9 +46,10 @@ def test_tampered_signature_does_not_count():
 def test_unknown_proposal_and_invalid_threshold_are_rejected():
     consensus = BLSConsensus(total_elders=2, threshold=2)
     assert consensus.collect_threshold_signature("unknown") is None
-    try:
-        BLSConsensus(total_elders=2, threshold=3)
-    except ValueError:
-        pass
-    else:
-        raise AssertionError("threshold greater than validator count must fail")
+    for invalid_threshold in (0, 1, 3):
+        try:
+            BLSConsensus(total_elders=2, threshold=invalid_threshold)
+        except ValueError:
+            pass
+        else:
+            raise AssertionError("non-supermajority or oversized threshold must fail")
