@@ -23,7 +23,7 @@ DRP is a revolutionary blockchain protocol that combines AI-verified consensus, 
 ├─────────────────────────────────────────────────────────────┤
 │  Verification Layer   │ PoST │ PoAT │ IoT Sensors │ Privacy │
 ├─────────────────────────────────────────────────────────────┤
-│  Consensus Layer      │ BLS Threshold │ MPC │ Post-Quantum  │
+│  Consensus Layer      │ Ed25519 Quorum │ Certificate Checks │
 ├─────────────────────────────────────────────────────────────┤
 │  Networking Layer     │ QUIC │ DNSSEC │ TLS │ P2P Discovery │
 ├─────────────────────────────────────────────────────────────┤
@@ -41,7 +41,7 @@ DRP is a revolutionary blockchain protocol that combines AI-verified consensus, 
 
 ### 🔐 Zero-Trust Security
 - **Post-Quantum Cryptography**: CRYSTALS-Kyber & Dilithium
-- **Multi-Party Computation**: Threshold signatures without key exposure
+- **Consensus prototype**: Individually verified Ed25519 votes and quorum certificates; not BLS aggregation or MPC
 - **Privacy-Preserving**: Local processing with hashed summaries
 - **Incident Response**: Automated threat detection and response
 
@@ -66,7 +66,7 @@ DRP/
 │   ├── core/                 # Core blockchain modules
 │   │   ├── ai/              # AI verification & transparency
 │   │   ├── blockchain/      # Blockchain implementation
-│   │   ├── consensus/       # BLS threshold signatures, MPC
+│   │   ├── consensus/       # Ed25519 quorum prototype (not BLS/MPC)
 │   │   ├── crypto/          # Cryptographic functions
 │   │   ├── networking/      # QUIC, P2P, discovery
 │   │   ├── storage/         # ScyllaDB, OrbitDB integration
