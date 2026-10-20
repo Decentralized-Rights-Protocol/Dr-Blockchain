@@ -61,15 +61,15 @@ class BLSConsensus:
     def __init__(
         self,
         total_elders: int = 21,
-        threshold: int = 14,
+        threshold: int = 15,
         block_time: float = 2.0,
         *,
         private_keys: Optional[Mapping[str, ed25519.Ed25519PrivateKey]] = None,
     ):
         if total_elders < 1:
             raise ValueError("total_elders must be positive")
-        if threshold < 1 or threshold > total_elders:
-            raise ValueError("threshold must be between 1 and total_elders")
+        if threshold <= (2 * total_elders) // 3 or threshold > total_elders:
+            raise ValueError("threshold must be a strict supermajority and no greater than total_elders")
         if block_time <= 0:
             raise ValueError("block_time must be positive")
 
@@ -313,7 +313,7 @@ class BLSConsensus:
                 normalized_bundle, sort_keys=True, separators=(",", ":")
             ).encode("utf-8")
             return hashlib.sha256(bundle_bytes).digest() == certificate.signature
-        except (KeyError, TypeError, ValueError, UnicodeDecodeError, InvalidSignature):
+        except (AttributeError, KeyError, TypeError, ValueError, UnicodeDecodeError, InvalidSignature):
             return False
 
     def _sign_message(self, message: ConsensusMessage, elder_id: str) -> bytes:
