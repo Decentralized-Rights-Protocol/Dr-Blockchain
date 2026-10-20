@@ -13,7 +13,7 @@ import hashlib
 import json
 import logging
 import time
-from dataclasses import asdict, dataclass
+from dataclasses import dataclass
 from typing import Any, Dict, List, Mapping, Optional, Tuple
 
 from cryptography.exceptions import InvalidSignature
@@ -48,8 +48,7 @@ class ConsensusMessage:
 
 @dataclass
 class ThresholdSignature:
-    # This is a quorum certificate containing individual Ed25519 signatures,
-    # not a cryptographic BLS aggregate signature.
+    # Individual Ed25519 signatures and their proof bundle, not a BLS aggregate.
     signature: bytes
     participants: List[str]
     threshold_met: bool
@@ -141,9 +140,7 @@ class BLSConsensus:
         self, proposer_id: str, block_data: Dict[str, Any]
     ) -> Optional[ConsensusMessage]:
         elder = self.elders.get(proposer_id)
-        if elder is None or elder.status != "active":
-            return None
-        if not isinstance(block_data, dict):
+        if elder is None or elder.status != "active" or not isinstance(block_data, dict):
             return None
         try:
             block_hash = self._calculate_block_hash(block_data)
@@ -175,16 +172,13 @@ class BLSConsensus:
         elder = self.elders.get(voter_id)
         if elder is None or elder.status != "active" or not isinstance(vote, bool):
             return None
-        proposal_key = (self.current_view, self.current_round, block_hash)
-        proposal = self._proposals.get(proposal_key)
+        proposal = self._proposals.get((self.current_view, self.current_round, block_hash))
         if proposal is None or not self._verify_message_signature(proposal):
             return None
 
         vote_key = (self.current_view, self.current_round, voter_id)
-        previous_hash = self._votes_by_round.get(vote_key)
-        if previous_hash is not None:
-            # An elder may not vote twice in the same round, even for the same
-            # block. This prevents duplicate messages inflating the threshold.
+        if vote_key in self._votes_by_round:
+            # No duplicate or conflicting vote from one validator in a round.
             return None
 
         message = ConsensusMessage(
@@ -203,8 +197,7 @@ class BLSConsensus:
         return message
 
     def collect_threshold_signature(self, block_hash: str) -> Optional[ThresholdSignature]:
-        proposal_key = (self.current_view, self.current_round, block_hash)
-        proposal = self._proposals.get(proposal_key)
+        proposal = self._proposals.get((self.current_view, self.current_round, block_hash))
         if proposal is None or not self._verify_message_signature(proposal):
             return None
 
@@ -228,15 +221,14 @@ class BLSConsensus:
         if len(votes_by_sender) < self.threshold:
             return None
 
-        ordered_ids = sorted(votes_by_sender)
-        ordered_votes = [votes_by_sender[elder_id] for elder_id in ordered_ids]
+        participant_ids = sorted(votes_by_sender)
         signature_bundle = [
             {
-                "sender_id": vote.sender_id,
-                "signature": vote.signature.hex(),
-                "message": self._canonical_message_bytes(vote).hex(),
+                "sender_id": elder_id,
+                "signature": votes_by_sender[elder_id].signature.hex(),
+                "message": self._canonical_message_bytes(votes_by_sender[elder_id]).hex(),
             }
-            for vote in ordered_votes
+            for elder_id in participant_ids
         ]
         bundle_bytes = json.dumps(
             signature_bundle, sort_keys=True, separators=(",", ":")
@@ -246,16 +238,83 @@ class BLSConsensus:
             "block_hash": block_hash,
             "view_number": self.current_view,
             "round_number": self.current_round,
-            "participants": ordered_ids,
+            "participants": participant_ids,
             "threshold": self.threshold,
+            "votes": signature_bundle,
         }
-        proof_bytes = json.dumps(proof, sort_keys=True, separators=(",", ":")).encode()
+        proof_bytes = json.dumps(
+            proof, sort_keys=True, separators=(",", ":"), allow_nan=False
+        ).encode("utf-8")
         return ThresholdSignature(
             signature=hashlib.sha256(bundle_bytes).digest(),
-            participants=ordered_ids,
+            participants=participant_ids,
             threshold_met=True,
             verification_proof=proof_bytes,
         )
+
+    def verify_threshold_signature(
+        self, block_hash: str, certificate: ThresholdSignature
+    ) -> bool:
+        """Verify a quorum certificate independently against this validator registry."""
+        if not certificate.threshold_met:
+            return False
+        try:
+            proof = json.loads(certificate.verification_proof.decode("utf-8"))
+            if (
+                proof.get("domain") != "DRP-QUORUM-CERTIFICATE-v1"
+                or proof.get("block_hash") != block_hash
+                or proof.get("threshold") != self.threshold
+                or not isinstance(proof.get("participants"), list)
+                or not isinstance(proof.get("votes"), list)
+            ):
+                return False
+            participants = proof["participants"]
+            votes = proof["votes"]
+            if (
+                len(participants) < self.threshold
+                or len(set(participants)) != len(participants)
+                or len(votes) != len(participants)
+                or participants != certificate.participants
+            ):
+                return False
+
+            normalized_bundle = []
+            for vote in votes:
+                sender_id = vote["sender_id"]
+                if sender_id not in participants or len(vote["message"]) == 0:
+                    return False
+                raw_message = bytes.fromhex(vote["message"])
+                signature = bytes.fromhex(vote["signature"])
+                body = json.loads(raw_message.decode("utf-8"))
+                if (
+                    body.get("domain") != "DRP-CONSENSUS-MESSAGE-v1"
+                    or body.get("message_type") != "vote"
+                    or body.get("block_hash") != block_hash
+                    or body.get("view_number") != proof.get("view_number")
+                    or body.get("round_number") != proof.get("round_number")
+                    or body.get("sender_id") != sender_id
+                    or body.get("payload", {}).get("vote") is not True
+                ):
+                    return False
+                elder = self.elders.get(sender_id)
+                if elder is None:
+                    return False
+                public_key = ed25519.Ed25519PublicKey.from_public_bytes(elder.public_key)
+                public_key.verify(signature, raw_message)
+                normalized_bundle.append({
+                    "sender_id": sender_id,
+                    "signature": signature.hex(),
+                    "message": raw_message.hex(),
+                })
+
+            if [vote["sender_id"] for vote in normalized_bundle] != participants:
+                return False
+            bundle_bytes = json.dumps(
+                normalized_bundle, sort_keys=True, separators=(",", ":")
+            ).encode("utf-8")
+            return hashlib.sha256(bundle_bytes).digest() == certificate.signature
+        except (KeyError, TypeError, ValueError, UnicodeDecodeError, InvalidSignature):
+            return False
 
     def _sign_message(self, message: ConsensusMessage, elder_id: str) -> bytes:
         private_key = self._private_keys.get(elder_id)
@@ -278,15 +337,13 @@ class BLSConsensus:
         elder = self.elders.get(elder_id)
         if elder is None or not isinstance(new_public_key, bytes) or len(new_public_key) != 32:
             return False
-        # Public-key-only rotation would make this local simulator unable to sign
-        # as that elder. Require the matching private key to be supplied through
-        # an explicit future key-management API instead of silently desynchronizing.
+        # Public-key-only rotation would desynchronize this local simulator.
         logger.warning("Key rotation requires a coordinated validator key-management flow")
         return False
 
     def slash_elder(self, elder_id: str, reason: str) -> bool:
         elder = self.elders.get(elder_id)
-        if elder is None or not reason.strip():
+        if elder is None or not isinstance(reason, str) or not reason.strip():
             return False
         slashed_amount = elder.stake_amount // 2
         elder.stake_amount -= slashed_amount
