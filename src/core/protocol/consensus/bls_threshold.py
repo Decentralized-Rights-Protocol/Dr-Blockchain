@@ -69,7 +69,9 @@ class BLSConsensus:
         if total_elders < 1:
             raise ValueError("total_elders must be positive")
         if threshold <= (2 * total_elders) // 3 or threshold > total_elders:
-            raise ValueError("threshold must be a strict supermajority and no greater than total_elders")
+            raise ValueError(
+                "threshold must be a strict supermajority and no greater than total_elders"
+            )
         if block_time <= 0:
             raise ValueError("block_time must be positive")
 
@@ -124,15 +126,21 @@ class BLSConsensus:
             "payload": message.payload,
         }
         return json.dumps(
-            body, sort_keys=True, separators=(",", ":"), ensure_ascii=False,
+            body,
+            sort_keys=True,
+            separators=(",", ":"),
+            ensure_ascii=False,
             allow_nan=False,
         ).encode("utf-8")
 
     @staticmethod
     def _calculate_block_hash(block_data: Dict[str, Any]) -> str:
         encoded = json.dumps(
-            block_data, sort_keys=True, separators=(",", ":"),
-            ensure_ascii=False, allow_nan=False,
+            block_data,
+            sort_keys=True,
+            separators=(",", ":"),
+            ensure_ascii=False,
+            allow_nan=False,
         ).encode("utf-8")
         return hashlib.sha256(b"DRP-BLOCK-v1\x00" + encoded).hexdigest()
 
@@ -140,7 +148,11 @@ class BLSConsensus:
         self, proposer_id: str, block_data: Dict[str, Any]
     ) -> Optional[ConsensusMessage]:
         elder = self.elders.get(proposer_id)
-        if elder is None or elder.status != "active" or not isinstance(block_data, dict):
+        if (
+            elder is None
+            or elder.status != "active"
+            or not isinstance(block_data, dict)
+        ):
             return None
         try:
             block_hash = self._calculate_block_hash(block_data)
@@ -172,7 +184,9 @@ class BLSConsensus:
         elder = self.elders.get(voter_id)
         if elder is None or elder.status != "active" or not isinstance(vote, bool):
             return None
-        proposal = self._proposals.get((self.current_view, self.current_round, block_hash))
+        proposal = self._proposals.get(
+            (self.current_view, self.current_round, block_hash)
+        )
         if proposal is None or not self._verify_message_signature(proposal):
             return None
 
@@ -299,13 +313,17 @@ class BLSConsensus:
                 elder = self.elders.get(sender_id)
                 if elder is None:
                     return False
-                public_key = ed25519.Ed25519PublicKey.from_public_bytes(elder.public_key)
+                public_key = ed25519.Ed25519PublicKey.from_public_bytes(
+                    elder.public_key
+                )
                 public_key.verify(signature, raw_message)
-                normalized_bundle.append({
-                    "sender_id": sender_id,
-                    "signature": signature.hex(),
-                    "message": raw_message.hex(),
-                })
+                normalized_bundle.append(
+                    {
+                        "sender_id": sender_id,
+                        "signature": signature.hex(),
+                        "message": raw_message.hex(),
+                    }
+                )
 
             if [vote["sender_id"] for vote in normalized_bundle] != participants:
                 return False
@@ -313,7 +331,14 @@ class BLSConsensus:
                 normalized_bundle, sort_keys=True, separators=(",", ":")
             ).encode("utf-8")
             return hashlib.sha256(bundle_bytes).digest() == certificate.signature
-        except (AttributeError, KeyError, TypeError, ValueError, UnicodeDecodeError, InvalidSignature):
+        except (
+            AttributeError,
+            KeyError,
+            TypeError,
+            ValueError,
+            UnicodeDecodeError,
+            InvalidSignature,
+        ):
             return False
 
     def _sign_message(self, message: ConsensusMessage, elder_id: str) -> bytes:
@@ -335,7 +360,11 @@ class BLSConsensus:
 
     def rotate_elder(self, elder_id: str, new_public_key: bytes) -> bool:
         elder = self.elders.get(elder_id)
-        if elder is None or not isinstance(new_public_key, bytes) or len(new_public_key) != 32:
+        if (
+            elder is None
+            or not isinstance(new_public_key, bytes)
+            or len(new_public_key) != 32
+        ):
             return False
         # Public-key-only rotation would desynchronize this local simulator.
         logger.warning("Key rotation requires a coordinated validator key-management flow")
@@ -350,11 +379,18 @@ class BLSConsensus:
         elder.reputation_score *= 0.5
         elder.status = "slashed"
         elder.last_activity = time.time()
-        logger.warning("Slashed elder %s: %s tokens, reason: %s", elder_id, slashed_amount, reason)
+        logger.warning(
+            "Slashed elder %s: %s tokens, reason: %s",
+            elder_id,
+            slashed_amount,
+            reason,
+        )
         return True
 
     def get_consensus_status(self) -> Dict[str, Any]:
-        active_elders = [elder for elder in self.elders.values() if elder.status == "active"]
+        active_elders = [
+            elder for elder in self.elders.values() if elder.status == "active"
+        ]
         return {
             "implementation": "ed25519-quorum-prototype",
             "bls_aggregation": False,
@@ -364,6 +400,8 @@ class BLSConsensus:
             "current_view": self.current_view,
             "current_round": self.current_round,
             "pending_messages": len(self.pending_messages),
-            "elder_status": {key: elder.status for key, elder in self.elders.items()},
+            "elder_status": {
+                key: elder.status for key, elder in self.elders.items()
+            },
             "total_stake": sum(elder.stake_amount for elder in self.elders.values()),
         }
