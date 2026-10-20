@@ -1,18 +1,23 @@
 """
-DRP Consensus Layer - BLS Threshold Signatures for AI Elder Quorum
+DRP consensus quorum prototype.
 
-This module implements BLS threshold signatures for the AI Elder consensus mechanism,
-ensuring secure multi-party computation without exposing private keys.
+This module uses individual Ed25519 signatures and a quorum certificate. Despite
+the historical module/class names, it does NOT implement BLS aggregation or
+distributed key generation. Each message is signed and verified independently.
+The default generated keys are for local development only; production nodes must
+load independently provisioned keys and must not share validator private keys.
 """
+from __future__ import annotations
 
 import hashlib
 import json
 import logging
 import time
 from dataclasses import asdict, dataclass
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any, Dict, List, Mapping, Optional, Tuple
 
-from cryptography.hazmat.primitives import hashes, serialization
+from cryptography.exceptions import InvalidSignature
+from cryptography.hazmat.primitives import serialization
 from cryptography.hazmat.primitives.asymmetric import ed25519
 
 logger = logging.getLogger(__name__)
@@ -20,8 +25,6 @@ logger = logging.getLogger(__name__)
 
 @dataclass
 class ElderNode:
-    """AI Elder node configuration"""
-
     elder_id: str
     public_key: bytes
     stake_amount: int
@@ -33,8 +36,6 @@ class ElderNode:
 
 @dataclass
 class ConsensusMessage:
-    """Consensus message structure"""
-
     message_type: str  # proposal, vote, commit, view_change
     block_hash: str
     view_number: int
@@ -47,8 +48,8 @@ class ConsensusMessage:
 
 @dataclass
 class ThresholdSignature:
-    """BLS threshold signature result"""
-
+    # This is a quorum certificate containing individual Ed25519 signatures,
+    # not a cryptographic BLS aggregate signature.
     signature: bytes
     participants: List[str]
     threshold_met: bool
@@ -56,27 +57,23 @@ class ThresholdSignature:
 
 
 class BLSConsensus:
-    """
-    BLS Threshold Signature Consensus for AI Elder Quorum
-
-    Implements a Byzantine Fault Tolerant consensus mechanism where AI Elder nodes
-    must reach a threshold of signatures to validate blocks and governance decisions.
-    """
+    """Compatibility-named Ed25519 quorum prototype; not a BLS implementation."""
 
     def __init__(
         self,
         total_elders: int = 21,
-        threshold: int = 14,  # 2f+1 where f=6 (max 6 Byzantine)
+        threshold: int = 14,
         block_time: float = 2.0,
+        *,
+        private_keys: Optional[Mapping[str, ed25519.Ed25519PrivateKey]] = None,
     ):
-        """
-        Initialize BLS consensus parameters
+        if total_elders < 1:
+            raise ValueError("total_elders must be positive")
+        if threshold < 1 or threshold > total_elders:
+            raise ValueError("threshold must be between 1 and total_elders")
+        if block_time <= 0:
+            raise ValueError("block_time must be positive")
 
-        Args:
-            total_elders: Total number of AI Elder nodes
-            threshold: Minimum signatures required (2f+1)
-            block_time: Target block time in seconds
-        """
         self.total_elders = total_elders
         self.threshold = threshold
         self.block_time = block_time
@@ -84,109 +81,113 @@ class BLSConsensus:
         self.pending_messages: List[ConsensusMessage] = []
         self.current_view = 0
         self.current_round = 0
+        self._private_keys: Dict[str, ed25519.Ed25519PrivateKey] = {}
+        self._proposals: Dict[Tuple[int, int, str], ConsensusMessage] = {}
+        self._votes_by_round: Dict[Tuple[int, int, str], str] = {}
 
-        # Initialize elder registry
-        self._initialize_elder_registry()
-
-    def _initialize_elder_registry(self):
-        """Initialize AI Elder nodes with cryptographic keys"""
-        for i in range(self.total_elders):
+        supplied = dict(private_keys or {})
+        if supplied and len(supplied) != total_elders:
+            raise ValueError("private_keys must contain exactly total_elders keys")
+        for i in range(total_elders):
             elder_id = f"elder_{i}"
-
-            # Generate Ed25519 key pair for each elder
-            private_key = ed25519.Ed25519PrivateKey.generate()
-            public_key = private_key.public_key()
-
-            # Serialize public key
-            public_key_bytes = public_key.public_bytes(
-                encoding=serialization.Encoding.Raw, format=serialization.PublicFormat.Raw
+            private_key = supplied.get(elder_id)
+            if private_key is None:
+                if supplied:
+                    raise ValueError(f"missing private key for {elder_id}")
+                # Local simulation only. Real nodes must receive their own key.
+                private_key = ed25519.Ed25519PrivateKey.generate()
+            public_key = private_key.public_key().public_bytes(
+                encoding=serialization.Encoding.Raw,
+                format=serialization.PublicFormat.Raw,
             )
-
-            # Create elder node
-            elder = ElderNode(
+            self._private_keys[elder_id] = private_key
+            self.elders[elder_id] = ElderNode(
                 elder_id=elder_id,
-                public_key=public_key_bytes,
-                stake_amount=1000000,  # 1M $RIGHTS tokens
+                public_key=public_key,
+                stake_amount=1_000_000,
                 ai_model_hash=f"ai_model_{i}_hash",
                 reputation_score=1.0,
                 last_activity=time.time(),
                 status="active",
             )
 
-            self.elders[elder_id] = elder
-            logger.info(f"Initialized Elder {elder_id} with stake {elder.stake_amount}")
+    @staticmethod
+    def _canonical_message_bytes(message: ConsensusMessage) -> bytes:
+        """Stable, domain-separated encoding; excludes the signature field."""
+        body = {
+            "domain": "DRP-CONSENSUS-MESSAGE-v1",
+            "message_type": message.message_type,
+            "block_hash": message.block_hash,
+            "view_number": message.view_number,
+            "round_number": message.round_number,
+            "sender_id": message.sender_id,
+            "timestamp": message.timestamp,
+            "payload": message.payload,
+        }
+        return json.dumps(
+            body, sort_keys=True, separators=(",", ":"), ensure_ascii=False,
+            allow_nan=False,
+        ).encode("utf-8")
+
+    @staticmethod
+    def _calculate_block_hash(block_data: Dict[str, Any]) -> str:
+        encoded = json.dumps(
+            block_data, sort_keys=True, separators=(",", ":"),
+            ensure_ascii=False, allow_nan=False,
+        ).encode("utf-8")
+        return hashlib.sha256(b"DRP-BLOCK-v1\x00" + encoded).hexdigest()
 
     def propose_block(
         self, proposer_id: str, block_data: Dict[str, Any]
     ) -> Optional[ConsensusMessage]:
-        """
-        Propose a new block for consensus
-
-        Args:
-            proposer_id: ID of the proposing elder
-            block_data: Block data to be proposed
-
-        Returns:
-            Consensus message if proposal is valid
-        """
-        if proposer_id not in self.elders:
-            logger.error(f"Unknown elder: {proposer_id}")
+        elder = self.elders.get(proposer_id)
+        if elder is None or elder.status != "active":
+            return None
+        if not isinstance(block_data, dict):
+            return None
+        try:
+            block_hash = self._calculate_block_hash(block_data)
+        except (TypeError, ValueError):
             return None
 
-        elder = self.elders[proposer_id]
-        if elder.status != "active":
-            logger.error(f"Elder {proposer_id} is not active")
-            return None
-
-        # Create block hash
-        block_hash = self._calculate_block_hash(block_data)
-
-        # Create proposal message
+        key = (self.current_view, self.current_round, block_hash)
+        existing = self._proposals.get(key)
+        if existing is not None:
+            return existing
         proposal = ConsensusMessage(
             message_type="proposal",
             block_hash=block_hash,
             view_number=self.current_view,
             round_number=self.current_round,
             sender_id=proposer_id,
-            signature=b"",  # Will be signed
+            signature=b"",
             timestamp=time.time(),
             payload=block_data,
         )
-
-        # Sign the proposal
         proposal.signature = self._sign_message(proposal, proposer_id)
-
-        # Add to pending messages
+        self._proposals[key] = proposal
         self.pending_messages.append(proposal)
-
-        logger.info(f"Elder {proposer_id} proposed block {block_hash}")
         return proposal
 
     def vote_on_proposal(
         self, voter_id: str, block_hash: str, vote: bool
     ) -> Optional[ConsensusMessage]:
-        """
-        Vote on a proposed block
-
-        Args:
-            voter_id: ID of the voting elder
-            block_hash: Hash of the block being voted on
-            vote: True for approve, False for reject
-
-        Returns:
-            Vote message if vote is valid
-        """
-        if voter_id not in self.elders:
-            logger.error(f"Unknown elder: {voter_id}")
+        elder = self.elders.get(voter_id)
+        if elder is None or elder.status != "active" or not isinstance(vote, bool):
+            return None
+        proposal_key = (self.current_view, self.current_round, block_hash)
+        proposal = self._proposals.get(proposal_key)
+        if proposal is None or not self._verify_message_signature(proposal):
             return None
 
-        elder = self.elders[voter_id]
-        if elder.status != "active":
-            logger.error(f"Elder {voter_id} is not active")
+        vote_key = (self.current_view, self.current_round, voter_id)
+        previous_hash = self._votes_by_round.get(vote_key)
+        if previous_hash is not None:
+            # An elder may not vote twice in the same round, even for the same
+            # block. This prevents duplicate messages inflating the threshold.
             return None
 
-        # Create vote message
-        vote_msg = ConsensusMessage(
+        message = ConsensusMessage(
             message_type="vote",
             block_hash=block_hash,
             view_number=self.current_view,
@@ -194,210 +195,118 @@ class BLSConsensus:
             sender_id=voter_id,
             signature=b"",
             timestamp=time.time(),
-            payload={
-                "vote": vote,
-                "reason": "ai_verification_passed" if vote else "ai_verification_failed",
-            },
+            payload={"vote": vote},
         )
-
-        # Sign the vote
-        vote_msg.signature = self._sign_message(vote_msg, voter_id)
-
-        # Add to pending messages
-        self.pending_messages.append(vote_msg)
-
-        logger.info(f"Elder {voter_id} voted {'YES' if vote else 'NO'} on block {block_hash}")
-        return vote_msg
+        message.signature = self._sign_message(message, voter_id)
+        self._votes_by_round[vote_key] = block_hash
+        self.pending_messages.append(message)
+        return message
 
     def collect_threshold_signature(self, block_hash: str) -> Optional[ThresholdSignature]:
-        """
-        Collect threshold signatures for a block
+        proposal_key = (self.current_view, self.current_round, block_hash)
+        proposal = self._proposals.get(proposal_key)
+        if proposal is None or not self._verify_message_signature(proposal):
+            return None
 
-        Args:
-            block_hash: Hash of the block to collect signatures for
+        votes_by_sender: Dict[str, ConsensusMessage] = {}
+        for message in self.pending_messages:
+            if (
+                message.message_type != "vote"
+                or message.block_hash != block_hash
+                or message.view_number != self.current_view
+                or message.round_number != self.current_round
+                or message.payload.get("vote") is not True
+                or message.sender_id in votes_by_sender
+                or not self._verify_message_signature(message)
+            ):
+                continue
+            elder = self.elders.get(message.sender_id)
+            if elder is None or elder.status != "active":
+                continue
+            votes_by_sender[message.sender_id] = message
 
-        Returns:
-            Threshold signature if threshold is met
-        """
-        # Collect all votes for this block
-        votes = [
-            msg
-            for msg in self.pending_messages
-            if msg.message_type == "vote" and msg.block_hash == block_hash
+        if len(votes_by_sender) < self.threshold:
+            return None
+
+        ordered_ids = sorted(votes_by_sender)
+        ordered_votes = [votes_by_sender[elder_id] for elder_id in ordered_ids]
+        signature_bundle = [
+            {
+                "sender_id": vote.sender_id,
+                "signature": vote.signature.hex(),
+                "message": self._canonical_message_bytes(vote).hex(),
+            }
+            for vote in ordered_votes
         ]
-
-        if len(votes) < self.threshold:
-            logger.warning(
-                f"Insufficient votes for block {block_hash}: {len(votes)}/{self.threshold}"
-            )
-            return None
-
-        # Verify all votes are valid
-        valid_votes = []
-        for vote in votes:
-            if self._verify_message_signature(vote):
-                valid_votes.append(vote)
-
-        if len(valid_votes) < self.threshold:
-            logger.warning(f"Insufficient valid votes: {len(valid_votes)}/{self.threshold}")
-            return None
-
-        # Create threshold signature
-        threshold_sig = ThresholdSignature(
-            signature=self._aggregate_signatures(valid_votes),
-            participants=[vote.sender_id for vote in valid_votes],
+        bundle_bytes = json.dumps(
+            signature_bundle, sort_keys=True, separators=(",", ":")
+        ).encode("utf-8")
+        proof = {
+            "domain": "DRP-QUORUM-CERTIFICATE-v1",
+            "block_hash": block_hash,
+            "view_number": self.current_view,
+            "round_number": self.current_round,
+            "participants": ordered_ids,
+            "threshold": self.threshold,
+        }
+        proof_bytes = json.dumps(proof, sort_keys=True, separators=(",", ":")).encode()
+        return ThresholdSignature(
+            signature=hashlib.sha256(bundle_bytes).digest(),
+            participants=ordered_ids,
             threshold_met=True,
-            verification_proof=self._create_verification_proof(valid_votes),
+            verification_proof=proof_bytes,
         )
-
-        logger.info(
-            f"Threshold signature collected for block {block_hash} with {len(valid_votes)} signatures"
-        )
-        return threshold_sig
-
-    def _calculate_block_hash(self, block_data: Dict[str, Any]) -> str:
-        """Calculate SHA-256 hash of block data"""
-        block_str = json.dumps(block_data, sort_keys=True)
-        return hashlib.sha256(block_str.encode()).hexdigest()
 
     def _sign_message(self, message: ConsensusMessage, elder_id: str) -> bytes:
-        """Sign a consensus message (mock implementation)"""
-        # In production, use actual Ed25519 signing
-        message_str = json.dumps(asdict(message), sort_keys=True)
-        return hashlib.sha256(message_str.encode()).digest()
+        private_key = self._private_keys.get(elder_id)
+        if private_key is None:
+            raise ValueError("no private key configured for signer")
+        return private_key.sign(self._canonical_message_bytes(message))
 
     def _verify_message_signature(self, message: ConsensusMessage) -> bool:
-        """Verify a consensus message signature"""
-        if message.sender_id not in self.elders:
+        elder = self.elders.get(message.sender_id)
+        if elder is None or len(elder.public_key) != 32:
             return False
-
-        # In production, use actual Ed25519 verification
-        return True
-
-    def _aggregate_signatures(self, messages: List[ConsensusMessage]) -> bytes:
-        """Aggregate multiple signatures into threshold signature"""
-        # In production, use BLS signature aggregation
-        combined = b"".join([msg.signature for msg in messages])
-        return hashlib.sha256(combined).digest()
-
-    def _create_verification_proof(self, messages: List[ConsensusMessage]) -> bytes:
-        """Create proof that threshold was met"""
-        proof_data = {
-            "participants": [msg.sender_id for msg in messages],
-            "threshold": self.threshold,
-            "timestamp": time.time(),
-        }
-        return json.dumps(proof_data).encode()
+        try:
+            public_key = ed25519.Ed25519PublicKey.from_public_bytes(elder.public_key)
+            public_key.verify(message.signature, self._canonical_message_bytes(message))
+            return True
+        except (InvalidSignature, ValueError, TypeError):
+            return False
 
     def rotate_elder(self, elder_id: str, new_public_key: bytes) -> bool:
-        """
-        Rotate an elder's cryptographic key
-
-        Args:
-            elder_id: ID of the elder to rotate
-            new_public_key: New public key for the elder
-
-        Returns:
-            True if rotation was successful
-        """
-        if elder_id not in self.elders:
-            logger.error(f"Unknown elder: {elder_id}")
+        elder = self.elders.get(elder_id)
+        if elder is None or not isinstance(new_public_key, bytes) or len(new_public_key) != 32:
             return False
-
-        elder = self.elders[elder_id]
-
-        # Update elder with new key
-        elder.public_key = new_public_key
-        elder.last_activity = time.time()
-        elder.status = "rotating"
-
-        # Verify new key is valid
-        if self._verify_new_key(new_public_key):
-            elder.status = "active"
-            logger.info(f"Successfully rotated key for elder {elder_id}")
-            return True
-        else:
-            elder.status = "inactive"
-            logger.error(f"Invalid new key for elder {elder_id}")
-            return False
-
-    def _verify_new_key(self, public_key: bytes) -> bool:
-        """Verify that a new public key is valid"""
-        # In production, verify Ed25519 public key format
-        return len(public_key) == 32
+        # Public-key-only rotation would make this local simulator unable to sign
+        # as that elder. Require the matching private key to be supplied through
+        # an explicit future key-management API instead of silently desynchronizing.
+        logger.warning("Key rotation requires a coordinated validator key-management flow")
+        return False
 
     def slash_elder(self, elder_id: str, reason: str) -> bool:
-        """
-        Slash an elder for malicious behavior
-
-        Args:
-            elder_id: ID of the elder to slash
-            reason: Reason for slashing
-
-        Returns:
-            True if slashing was successful
-        """
-        if elder_id not in self.elders:
-            logger.error(f"Unknown elder: {elder_id}")
+        elder = self.elders.get(elder_id)
+        if elder is None or not reason.strip():
             return False
-
-        elder = self.elders[elder_id]
-
-        # Slash stake (50% penalty)
         slashed_amount = elder.stake_amount // 2
         elder.stake_amount -= slashed_amount
         elder.reputation_score *= 0.5
         elder.status = "slashed"
         elder.last_activity = time.time()
-
-        logger.warning(f"Slashed elder {elder_id}: {slashed_amount} tokens, reason: {reason}")
+        logger.warning("Slashed elder %s: %s tokens, reason: %s", elder_id, slashed_amount, reason)
         return True
 
     def get_consensus_status(self) -> Dict[str, Any]:
-        """Get current consensus status"""
-        active_elders = [e for e in self.elders.values() if e.status == "active"]
-
+        active_elders = [elder for elder in self.elders.values() if elder.status == "active"]
         return {
+            "implementation": "ed25519-quorum-prototype",
+            "bls_aggregation": False,
             "total_elders": self.total_elders,
             "active_elders": len(active_elders),
             "threshold": self.threshold,
             "current_view": self.current_view,
             "current_round": self.current_round,
             "pending_messages": len(self.pending_messages),
-            "elder_status": {eid: elder.status for eid, elder in self.elders.items()},
+            "elder_status": {key: elder.status for key, elder in self.elders.items()},
             "total_stake": sum(elder.stake_amount for elder in self.elders.values()),
         }
-
-
-# Example usage and testing
-if __name__ == "__main__":
-    # Initialize consensus
-    consensus = BLSConsensus(total_elders=21, threshold=14)
-
-    # Create sample block data
-    block_data = {
-        "height": 12345,
-        "transactions": ["tx1", "tx2", "tx3"],
-        "timestamp": time.time(),
-        "ai_verification": {"post_validations": 150, "poat_validations": 75, "bias_score": 0.02},
-    }
-
-    # Propose block
-    proposal = consensus.propose_block("elder_0", block_data)
-    if proposal:
-        print(f"Block proposed: {proposal.block_hash}")
-
-        # Collect votes
-        for i in range(15):  # More than threshold
-            vote = consensus.vote_on_proposal(f"elder_{i}", proposal.block_hash, True)
-
-        # Collect threshold signature
-        threshold_sig = consensus.collect_threshold_signature(proposal.block_hash)
-        if threshold_sig:
-            print(
-                f"Threshold signature collected with {len(threshold_sig.participants)} participants"
-            )
-
-        # Get consensus status
-        status = consensus.get_consensus_status()
-        print(f"Consensus status: {status}")
