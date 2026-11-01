@@ -6,6 +6,9 @@ on:
   pull_request:
     branches: [ main, develop ]
 
+permissions:
+  contents: read
+
 env:
   NODE_VERSION: '18'
   PYTHON_VERSION: '3.10'
@@ -13,7 +16,7 @@ env:
 jobs:
   security-check:
     name: Security Check
-    runs-on: blacksmith-4vcpu-ubuntu-2404
+    runs-on: ubuntu-latest
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -41,7 +44,7 @@ jobs:
 
   lint-and-format:
     name: Lint & Format Check
-    runs-on: blacksmith-4vcpu-ubuntu-2404
+    runs-on: ubuntu-latest
     needs: security-check
     steps:
       - name: Checkout code
@@ -85,7 +88,7 @@ jobs:
 
   test-backend:
     name: Backend Tests
-    runs-on: blacksmith-4vcpu-ubuntu-2404
+    runs-on: ubuntu-latest
     needs: security-check
     steps:
       - name: Checkout code
@@ -122,7 +125,7 @@ jobs:
 
   chain-build-test:
     name: DRP Chain Build & Tests
-    runs-on: blacksmith-4vcpu-ubuntu-2404
+    runs-on: ubuntu-latest
     needs: security-check
     defaults:
       run:
@@ -197,7 +200,7 @@ jobs:
 
   build-and-test:
     name: Build & Integration Tests
-    runs-on: blacksmith-4vcpu-ubuntu-2404
+    runs-on: ubuntu-latest
     needs: [lint-and-format, test-backend, chain-build-test]
     steps:
       - name: Checkout code
@@ -238,7 +241,10 @@ jobs:
 
   security-scan:
     name: Security Scan
-    runs-on: blacksmith-4vcpu-ubuntu-2404
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      security-events: write
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -252,7 +258,15 @@ jobs:
           output: 'trivy-results.sarif'
       
       - name: Upload Trivy scan results to GitHub Security tab
-        uses: github/codeql-action/upload-sarif@v2
-        if: always()
+        uses: github/codeql-action/upload-sarif@v3
+        if: ${{ always() && (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository) }}
         with:
           sarif_file: 'trivy-results.sarif'
+
+      - name: Preserve Trivy SARIF report
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: trivy-results-sarif
+          path: trivy-results.sarif
+          if-no-files-found: warn
