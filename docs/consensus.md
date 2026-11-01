@@ -1,5 +1,21 @@
 # 🔗 DRP Consensus Design Documentation  
 
+## Implementation status (repository code)
+
+The design below describes intended DRP consensus goals, not guarantees provided by
+the current executable implementation. The current `src/core/protocol/consensus/bls_threshold.py`
+module is a development quorum prototype using individual Ed25519 signatures.
+Despite its historical name, it does **not** implement BLS aggregation, distributed
+key generation, leader election, view changes, or production-grade BFT.
+
+The prototype verifies signed proposals and positive votes, prevents a validator
+from voting twice in the same round, and produces a certificate containing
+individually verifiable signatures. Its default keys are generated in-process for
+local simulation; production deployment requires independently provisioned keys,
+persistent validator identity, authenticated peer transport, durable round state,
+and adversarial/network-partition testing. Do not use this prototype to secure
+real assets or claim production finality.
+
 ## 1. Overview  
 The **Decentralized Rights Protocol (DRP)** introduces a new consensus mechanism that fuses:  
 - **Proof of Status (PoST):** Validates *who* you are (identity, credentials, rights).  
