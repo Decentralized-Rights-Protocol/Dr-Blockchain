@@ -22,6 +22,8 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/staking"
 	"github.com/cosmos/cosmos-sdk/x/upgrade"
 	upgradeclient "github.com/cosmos/cosmos-sdk/x/upgrade/client"
+
+	poatmodule "github.com/decentralized-rights-protocol/drp/chain/x/poat"
 )
 
 // ModuleBasics defines the BasicManager: it handles codec registration,
@@ -48,4 +50,5 @@ var ModuleBasics = module.NewBasicManager(
 	authzmodule.AppModuleBasic{},
 	upgrade.AppModuleBasic{},
 	vestingmodule.AppModuleBasic{},
+	poatmodule.AppModuleBasic{},
 )

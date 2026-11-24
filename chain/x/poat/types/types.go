@@ -23,7 +23,7 @@ const (
 // its content hash.  Verifiers check the CID structure and metadata hash;
 // the content itself is never on-chain.
 type ActivityProof struct {
-	// ID is a deterministic identifier: sha256(submitter + commitment_cid + nonce).
+	// ID is a deterministic, domain-separated SHA-256 identifier derived from submitter, commitment CID, and metadata hash.
 	ID string `json:"id"`
 
 	// Submitter is the bech32 address of the account that submitted the proof.
@@ -50,4 +50,7 @@ type ActivityProof struct {
 
 	// UpdatedAt is the block time of the most recent status change.
 	UpdatedAt time.Time `json:"updated_at"`
+
+	// RevocationReason records the submitter-provided reason for revocation.
+	RevocationReason string `json:"revocation_reason,omitempty"`
 }
