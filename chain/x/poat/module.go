@@ -83,11 +83,9 @@ func NewAppModule(cdc codec.Codec, k keeper.Keeper) AppModule {
 func (AppModule) Name() string                               { return types.ModuleName }
 func (AppModule) RegisterInvariants(_ sdk.InvariantRegistry) {}
 
-// RegisterServices exposes real protobuf routes while mutations remain disabled.
-// Authorization, verification and state-transition handlers must be specified
-// before enabling this module in the application.
+// RegisterServices exposes the PoAT transaction and query services.
 func (am AppModule) RegisterServices(cfg module.Configurator) {
-	types.RegisterMsgServer(cfg.MsgServer(), &types.UnimplementedMsgServer{})
+	types.RegisterMsgServer(cfg.MsgServer(), keeper.NewMsgServerImpl(am.keeper))
 	types.RegisterQueryServer(cfg.QueryServer(), keeper.NewQueryServer(am.keeper))
 }
 func (AppModule) ConsensusVersion() uint64                       { return 1 }
