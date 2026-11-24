@@ -45,6 +45,7 @@ func (s *msgServer) RevokeActivityProof(goCtx context.Context, msg *types.MsgRev
 	if proof.Status == types.ProofStatusRevoked { return nil, sdkerrors.ErrInvalidRequest.Wrap("activity proof is already revoked") }
 	proof.Status = types.ProofStatusRevoked
 	proof.UpdatedAt = ctx.BlockTime().UTC()
+	proof.RevocationReason = msg.Reason
 	s.keeper.SetActivityProof(ctx, proof)
 	ctx.EventManager().EmitEvent(sdk.NewEvent("poat_activity_proof_revoked",
 		sdk.NewAttribute("proof_id", proof.ID), sdk.NewAttribute("authority", msg.Authority),
