@@ -71,6 +71,10 @@ import (
 	upgradekeeper "github.com/cosmos/cosmos-sdk/x/upgrade/keeper"
 	upgradetypes "github.com/cosmos/cosmos-sdk/x/upgrade/types"
 
+	poatmodule "github.com/decentralized-rights-protocol/drp/chain/x/poat"
+	poatkeeper "github.com/decentralized-rights-protocol/drp/chain/x/poat/keeper"
+	poattypes "github.com/decentralized-rights-protocol/drp/chain/x/poat/types"
+
 	// Standard module constructors used in the module manager.
 	"github.com/cosmos/cosmos-sdk/x/auth"
 	"github.com/cosmos/cosmos-sdk/x/bank"
@@ -83,7 +87,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/slashing"
 	"github.com/cosmos/cosmos-sdk/x/staking"
 	"github.com/cosmos/cosmos-sdk/x/upgrade"
-	// DRP protocol modules temporarily disabled; will be re-enabled after SDK API updates.
+	// DRP protocol modules are enabled incrementally after their handlers are implemented.
 )
 
 const (
@@ -145,7 +149,7 @@ type DRPApp struct {
 	ConsensusParamsKeeper consensuskeeper.Keeper
 
 	// ── DRP protocol keepers ───────────────────────────────────────────────
-	// (none)
+	PoATKeeper poatkeeper.Keeper
 
 	mm           *module.Manager
 	configurator module.Configurator
@@ -192,7 +196,7 @@ func NewDRPApp(
 		minttypes.StoreKey, distrtypes.StoreKey, slashingtypes.StoreKey,
 		govtypes.StoreKey, paramstypes.StoreKey, crisistypes.StoreKey,
 		upgradetypes.StoreKey, feegranttypes.StoreKey, authzkeeper.StoreKey,
-		consensustypes.StoreKey,
+		consensustypes.StoreKey, poattypes.StoreKey,
 	)
 	tkeys := sdk.NewTransientStoreKeys(paramstypes.TStoreKey)
 
@@ -204,6 +208,9 @@ func NewDRPApp(
 		keys:              keys,
 		tkeys:             tkeys,
 	}
+
+	// ── PoAT keeper ─────────────────────────────────────────────────────────
+	app.PoATKeeper = poatkeeper.NewKeeper(encodingConfig.Marshaler, keys[poattypes.StoreKey])
 
 	// ── Params keeper (legacy, for subspace support) ────────────────────────
 	app.ParamsKeeper = initParamsKeeper(
@@ -297,7 +304,7 @@ func NewDRPApp(
 		),
 	)
 
-	// ── DRP keepers (none while modules are disabled) ──────────────────────
+	// ── DRP protocol keepers are initialized above ──────────────────────────
 
 	// ── Module manager ──────────────────────────────────────────────────────
 	app.mm = module.NewManager(
@@ -316,18 +323,19 @@ func NewDRPApp(
 		upgrade.NewAppModule(app.UpgradeKeeper),
 		params.NewAppModule(app.ParamsKeeper),
 		consensus.NewAppModule(app.cdc, app.ConsensusParamsKeeper),
+		poatmodule.NewAppModule(encodingConfig.Marshaler, app.PoATKeeper),
 	)
 
 	app.mm.SetOrderBeginBlockers(
 		upgradetypes.ModuleName, minttypes.ModuleName, distrtypes.ModuleName,
 		slashingtypes.ModuleName, stakingtypes.ModuleName, authtypes.ModuleName,
-		banktypes.ModuleName, govtypes.ModuleName, crisistypes.ModuleName,
+		banktypes.ModuleName, poattypes.ModuleName, govtypes.ModuleName, crisistypes.ModuleName,
 		genutiltypes.ModuleName, authztypes.ModuleName, feegranttypes.ModuleName,
 		paramstypes.ModuleName, "vesting", consensustypes.ModuleName,
 	)
 
 	app.mm.SetOrderEndBlockers(
-		crisistypes.ModuleName, govtypes.ModuleName, stakingtypes.ModuleName,
+		crisistypes.ModuleName, poattypes.ModuleName, govtypes.ModuleName, stakingtypes.ModuleName,
 		upgradetypes.ModuleName, minttypes.ModuleName, distrtypes.ModuleName,
 		slashingtypes.ModuleName, authtypes.ModuleName, banktypes.ModuleName,
 		authztypes.ModuleName, feegranttypes.ModuleName, paramstypes.ModuleName,
@@ -336,7 +344,7 @@ func NewDRPApp(
 
 	app.mm.SetOrderInitGenesis(
 		authtypes.ModuleName, banktypes.ModuleName, distrtypes.ModuleName,
-		stakingtypes.ModuleName, slashingtypes.ModuleName, govtypes.ModuleName,
+		stakingtypes.ModuleName, slashingtypes.ModuleName, poattypes.ModuleName, govtypes.ModuleName,
 		minttypes.ModuleName, crisistypes.ModuleName, genutiltypes.ModuleName,
 		authztypes.ModuleName, feegranttypes.ModuleName, upgradetypes.ModuleName,
 		paramstypes.ModuleName, "vesting", consensustypes.ModuleName,
