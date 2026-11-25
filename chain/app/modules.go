@@ -23,9 +23,9 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/upgrade"
 	upgradeclient "github.com/cosmos/cosmos-sdk/x/upgrade/client"
 
+	evidencemodule "github.com/decentralized-rights-protocol/drp/chain/x/evidence"
 	poatmodule "github.com/decentralized-rights-protocol/drp/chain/x/poat"
 	postmodule "github.com/decentralized-rights-protocol/drp/chain/x/post"
-	evidencemodule "github.com/decentralized-rights-protocol/drp/chain/x/evidence"
 	rightsmodule "github.com/decentralized-rights-protocol/drp/chain/x/rights"
 	trustmodule "github.com/decentralized-rights-protocol/drp/chain/x/trust"
 )
