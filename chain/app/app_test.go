@@ -51,12 +51,12 @@ func TestBaselineGenesisAndUnsignedTx(t *testing.T) {
 
 	rightsGenesis := rightstypes.DefaultGenesis()
 	rightsGenesis.Proposals = append(rightsGenesis.Proposals, rightstypes.RightsProposal{
-		ID:            1,
-		Proposer:      address.String(),
-		Title:         "Genesis rights proposal",
+		ID:             1,
+		Proposer:       address.String(),
+		Title:          "Genesis rights proposal",
 		RightsCategory: rightstypes.RightsCategoryEducation,
-		Status:        rightstypes.RightsProposalStatusDeposit,
-		SubmittedAt:  time.Unix(1, 0).UTC(),
+		Status:         rightstypes.RightsProposalStatusDeposit,
+		SubmittedAt:    time.Unix(1, 0).UTC(),
 	})
 	rightsGenesis.NextID = 2
 	rightsJSON, err := json.Marshal(rightsGenesis)
@@ -74,10 +74,10 @@ func TestBaselineGenesisAndUnsignedTx(t *testing.T) {
 
 	evidenceGenesis := evidencetypes.DefaultGenesis()
 	evidenceGenesis.Commitments = append(evidenceGenesis.Commitments, evidencetypes.EvidenceCommitment{
-		ID:          "evidence-genesis-check",
-		Submitter:   address.String(),
-		CID:         "bafybeigdyrzt5sfp7udm7hu76uh7y26nf3efuylqabf3oclgtqy55fbzdi",
-		ContentHash: "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+		ID:           "evidence-genesis-check",
+		Submitter:    address.String(),
+		CID:          "bafybeigdyrzt5sfp7udm7hu76uh7y26nf3efuylqabf3oclgtqy55fbzdi",
+		ContentHash:  "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
 		MetadataHash: "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
 		EvidenceType: "genesis",
 		Status:       evidencetypes.CommitmentPending,
