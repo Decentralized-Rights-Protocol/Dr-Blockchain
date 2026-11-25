@@ -16,6 +16,8 @@ import (
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
+
+	posttypes "github.com/decentralized-rights-protocol/drp/chain/x/post/types"
 )
 
 func TestBaselineGenesisAndUnsignedTx(t *testing.T) {
@@ -31,6 +33,14 @@ func TestBaselineGenesisAndUnsignedTx(t *testing.T) {
 	}
 	genesis := app.DefaultGenesis()
 	address := sdk.AccAddress(ed25519.GenPrivKey().PubKey().Address())
+	postGenesis := posttypes.DefaultGenesis()
+	postGenesis.Records = append(postGenesis.Records, posttypes.StatusRecord{
+		ID:          "post-genesis-check",
+		Subject:     address.String(),
+		StatusLevel: posttypes.StatusLevelContributor,
+		Issuer:      address.String(),
+	})
+	genesis[posttypes.ModuleName] = enc.Marshaler.MustMarshalJSON(postGenesis)
 	tokens := sdk.DefaultPowerReduction
 	validator, err := stakingtypes.NewValidator(sdk.ValAddress(address), ed25519.GenPrivKey().PubKey(), stakingtypes.Description{Moniker: "baseline"})
 	if err != nil {
@@ -71,6 +81,14 @@ func TestBaselineGenesisAndUnsignedTx(t *testing.T) {
 	app.BeginBlock(abci.RequestBeginBlock{Header: cmtproto.Header{ChainID: "baseline-test", Height: 1, Time: time.Unix(2, 0).UTC()}})
 	app.EndBlock(abci.RequestEndBlock{Height: 1})
 	app.Commit()
+
+	postRecord, found := app.PoSTKeeper.GetStatusRecord(
+		app.NewContext(false, cmtproto.Header{}),
+		"post-genesis-check",
+	)
+	if !found || postRecord.Subject != address.String() {
+		t.Fatal("PoST genesis record was not initialized in the application store")
+	}
 
 	// A well-formed message must not pass CheckTx without signer credentials.
 	// Without an ante-handler, CheckTx accepts this transaction without executing messages.
