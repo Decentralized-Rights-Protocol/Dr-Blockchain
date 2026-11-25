@@ -17,8 +17,8 @@ import (
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 
-	posttypes "github.com/decentralized-rights-protocol/drp/chain/x/post/types"
 	evidencetypes "github.com/decentralized-rights-protocol/drp/chain/x/evidence/types"
+	posttypes "github.com/decentralized-rights-protocol/drp/chain/x/post/types"
 	rightstypes "github.com/decentralized-rights-protocol/drp/chain/x/rights/types"
 	trusttypes "github.com/decentralized-rights-protocol/drp/chain/x/trust/types"
 )
@@ -51,10 +51,12 @@ func TestBaselineGenesisAndUnsignedTx(t *testing.T) {
 
 	rightsGenesis := rightstypes.DefaultGenesis()
 	rightsGenesis.Proposals = append(rightsGenesis.Proposals, rightstypes.RightsProposal{
-		ID: 1, Proposer: address.String(), Title: "Genesis rights proposal",
+		ID:            1,
+		Proposer:      address.String(),
+		Title:         "Genesis rights proposal",
 		RightsCategory: rightstypes.RightsCategoryEducation,
-		Status: rightstypes.RightsProposalStatusDeposit,
-		SubmittedAt: time.Unix(1, 0).UTC(),
+		Status:        rightstypes.RightsProposalStatusDeposit,
+		SubmittedAt:  time.Unix(1, 0).UTC(),
 	})
 	rightsGenesis.NextID = 2
 	rightsJSON, err := json.Marshal(rightsGenesis)
@@ -72,12 +74,14 @@ func TestBaselineGenesisAndUnsignedTx(t *testing.T) {
 
 	evidenceGenesis := evidencetypes.DefaultGenesis()
 	evidenceGenesis.Commitments = append(evidenceGenesis.Commitments, evidencetypes.EvidenceCommitment{
-		ID: "evidence-genesis-check", Submitter: address.String(),
-		CID: "bafybeigdyrzt5sfp7udm7hu76uh7y26nf3efuylqabf3oclgtqy55fbzdi",
+		ID:          "evidence-genesis-check",
+		Submitter:   address.String(),
+		CID:         "bafybeigdyrzt5sfp7udm7hu76uh7y26nf3efuylqabf3oclgtqy55fbzdi",
 		ContentHash: "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
 		MetadataHash: "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
-		EvidenceType: "genesis", Status: evidencetypes.CommitmentPending,
-		SubmittedAt: time.Unix(1, 0).UTC(),
+		EvidenceType: "genesis",
+		Status:       evidencetypes.CommitmentPending,
+		SubmittedAt:  time.Unix(1, 0).UTC(),
 	})
 	evidenceJSON, err := json.Marshal(evidenceGenesis)
 	if err != nil { t.Fatalf("marshal Evidence genesis: %v", err) }
