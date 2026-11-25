@@ -77,6 +77,15 @@ import (
 	postmodule "github.com/decentralized-rights-protocol/drp/chain/x/post"
 	postkeeper "github.com/decentralized-rights-protocol/drp/chain/x/post/keeper"
 	posttypes "github.com/decentralized-rights-protocol/drp/chain/x/post/types"
+	evidencemodule "github.com/decentralized-rights-protocol/drp/chain/x/evidence"
+	evidencekeeper "github.com/decentralized-rights-protocol/drp/chain/x/evidence/keeper"
+	evidencetypes "github.com/decentralized-rights-protocol/drp/chain/x/evidence/types"
+	rightsmodule "github.com/decentralized-rights-protocol/drp/chain/x/rights"
+	rightskeeper "github.com/decentralized-rights-protocol/drp/chain/x/rights/keeper"
+	rightstypes "github.com/decentralized-rights-protocol/drp/chain/x/rights/types"
+	trustmodule "github.com/decentralized-rights-protocol/drp/chain/x/trust"
+	trustkeeper "github.com/decentralized-rights-protocol/drp/chain/x/trust/keeper"
+	trusttypes "github.com/decentralized-rights-protocol/drp/chain/x/trust/types"
 
 	// Standard module constructors used in the module manager.
 	"github.com/cosmos/cosmos-sdk/x/auth"
@@ -154,6 +163,9 @@ type DRPApp struct {
 	// ── DRP protocol keepers ───────────────────────────────────────────────
 	PoATKeeper poatkeeper.Keeper
 	PoSTKeeper postkeeper.Keeper
+	RightsKeeper rightskeeper.Keeper
+	TrustKeeper trustkeeper.Keeper
+	EvidenceKeeper evidencekeeper.Keeper
 
 	mm           *module.Manager
 	configurator module.Configurator
@@ -201,6 +213,7 @@ func NewDRPApp(
 		govtypes.StoreKey, paramstypes.StoreKey, crisistypes.StoreKey,
 		upgradetypes.StoreKey, feegranttypes.StoreKey, authzkeeper.StoreKey,
 		consensustypes.StoreKey, poattypes.StoreKey, posttypes.StoreKey,
+		rightstypes.StoreKey, trusttypes.StoreKey, evidencetypes.StoreKey,
 	)
 	tkeys := sdk.NewTransientStoreKeys(paramstypes.TStoreKey)
 
@@ -216,6 +229,9 @@ func NewDRPApp(
 	// ── DRP protocol keepers ─────────────────────────────────────────────────
 	app.PoATKeeper = poatkeeper.NewKeeper(encodingConfig.Marshaler, keys[poattypes.StoreKey])
 	app.PoSTKeeper = postkeeper.NewKeeper(encodingConfig.Marshaler, keys[posttypes.StoreKey])
+	app.RightsKeeper = rightskeeper.NewKeeper(encodingConfig.Marshaler, keys[rightstypes.StoreKey])
+	app.TrustKeeper = trustkeeper.NewKeeper(encodingConfig.Marshaler, keys[trusttypes.StoreKey])
+	app.EvidenceKeeper = evidencekeeper.NewKeeper(encodingConfig.Marshaler, keys[evidencetypes.StoreKey])
 
 	// ── Params keeper (legacy, for subspace support) ────────────────────────
 	app.ParamsKeeper = initParamsKeeper(
@@ -330,18 +346,23 @@ func NewDRPApp(
 		consensus.NewAppModule(app.cdc, app.ConsensusParamsKeeper),
 		poatmodule.NewAppModule(encodingConfig.Marshaler, app.PoATKeeper),
 		postmodule.NewAppModule(encodingConfig.Marshaler, app.PoSTKeeper),
+		rightsmodule.NewAppModule(encodingConfig.Marshaler, app.RightsKeeper),
+		trustmodule.NewAppModule(encodingConfig.Marshaler, app.TrustKeeper),
+		evidencemodule.NewAppModule(encodingConfig.Marshaler, app.EvidenceKeeper),
 	)
 
 	app.mm.SetOrderBeginBlockers(
 		upgradetypes.ModuleName, minttypes.ModuleName, distrtypes.ModuleName,
 		slashingtypes.ModuleName, stakingtypes.ModuleName, authtypes.ModuleName,
-		banktypes.ModuleName, poattypes.ModuleName, posttypes.ModuleName, govtypes.ModuleName, crisistypes.ModuleName,
+		banktypes.ModuleName, poattypes.ModuleName, posttypes.ModuleName,
+		rightstypes.ModuleName, trusttypes.ModuleName, evidencetypes.ModuleName, govtypes.ModuleName, crisistypes.ModuleName,
 		genutiltypes.ModuleName, authztypes.ModuleName, feegranttypes.ModuleName,
 		paramstypes.ModuleName, "vesting", consensustypes.ModuleName,
 	)
 
 	app.mm.SetOrderEndBlockers(
-		crisistypes.ModuleName, poattypes.ModuleName, posttypes.ModuleName, govtypes.ModuleName, stakingtypes.ModuleName,
+		crisistypes.ModuleName, poattypes.ModuleName, posttypes.ModuleName,
+		rightstypes.ModuleName, trusttypes.ModuleName, evidencetypes.ModuleName, govtypes.ModuleName, stakingtypes.ModuleName,
 		upgradetypes.ModuleName, minttypes.ModuleName, distrtypes.ModuleName,
 		slashingtypes.ModuleName, authtypes.ModuleName, banktypes.ModuleName,
 		authztypes.ModuleName, feegranttypes.ModuleName, paramstypes.ModuleName,
@@ -350,7 +371,8 @@ func NewDRPApp(
 
 	app.mm.SetOrderInitGenesis(
 		authtypes.ModuleName, banktypes.ModuleName, distrtypes.ModuleName,
-		stakingtypes.ModuleName, slashingtypes.ModuleName, poattypes.ModuleName, posttypes.ModuleName, govtypes.ModuleName,
+		stakingtypes.ModuleName, slashingtypes.ModuleName, poattypes.ModuleName, posttypes.ModuleName,
+		rightstypes.ModuleName, trusttypes.ModuleName, evidencetypes.ModuleName, govtypes.ModuleName,
 		minttypes.ModuleName, crisistypes.ModuleName, genutiltypes.ModuleName,
 		authztypes.ModuleName, feegranttypes.ModuleName, upgradetypes.ModuleName,
 		paramstypes.ModuleName, "vesting", consensustypes.ModuleName,
