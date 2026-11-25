@@ -16,6 +16,8 @@ import (
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
+
+	posttypes "github.com/decentralized-rights-protocol/drp/chain/x/post/types"
 )
 
 func TestBaselineGenesisAndUnsignedTx(t *testing.T) {
@@ -31,6 +33,18 @@ func TestBaselineGenesisAndUnsignedTx(t *testing.T) {
 	}
 	genesis := app.DefaultGenesis()
 	address := sdk.AccAddress(ed25519.GenPrivKey().PubKey().Address())
+	postGenesis := posttypes.DefaultGenesis()
+	postGenesis.Records = append(postGenesis.Records, posttypes.StatusRecord{
+		ID:          "post-genesis-check",
+		Subject:     address.String(),
+		StatusLevel: posttypes.StatusLevelContributor,
+		Issuer:      address.String(),
+	})
+	postGenesisJSON, err := json.Marshal(postGenesis)
+	if err != nil {
+		t.Fatalf("marshal PoST genesis: %v", err)
+	}
+	genesis[posttypes.ModuleName] = postGenesisJSON
 	tokens := sdk.DefaultPowerReduction
 	validator, err := stakingtypes.NewValidator(sdk.ValAddress(address), ed25519.GenPrivKey().PubKey(), stakingtypes.Description{Moniker: "baseline"})
 	if err != nil {
@@ -66,6 +80,10 @@ func TestBaselineGenesisAndUnsignedTx(t *testing.T) {
 	}
 	if app.UpgradeKeeper.GetModuleVersionMap(ctx)[stakingtypes.ModuleName] == 0 {
 		t.Fatal("module versions not initialized")
+	}
+	postRecord, found := app.PoSTKeeper.GetStatusRecord(ctx, "post-genesis-check")
+	if !found || postRecord.Subject != address.String() {
+		t.Fatal("PoST genesis record was not initialized in the application store")
 	}
 
 	app.BeginBlock(abci.RequestBeginBlock{Header: cmtproto.Header{ChainID: "baseline-test", Height: 1, Time: time.Unix(2, 0).UTC()}})

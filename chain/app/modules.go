@@ -24,6 +24,7 @@ import (
 	upgradeclient "github.com/cosmos/cosmos-sdk/x/upgrade/client"
 
 	poatmodule "github.com/decentralized-rights-protocol/drp/chain/x/poat"
+	postmodule "github.com/decentralized-rights-protocol/drp/chain/x/post"
 )
 
 // ModuleBasics defines the BasicManager: it handles codec registration,
@@ -51,4 +52,5 @@ var ModuleBasics = module.NewBasicManager(
 	upgrade.AppModuleBasic{},
 	vestingmodule.AppModuleBasic{},
 	poatmodule.AppModuleBasic{},
+	postmodule.AppModuleBasic{},
 )
