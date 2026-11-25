@@ -81,18 +81,14 @@ func TestBaselineGenesisAndUnsignedTx(t *testing.T) {
 	if app.UpgradeKeeper.GetModuleVersionMap(ctx)[stakingtypes.ModuleName] == 0 {
 		t.Fatal("module versions not initialized")
 	}
+	postRecord, found := app.PoSTKeeper.GetStatusRecord(ctx, "post-genesis-check")
+	if !found || postRecord.Subject != address.String() {
+		t.Fatal("PoST genesis record was not initialized in the application store")
+	}
 
 	app.BeginBlock(abci.RequestBeginBlock{Header: cmtproto.Header{ChainID: "baseline-test", Height: 1, Time: time.Unix(2, 0).UTC()}})
 	app.EndBlock(abci.RequestEndBlock{Height: 1})
 	app.Commit()
-
-	postRecord, found := app.PoSTKeeper.GetStatusRecord(
-		app.NewContext(false, cmtproto.Header{}),
-		"post-genesis-check",
-	)
-	if !found || postRecord.Subject != address.String() {
-		t.Fatal("PoST genesis record was not initialized in the application store")
-	}
 
 	// A well-formed message must not pass CheckTx without signer credentials.
 	// Without an ante-handler, CheckTx accepts this transaction without executing messages.
