@@ -17,7 +17,10 @@ import (
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 
+	evidencetypes "github.com/decentralized-rights-protocol/drp/chain/x/evidence/types"
 	posttypes "github.com/decentralized-rights-protocol/drp/chain/x/post/types"
+	rightstypes "github.com/decentralized-rights-protocol/drp/chain/x/rights/types"
+	trusttypes "github.com/decentralized-rights-protocol/drp/chain/x/trust/types"
 )
 
 func TestBaselineGenesisAndUnsignedTx(t *testing.T) {
@@ -45,6 +48,52 @@ func TestBaselineGenesisAndUnsignedTx(t *testing.T) {
 		t.Fatalf("marshal PoST genesis: %v", err)
 	}
 	genesis[posttypes.ModuleName] = postGenesisJSON
+
+	rightsGenesis := rightstypes.DefaultGenesis()
+	rightsGenesis.Proposals = append(rightsGenesis.Proposals, rightstypes.RightsProposal{
+		ID:             1,
+		Proposer:       address.String(),
+		Title:          "Genesis rights proposal",
+		RightsCategory: rightstypes.RightsCategoryEducation,
+		Status:         rightstypes.RightsProposalStatusDeposit,
+		SubmittedAt:    time.Unix(1, 0).UTC(),
+	})
+	rightsGenesis.NextID = 2
+	rightsJSON, err := json.Marshal(rightsGenesis)
+	if err != nil {
+		t.Fatalf("marshal Rights genesis: %v", err)
+	}
+	genesis[rightstypes.ModuleName] = rightsJSON
+
+	trustGenesis := trusttypes.DefaultGenesis()
+	trustGenesis.TrustStates = append(trustGenesis.TrustStates, trusttypes.TrustState{
+		Address:      address.String(),
+		TrustScore:   100,
+		ActivityRefs: []string{"genesis-proof"},
+		LastUpdated:  time.Unix(1, 0).UTC(),
+	})
+	trustJSON, err := json.Marshal(trustGenesis)
+	if err != nil {
+		t.Fatalf("marshal Trust genesis: %v", err)
+	}
+	genesis[trusttypes.ModuleName] = trustJSON
+
+	evidenceGenesis := evidencetypes.DefaultGenesis()
+	evidenceGenesis.Commitments = append(evidenceGenesis.Commitments, evidencetypes.EvidenceCommitment{
+		ID:           "evidence-genesis-check",
+		Submitter:    address.String(),
+		CID:          "bafybeigdyrzt5sfp7udm7hu76uh7y26nf3efuylqabf3oclgtqy55fbzdi",
+		ContentHash:  "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+		MetadataHash: "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+		EvidenceType: "genesis",
+		Status:       evidencetypes.CommitmentPending,
+		SubmittedAt:  time.Unix(1, 0).UTC(),
+	})
+	evidenceJSON, err := json.Marshal(evidenceGenesis)
+	if err != nil {
+		t.Fatalf("marshal Evidence genesis: %v", err)
+	}
+	genesis[evidencetypes.ModuleName] = evidenceJSON
 	tokens := sdk.DefaultPowerReduction
 	validator, err := stakingtypes.NewValidator(sdk.ValAddress(address), ed25519.GenPrivKey().PubKey(), stakingtypes.Description{Moniker: "baseline"})
 	if err != nil {
@@ -84,6 +133,16 @@ func TestBaselineGenesisAndUnsignedTx(t *testing.T) {
 	postRecord, found := app.PoSTKeeper.GetStatusRecord(ctx, "post-genesis-check")
 	if !found || postRecord.Subject != address.String() {
 		t.Fatal("PoST genesis record was not initialized in the application store")
+	}
+
+	if proposal, found := app.RightsKeeper.GetProposal(ctx, 1); !found || proposal.Title != "Genesis rights proposal" {
+		t.Fatal("Rights genesis proposal was not initialized in the application store")
+	}
+	if trustState, found := app.TrustKeeper.GetTrustState(ctx, address.String()); !found || trustState.TrustScore != 100 {
+		t.Fatal("Trust genesis state was not initialized in the application store")
+	}
+	if commitment, found := app.EvidenceKeeper.GetCommitment(ctx, "evidence-genesis-check"); !found || commitment.CID == "" {
+		t.Fatal("Evidence genesis commitment was not initialized in the application store")
 	}
 
 	app.BeginBlock(abci.RequestBeginBlock{Header: cmtproto.Header{ChainID: "baseline-test", Height: 1, Time: time.Unix(2, 0).UTC()}})
