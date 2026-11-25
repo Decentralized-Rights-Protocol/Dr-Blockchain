@@ -40,7 +40,11 @@ func TestBaselineGenesisAndUnsignedTx(t *testing.T) {
 		StatusLevel: posttypes.StatusLevelContributor,
 		Issuer:      address.String(),
 	})
-	genesis[posttypes.ModuleName] = enc.Marshaler.MustMarshalJSON(postGenesis)
+	postGenesisJSON, err := json.Marshal(postGenesis)
+	if err != nil {
+		t.Fatalf("marshal PoST genesis: %v", err)
+	}
+	genesis[posttypes.ModuleName] = postGenesisJSON
 	tokens := sdk.DefaultPowerReduction
 	validator, err := stakingtypes.NewValidator(sdk.ValAddress(address), ed25519.GenPrivKey().PubKey(), stakingtypes.Description{Moniker: "baseline"})
 	if err != nil {
