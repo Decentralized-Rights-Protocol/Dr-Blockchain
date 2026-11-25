@@ -71,15 +71,15 @@ import (
 	upgradekeeper "github.com/cosmos/cosmos-sdk/x/upgrade/keeper"
 	upgradetypes "github.com/cosmos/cosmos-sdk/x/upgrade/types"
 
+	evidencemodule "github.com/decentralized-rights-protocol/drp/chain/x/evidence"
+	evidencekeeper "github.com/decentralized-rights-protocol/drp/chain/x/evidence/keeper"
+	evidencetypes "github.com/decentralized-rights-protocol/drp/chain/x/evidence/types"
 	poatmodule "github.com/decentralized-rights-protocol/drp/chain/x/poat"
 	poatkeeper "github.com/decentralized-rights-protocol/drp/chain/x/poat/keeper"
 	poattypes "github.com/decentralized-rights-protocol/drp/chain/x/poat/types"
 	postmodule "github.com/decentralized-rights-protocol/drp/chain/x/post"
 	postkeeper "github.com/decentralized-rights-protocol/drp/chain/x/post/keeper"
 	posttypes "github.com/decentralized-rights-protocol/drp/chain/x/post/types"
-	evidencemodule "github.com/decentralized-rights-protocol/drp/chain/x/evidence"
-	evidencekeeper "github.com/decentralized-rights-protocol/drp/chain/x/evidence/keeper"
-	evidencetypes "github.com/decentralized-rights-protocol/drp/chain/x/evidence/types"
 	rightsmodule "github.com/decentralized-rights-protocol/drp/chain/x/rights"
 	rightskeeper "github.com/decentralized-rights-protocol/drp/chain/x/rights/keeper"
 	rightstypes "github.com/decentralized-rights-protocol/drp/chain/x/rights/types"
@@ -161,10 +161,10 @@ type DRPApp struct {
 	ConsensusParamsKeeper consensuskeeper.Keeper
 
 	// ── DRP protocol keepers ───────────────────────────────────────────────
-	PoATKeeper poatkeeper.Keeper
-	PoSTKeeper postkeeper.Keeper
-	RightsKeeper rightskeeper.Keeper
-	TrustKeeper trustkeeper.Keeper
+	PoATKeeper     poatkeeper.Keeper
+	PoSTKeeper     postkeeper.Keeper
+	RightsKeeper   rightskeeper.Keeper
+	TrustKeeper    trustkeeper.Keeper
 	EvidenceKeeper evidencekeeper.Keeper
 
 	mm           *module.Manager
