@@ -60,16 +60,22 @@ func TestBaselineGenesisAndUnsignedTx(t *testing.T) {
 	})
 	rightsGenesis.NextID = 2
 	rightsJSON, err := json.Marshal(rightsGenesis)
-	if err != nil { t.Fatalf("marshal Rights genesis: %v", err) }
+	if err != nil {
+		t.Fatalf("marshal Rights genesis: %v", err)
+	}
 	genesis[rightstypes.ModuleName] = rightsJSON
 
 	trustGenesis := trusttypes.DefaultGenesis()
 	trustGenesis.TrustStates = append(trustGenesis.TrustStates, trusttypes.TrustState{
-		Address: address.String(), TrustScore: 100, ActivityRefs: []string{"genesis-proof"},
-		LastUpdated: time.Unix(1, 0).UTC(),
+		Address:      address.String(),
+		TrustScore:   100,
+		ActivityRefs: []string{"genesis-proof"},
+		LastUpdated:  time.Unix(1, 0).UTC(),
 	})
 	trustJSON, err := json.Marshal(trustGenesis)
-	if err != nil { t.Fatalf("marshal Trust genesis: %v", err) }
+	if err != nil {
+		t.Fatalf("marshal Trust genesis: %v", err)
+	}
 	genesis[trusttypes.ModuleName] = trustJSON
 
 	evidenceGenesis := evidencetypes.DefaultGenesis()
@@ -84,7 +90,9 @@ func TestBaselineGenesisAndUnsignedTx(t *testing.T) {
 		SubmittedAt:  time.Unix(1, 0).UTC(),
 	})
 	evidenceJSON, err := json.Marshal(evidenceGenesis)
-	if err != nil { t.Fatalf("marshal Evidence genesis: %v", err) }
+	if err != nil {
+		t.Fatalf("marshal Evidence genesis: %v", err)
+	}
 	genesis[evidencetypes.ModuleName] = evidenceJSON
 	tokens := sdk.DefaultPowerReduction
 	validator, err := stakingtypes.NewValidator(sdk.ValAddress(address), ed25519.GenPrivKey().PubKey(), stakingtypes.Description{Moniker: "baseline"})
